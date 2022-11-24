@@ -1,9 +1,13 @@
+// import 'dart:html';
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:my_porject/models/chatUsersModel.dart';
-import 'package:my_porject/models/chatMessageModel.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
 
 class ChatScreen extends StatefulWidget {
   Map<String, dynamic> userMap ;
@@ -34,6 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
       Map<String, dynamic> messages = {
         'sendBy' : widget.currentUserName,
         'message' : _message.text,
+        'type' : "text",
         'time' :  FieldValue.serverTimestamp()
       };
       _message.clear();
@@ -42,6 +47,51 @@ class _ChatScreenState extends State<ChatScreen> {
 
     } else {
       print("Enter some text");
+    }
+
+  }
+
+  File? imageFile;
+
+  Future getImage() async {
+    ImagePicker _picker = ImagePicker();
+
+    await _picker.pickImage(source: ImageSource.gallery).then((xFile) {
+      if(xFile != null){
+        imageFile = File(xFile.path as String);
+        uploadImage();
+      }
+    });
+  }
+
+  Future uploadImage() async {
+
+    String fileName =   Uuid().v1();
+
+    int status = 1 ;
+
+    await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').doc(fileName).set({
+      'sendBy' : widget.currentUserName,
+      'message' : _message.text,
+      'type' : "img",
+      'time' :  FieldValue.serverTimestamp(),
+    });
+
+    var ref = FirebaseStorage.instance.ref().child('images').child("$fileName.jpg");
+
+    var uploadTask =  await ref.putFile(imageFile!).catchError((error) async {
+      await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').doc(fileName).delete();
+      status = 0;
+    });
+
+    if(status == 1) {
+      String imageUrl = await uploadTask.ref.getDownloadURL();
+
+      await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').doc(fileName).update({
+        'message' : imageUrl,
+      });
+
+      print(imageUrl);
     }
 
   }
@@ -85,7 +135,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           builder: (context, snapshot) {
                             if(snapshot.data != null ) {
                               return Text(
-                                widget.userMap['status'],
+                                snapshot.data!['status'],
                                 style: TextStyle(color: Colors.grey.shade600, fontSize: 13,),
                               );
                             } else {
@@ -113,7 +163,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     itemCount: snapshot.data?.docs.length,
                     itemBuilder: (context, index) {
                       Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
-                      return messages(size, map);
+                      return messages(size, map,context);
                     },
                   );
                 } else {
@@ -156,9 +206,9 @@ class _ChatScreenState extends State<ChatScreen> {
               color: Colors.white,
               child: Row(
                 children: <Widget>[
-                  GestureDetector(
-                    onTap: (){
-
+                  ElevatedButton(
+                    onPressed: (){
+                      getImage();
                     },
                     child: Container(
                       height: 40,
@@ -198,8 +248,8 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
-  Widget messages(Size size, Map<String, dynamic> map) {
-    return Container(
+  Widget messages(Size size, Map<String, dynamic> map, BuildContext context) {
+    return map['type'] =="text" ? Container(
       width: size.width,
       alignment: map['sendBy'] == widget.currentUserName ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -213,6 +263,48 @@ class _ChatScreenState extends State<ChatScreen> {
           map['message'],
           style: TextStyle(color: Colors.white,fontSize: 17),
         ),
+      ),
+    ): Container(
+      height: size.height / 2.5,
+      width: size.width,
+      padding: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
+      alignment: map['sendBy'] == widget.currentUserName
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
+      child: InkWell(
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => ShowImage(imageUrl: map['message'])),
+        ),
+        child: Container(
+          height: size.height / 2.5,
+          width: size.width / 2,
+          decoration: BoxDecoration(
+            border: Border.all(),
+          ),
+          alignment: map['message'] != "" ? null : Alignment.center,
+          child: map['message'] != ""? Image.network(map['message'], fit: BoxFit.cover,) : CircularProgressIndicator(),
+        ),
+      ),
+    );
+  }
+}
+
+class ShowImage extends StatelessWidget {
+  const ShowImage({ Key? key, required this.imageUrl }) :super(key :key);
+
+  final String imageUrl ;
+
+  @override
+  Widget build(BuildContext context) {
+
+    final Size size = MediaQuery.of(context).size;
+
+    return Scaffold(
+      body: Container(
+        height: size.height,
+        width: size.width,
+        color: Colors.black,
+        child: Image.network(imageUrl),
       ),
     );
   }
