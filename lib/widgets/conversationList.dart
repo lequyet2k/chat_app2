@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/models/chatUsersModel.dart';
 import 'package:my_porject/chat_screen.dart';
@@ -16,6 +18,14 @@ class ConversationList extends StatefulWidget {
 }
 
 class _ConversationListState extends State<ConversationList> {
+  
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  
+  FirebaseAuth _auth = FirebaseAuth.instance;
+
+  late String chatRoomId;
+
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

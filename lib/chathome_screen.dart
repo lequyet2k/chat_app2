@@ -20,6 +20,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   FirebaseAuth _auth = FirebaseAuth.instance;
 
+
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +42,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }else {
       setStatus("Offline");
     }
+  }
+
+  int numberOfConversation() {
+    AggregateQuerySnapshot query = _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').count().get() as AggregateQuerySnapshot;
+
+    int numberOfDocuments;
+
+    return numberOfDocuments = query.count;
   }
 
   List storyList = [
@@ -338,7 +348,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 ],
               ),
             ),
-
+            // ListView.builder(
+            //   itemCount: numberOfConversation(),
+            //   shrinkWrap: true,
+            //   padding: EdgeInsets.only(top: 16),
+            //   physics: NeverScrollableScrollPhysics(),
+            //   itemBuilder: (context, index){
+            //     return ConversationList(
+            //       name: _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc('chatHistory')['name'],
+            //       messageText: chatUsers[index].messageText,
+            //       imageUrl: chatUsers[index].imageURL,
+            //       time: chatUsers[index].time,
+            //       isMessageRead: (index == 0 || index == 3)?true:false,
+            //     );
+            //   },
+            // ),
           ],
         ),
       ),
@@ -372,4 +396,33 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 }
+
+class ListConversation {
+  late String lastMessage;
+  late String name;
+  late String type;
+
+  ListConversation({required this.lastMessage, required this.name, required this.type})
+
+  factory ListConversation.fromJson(Map<String, dynamic> json) {
+    return ListConversation(
+      lastMessage: json['lastMessage'],
+      name: json['name'],
+      type : json['type'],
+    );
+  }
+
+}
+
+class ListConversationProvider extends ChangeNotifier {
+
+  FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<List<ListConversation>> GetData() async {
+    QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get();
+    List _conversation = snapshot.docs.map((d) => ListConversation(lastMessage: '', name: '', type: '').fromJson(d.data())).toList();
+    return _conversation;
+  }
+}
+
 

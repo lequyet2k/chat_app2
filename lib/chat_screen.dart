@@ -1,5 +1,6 @@
 // import 'dart:html';
 import 'dart:io';
+// import 'dart:js_util';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -16,6 +17,7 @@ class ChatScreen extends StatefulWidget {
 
   late String currentUserName;
 
+
   ChatScreen({required this.chatRoomId, required this.userMap, required this.currentUserName});
 
   @override
@@ -30,7 +32,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  late String user1Name;
+  late String user1Name ;
+
+  late String email = widget.userMap['email'];
+
 
   void onSendMessage() async {
 
@@ -41,9 +46,26 @@ class _ChatScreenState extends State<ChatScreen> {
         'type' : "text",
         'time' :  FieldValue.serverTimestamp()
       };
-      _message.clear();
-
       await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').add(messages);
+      await _firestore.collection('chatroom').doc(widget.chatRoomId).set({
+        'user1' : widget.currentUserName,
+        'user2' : widget.userMap!['name'],
+        'lastMessage' : _message.text,
+        'type' : "text",
+      });
+      await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['name']).set({
+        'lastMessage' : _message.text,
+        'type' : "text",
+        'name' : widget.userMap['name'],
+        'time' : FieldValue.serverTimestamp(),
+      });
+      await _firestore.collection('users').doc(widget.userMap['uid']).collection('chatHistory').doc(widget.currentUserName).set({
+        'lastMessage' : _message.text,
+        'type' : "text",
+        'name' : widget.currentUserName,
+        'time' : FieldValue.serverTimestamp(),
+      });
+      _message.clear();
 
     } else {
       print("Enter some text");
@@ -89,6 +111,24 @@ class _ChatScreenState extends State<ChatScreen> {
 
       await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').doc(fileName).update({
         'message' : imageUrl,
+      });
+      await _firestore.collection('chatroom').doc(widget.chatRoomId).set({
+        'user1' : widget.currentUserName,
+        'user2' : widget.userMap!['name'],
+        'lastMessage' : "Bạn đã gửi 1 ảnh",
+        'type' : "img",
+      });
+      await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['name']).set({
+        'lastMessage' : "Bạn đã gửi 1 ảnh",
+        'type' : "img",
+        'name' : widget.userMap['name'],
+        'time' : FieldValue.serverTimestamp(),
+      });
+      await _firestore.collection('users').doc(widget.userMap['uid']).collection('chatHistory').doc(widget.currentUserName).set({
+        'lastMessage' : "Bạn đã gửi 1 ảnh",
+        'type' : "img",
+        'name' : widget.currentUserName,
+        'time' : FieldValue.serverTimestamp(),
       });
 
       print(imageUrl);
