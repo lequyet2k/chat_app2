@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/chat_screen.dart';
-import 'package:my_porject/chathome_screen.dart';
 
 
 class FindingScreen extends StatefulWidget {
@@ -41,15 +39,15 @@ class _FindingScreenState extends State<FindingScreen> {
                   user1Name = value.docs[0].get("name");
                 });
               });
-              String roomId = chatRoomId(user1Name,widget.userMap!['name']);
+              String roomId = chatRoomId(user1Name,widget.userMap['name']);
               Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ChatScreen(chatRoomId: roomId, userMap: widget.userMap,currentUserName: user1Name,))
               );
             },
             leading: Icon(Icons.account_box),
-            title: Text(widget.userMap!['name']),
-            subtitle: Text(widget.userMap!['email']),
+            title: Text(widget.userMap['name']),
+            subtitle: Text(widget.userMap['email']),
             trailing: Icon(Icons.chat),
       ) : Container(),
     );

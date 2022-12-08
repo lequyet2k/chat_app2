@@ -596,6 +596,13 @@ PODS:
     - abseil/base/base_internal
     - abseil/base/config
     - abseil/meta/type_traits
+  - agora_rtc_engine (6.0.0):
+    - AgoraIrisRTC_iOS (= 4.0.0-rc.2)
+    - AgoraRtcEngine_Special_iOS (= 4.0.0.5)
+    - Flutter
+  - AgoraIrisEventFlutter_iOS (1.4.0)
+  - AgoraIrisRTC_iOS (4.0.0-rc.2)
+  - AgoraRtcEngine_Special_iOS (4.0.0.5)
   - BoringSSL-GRPC (0.0.24):
     - BoringSSL-GRPC/Implementation (= 0.0.24)
     - BoringSSL-GRPC/Interface (= 0.0.24)
@@ -618,7 +625,7 @@ PODS:
   - Firebase/Storage (10.2.0):
     - Firebase/CoreOnly
     - FirebaseStorage (~> 10.2.0)
-  - firebase_auth (4.1.4):
+  - firebase_auth (4.1.5):
     - Firebase/Auth (= 10.2.0)
     - firebase_core
     - Flutter
@@ -733,6 +740,9 @@ PODS:
   - GTMSessionFetcher/Core (3.0.0)
   - image_picker_ios (0.0.1):
     - Flutter
+  - iris_event (0.0.1):
+    - AgoraIrisEventFlutter_iOS (= 1.4.0)
+    - Flutter
   - leveldb-library (1.22.1)
   - Libuv-gRPC (0.0.10):
     - Libuv-gRPC/Implementation (= 0.0.10)
@@ -750,17 +760,22 @@ PODS:
   - PromisesObjC (2.1.1)
 
 DEPENDENCIES:
+  - agora_rtc_engine (from `.symlinks/plugins/agora_rtc_engine/ios`)
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
   - Flutter (from `Flutter`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
+  - iris_event (from `.symlinks/plugins/iris_event/ios`)
   - path_provider_ios (from `.symlinks/plugins/path_provider_ios/ios`)
 
 SPEC REPOS:
   trunk:
     - abseil
+    - AgoraIrisEventFlutter_iOS
+    - AgoraIrisRTC_iOS
+    - AgoraRtcEngine_Special_iOS
     - BoringSSL-GRPC
     - Firebase
     - FirebaseAppCheckInterop
@@ -781,6 +796,8 @@ SPEC REPOS:
     - PromisesObjC
 
 EXTERNAL SOURCES:
+  agora_rtc_engine:
+    :path: ".symlinks/plugins/agora_rtc_engine/ios"
   cloud_firestore:
     :path: ".symlinks/plugins/cloud_firestore/ios"
   firebase_auth:
@@ -793,15 +810,21 @@ EXTERNAL SOURCES:
     :path: Flutter
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
+  iris_event:
+    :path: ".symlinks/plugins/iris_event/ios"
   path_provider_ios:
     :path: ".symlinks/plugins/path_provider_ios/ios"
 
 SPEC CHECKSUMS:
   abseil: ebe5b5529fb05d93a8bdb7951607be08b7fa71bc
+  agora_rtc_engine: 732f1a488865cff9094bb29fe15f6889ba0d49ea
+  AgoraIrisEventFlutter_iOS: a5ade1ea532633e8c26496f3eee87a3810ac92b0
+  AgoraIrisRTC_iOS: 2e0dc9de177fc33c2071804c1fea67dbf25715ba
+  AgoraRtcEngine_Special_iOS: bbbcbc64de68a7bdfc8fa46b4e945dcfbed0e408
   BoringSSL-GRPC: 3175b25143e648463a56daeaaa499c6cb86dad33
   cloud_firestore: 14451f06cca99dbd56b069624621063150fef3e5
   Firebase: a3ea7eba4382afd83808376edb99acdaff078dcf
-  firebase_auth: 2e7181850b75b99cdf7eccffa35def8f7704b905
+  firebase_auth: 3cc6db19e6babdb98e8876a98dee1da670659537
   firebase_core: db1432de826785171029b7c1a26e5b22ce1dd477
   firebase_storage: c08af1e9ef906c05586b91cb52adc759dddee96e
   FirebaseAppCheckInterop: af164d9c623f82174e3ffa54394dee189587c601
@@ -818,6 +841,7 @@ SPEC CHECKSUMS:
   gRPC-Core: 943e491cb0d45598b0b0eb9e910c88080369290b
   GTMSessionFetcher: c1edebe64e9fb4e8f6415d018edf1fd3eac074a1
   image_picker_ios: b786a5dcf033a8336a657191401bfdf12017dabb
+  iris_event: bc3ca64765be2fca08816b7231beee12e344a2b9
   leveldb-library: 50c7b45cbd7bf543c81a468fe557a16ae3db8729
   Libuv-gRPC: 55e51798e14ef436ad9bc45d12d43b77b49df378
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431

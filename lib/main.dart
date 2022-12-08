@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/welcome_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:my_porject/firebase_options.dart';
+import 'package:my_porject/resources/firebase_options.dart';
+import 'package:provider/provider.dart';
 
 
 void main() async{
@@ -17,10 +18,15 @@ void main() async{
 class  MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "",
-      debugShowCheckedModeBanner: false ,
-      home: WelcomeScreen(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+      ],
+      child: MaterialApp(
+        title: "",
+        debugShowCheckedModeBanner: false ,
+        home: WelcomeScreen(),
+      ),
     );
   }
 }

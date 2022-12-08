@@ -1,17 +1,13 @@
+import 'dart:core';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:my_porject/models/chatUsersModel.dart';
+import 'package:intl/intl.dart';
 import 'package:my_porject/chat_screen.dart';
-import 'package:my_porject/chathome_screen.dart';
 
 class ConversationList extends StatefulWidget {
-  String name;
-  String messageText;
-  String imageUrl;
-  String time;
-  bool isMessageRead;
-  ConversationList({required this.name,required this.messageText,required this.imageUrl,required this.time,required this.isMessageRead});
+  Map<String, dynamic> chatHistory ;
+  ConversationList({super.key, required this.chatHistory});
 
   @override
   _ConversationListState createState() => _ConversationListState();
@@ -23,20 +19,66 @@ class _ConversationListState extends State<ConversationList> {
   
   FirebaseAuth _auth = FirebaseAuth.instance;
 
-  late String chatRoomId;
+  late Map<String, dynamic> userMap;
 
+  late String user1Name;
+
+  final DateFormat formatter = DateFormat('Hm');
+
+  String convertTime(Timestamp now) {
+    int timestamp = now.millisecondsSinceEpoch;
+    DateTime tsdate = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    String datetime = tsdate.year.toString() + "/" + tsdate.month.toString() + "/" + tsdate.day.toString();
+    return datetime;
+  }
+  String convertHours(Timestamp now) {
+    int timestamp = now.millisecondsSinceEpoch;
+    DateTime tsdate = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    String datetime = tsdate.hour.toString() + ":" + tsdate.minute.toString();
+    return datetime;
+  }
+
+  void conversation() async {
+    FirebaseFirestore _firestore =  FirebaseFirestore.instance;
+
+    FirebaseAuth _auth = FirebaseAuth.instance;
+
+    await _firestore.collection('users').where("uid", isEqualTo: widget.chatHistory['uid']).get().then((value) {
+      setState(() {
+        userMap = value.docs[0].data() ;
+      });
+      print(userMap);
+    });
+    await _firestore.collection('users').where("email", isEqualTo: _auth.currentUser?.email).get().then((value) {
+      setState(() {
+        user1Name = value.docs[0].get("name");
+      });
+    });
+
+    String roomId = chatRoomId(user1Name,widget.chatHistory['name']);
+    if(mounted) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context){
+            return ChatScreen(chatRoomId: roomId, userMap: userMap, currentUserName: user1Name,);
+          })
+      );
+    }
+  }
+
+  String chatRoomId(String user1, String user2){
+    if(user1[0].toLowerCase().codeUnits[0] > user2.toLowerCase().codeUnits[0]){
+      return "$user1$user2";
+    } else {
+      return "$user2$user1";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: (){
-
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(builder: (context){
-        //     return ChatScreen();
-        //   })
-        // );
+        conversation();
       },
       child: Container(
         padding: EdgeInsets.only(left: 16, right: 16, top :10, bottom: 10),
@@ -46,7 +88,7 @@ class _ConversationListState extends State<ConversationList> {
                 child: Row(
                   children: <Widget>[
                     CircleAvatar(
-                      backgroundImage: AssetImage(widget.imageUrl),
+                      backgroundImage: NetworkImage(widget.chatHistory['avatar']),
                       maxRadius: 30,
                     ),
                     SizedBox(width: 16,),
@@ -56,12 +98,12 @@ class _ConversationListState extends State<ConversationList> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Text(widget.name,style: TextStyle(fontSize: 16),),
+                              Text(widget.chatHistory['name'],style: TextStyle(fontSize: 16),),
                               SizedBox(height: 6,),
-                              Text(widget.messageText, style: TextStyle(
+                              Text(widget.chatHistory['lastMessage'], style: TextStyle(
                                   fontSize: 13,
-                                  color: Colors.grey.shade600,
-                                  fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal),
+                                  color: Colors.grey.shade600,)
+                                  //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal),
                               ),
                             ],
                           ),
@@ -70,12 +112,26 @@ class _ConversationListState extends State<ConversationList> {
                   ],
                 ),
             ),
-            Text(
-              widget.time,
-              style: TextStyle(
-                fontSize:   12,
-                fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal,
-              ),
+            SizedBox(width: 10,),
+            Column(
+              children: [
+                Text(
+                  convertTime(widget.chatHistory['time']),
+                  //widget.chatHistory['time'],
+                  style: TextStyle(
+                    fontSize:   12,
+                    //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal,
+                  ),
+                ),
+                Text(
+                  convertHours(widget.chatHistory['time']),
+                  //widget.chatHistory['time'],
+                  style: TextStyle(
+                    fontSize:   12,
+                    //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
