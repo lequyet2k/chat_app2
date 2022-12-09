@@ -11,7 +11,10 @@ import 'package:uuid/uuid.dart';
 
 
 class Setting extends StatefulWidget {
-  const Setting({super.key,});
+
+  User user;
+
+  Setting({super.key,required this.user});
 
   @override
   State<Setting> createState() => _SettingState();
@@ -100,10 +103,35 @@ class _SettingState extends State<Setting> {
     FirebaseFirestore _firestore = FirebaseFirestore.instance;
     FirebaseAuth _auth = FirebaseAuth.instance;
 
-    logOut();
-    await _firestore.collection('users').doc(_auth.currentUser?.uid).update({
-      "status" : 'offline',
+    setState(() {
+      isLoading = true;
     });
+
+    await _firestore.collection('users').doc(_auth.currentUser?.uid).update({
+      "status" : 'Offline',
+    });
+
+    int? n;
+    await FirebaseFirestore.instance.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value) => {
+      n = value.docs.length
+    });
+    for(int i = 0 ; i < n! ; i++) {
+      String? uId;
+      await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value){
+        uId = value.docs[i]['uid'] ;
+      });
+      await _firestore.collection('users').doc(uId).collection('chatHistory').doc(_auth.currentUser!.uid).update({
+        'status' : 'Offline',
+      });
+    }
+    logOut();
+    setState(() {
+      isLoading = false;
+    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Login()),
+    );
   }
 
   @override
@@ -122,7 +150,7 @@ class _SettingState extends State<Setting> {
       Container(
         width: MediaQuery.of(context).size.width,
         child: StreamBuilder<DocumentSnapshot>(
-          stream: _firestore.collection('users').doc(_auth.currentUser!.uid).snapshots(),
+          stream: _firestore.collection('users').doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0").snapshots(),
           builder: (BuildContext context,AsyncSnapshot<DocumentSnapshot> snapshot) {
             if(snapshot.data != null) {
               Map<String, dynamic> map = snapshot.data?.data() as Map<String, dynamic>;
@@ -134,7 +162,7 @@ class _SettingState extends State<Setting> {
                     height: 100,
                     width: 100,
                     child: CircleAvatar(
-                      backgroundImage: NetworkImage(map['avatar']),
+                      backgroundImage: NetworkImage(map['avatar'] ?? widget.user.photoURL),
                     ),
                   ),
                   Text(map['name']),
@@ -151,10 +179,6 @@ class _SettingState extends State<Setting> {
                     child: ElevatedButton(
                       onPressed: (){
                         logOuttt();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => Login()),
-                        );
                       },
                       child: Text("Log out"),
                     ),

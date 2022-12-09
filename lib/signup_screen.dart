@@ -246,7 +246,7 @@ class _SignUpScreen extends State<SignUp> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => HomeScreen(),
+                                      builder: (context) => HomeScreen(user: user,),
                                     ));
                                 print("Login Successfull");
                               } else {

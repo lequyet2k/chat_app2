@@ -47,15 +47,14 @@ Future<User?> logIn(String email, String password ) async {
         email: email, password: password)).user;
 
     if(user != null) {
-      print("Login Sucessfull");
-
+      print("Login Successful");
       return user;
     } else {
       print("Login Failed");
       return user;
     }
   } catch(e) {
-    print(e);
+    // print(e);
     return null;
   }
 }

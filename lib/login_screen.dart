@@ -214,7 +214,7 @@ class LoginPage extends State<Login> {
                                   });
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                                    MaterialPageRoute(builder: (context) => HomeScreen(user: user,)),
                                   );
                                   print("Login Successful");
                                 } else {

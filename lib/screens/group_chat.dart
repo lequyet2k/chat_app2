@@ -50,10 +50,10 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HomeScreen()),
-              );
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => HomeScreen()),
+              // );
             },
             icon: Icon(Icons.more_vert),
           )

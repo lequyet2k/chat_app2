@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:my_porject/chathome_screen.dart';
 import 'package:my_porject/screens/add_members_group.dart';
 
+import 'group_chat.dart';
+
 class GroupInfo extends StatefulWidget {
 
   final String groupName, groupId, currentUserName;
@@ -126,7 +128,7 @@ class _GroupInfoState extends State<GroupInfo> {
       await _firestore.collection('users').doc(uid).collection('groups').doc(widget.groupId).delete();
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        MaterialPageRoute(builder: (context) => GroupChatHomeScreen()),
       );
     }else {
       print("Cant leave group!");

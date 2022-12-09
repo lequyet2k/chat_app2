@@ -13,7 +13,8 @@ import 'package:my_porject/screens/group_chat.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  User user;
+  HomeScreen({Key? key, required this.user}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -35,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     setStatus("Online");
+    changeStatus("Online");
     SchedulerBinding.instance.addPostFrameCallback((_) {
       userProvider = Provider.of<UserProvider>(context, listen: false);
       userProvider.refreshUser();
@@ -48,47 +50,31 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     });
   }
 
+  void changeStatus(String statuss) async {
+    int? n;
+    await FirebaseFirestore.instance.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value) => {
+      n = value.docs.length
+    });
+    for(int i = 0 ; i < n! ; i++) {
+      String? uId;
+      await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value){
+        uId = value.docs[i]['uid'] ;
+      });
+      await _firestore.collection('users').doc(uId).collection('chatHistory').doc(_auth.currentUser!.uid).update({
+        'status' : statuss,
+      });
+    }
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if(state == AppLifecycleState.resumed) {
-      setStatus("Onlinee");
+      setStatus("Online");
     }else {
       setStatus("Offline");
     }
   }
 
-  List storyList = [
-    {
-      "name": "Le Quyet",
-      "imageUrl": "assets/images/user.png",
-      "isOnline": true,
-      "hasStory": true,
-    },
-    {
-      "name": "Nam Ky",
-      "imageUrl": "assets/images/user_2.png",
-      "isOnline": false,
-      "hasStory": false,
-    },
-    {
-      "name": "Duc",
-      "imageUrl": "assets/images/user_3.png",
-      "isOnline": true,
-      "hasStory": false,
-    },
-    {
-      "name": "Hoang Dang",
-      "imageUrl": "assets/images/user_4.png",
-      "isOnline": true,
-      "hasStory": true,
-    },
-    {
-      "name": "Bao Ngoc",
-      "imageUrl": "assets/images/user_5.png",
-      "isOnline": false,
-      "hasStory": false,
-    },
-  ];
   int _selectedIndex = 0 ;
   void _onItemTapped(int index){
     setState(() {
@@ -96,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       if(index == 2) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const Setting()),
+          MaterialPageRoute(builder: (context) => Setting(user: widget.user,)),
         );
       }
       if(index == 1) {
@@ -115,23 +101,26 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool isLoading = false;
 
   void onSearch() async {
-    FirebaseFirestore _firestore =  FirebaseFirestore.instance;
-
-    setState(() {
-      isLoading = true;
-    });
-
-    await _firestore.collection('users').where("email", isEqualTo: _search.text).get().then((value) {
-      setState(() {
-        print(value.docs[0].data()['name']);
-        userMap = value.docs[0].data() ;
-        isLoading = false;
-      });
-    });
-
-    Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) =>  FindingScreen(userMap: userMap,)));
+    showSearch(
+      context: context,
+      delegate: CustomSearch(),
+    );
+    // FirebaseFirestore _firestore =  FirebaseFirestore.instance;
+    //
+    // setState(() {
+    //   isLoading = true;
+    // });
+    //
+    // await _firestore.collection('users').where("email", isEqualTo: _search.text).get().then((value) {
+    //   setState(() {
+    //     userMap = value.docs[0].data() ;
+    //     isLoading = false;
+    //   });
+    // });
+    //
+    // Navigator.push(
+    //     context,
+    //     MaterialPageRoute(builder: (context) =>  FindingScreen(userMap: userMap,)));
   }
 
   @override
@@ -195,16 +184,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       ),
                     ),
                     controller: _search,
-                    onSubmitted: (value){
-                      onSearch();
-                    },
+                    onTap: onSearch,
                   ),
                 ),
                 SizedBox(height: 20,),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: StreamBuilder(
-                    stream: _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').orderBy('time',descending: true).snapshots(),
+                    stream: _firestore.collection('users').doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0").collection('chatHistory').orderBy('time',descending: true).snapshots(),
                       builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot)  {
                       if(snapshot.data!= null){
                         return Row(
@@ -212,7 +199,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
                             return Padding(
                               padding: EdgeInsets.only(right: 20),
-                              child: Column(
+                              child: map['status'] == 'Online' ?
+                              Column(
                                 children: <Widget>[
                                   Container(
                                     width: 60,
@@ -275,7 +263,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                     ),
                                   ),
                                 ],
-                              ),
+                              )
+                                  : Container(),
                             );
                           }),
                         );
@@ -287,7 +276,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 ),
                 Container(
                   child: StreamBuilder(
-                    stream: _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').orderBy('time',descending: true).snapshots(),
+                    stream: _firestore.collection('users').doc(widget.user.uid).collection('chatHistory').orderBy('time',descending: true).snapshots(),
                     builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
                       if(snapshot.data!= null){
                         return ListView.builder(
