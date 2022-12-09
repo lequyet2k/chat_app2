@@ -6,8 +6,9 @@ import 'package:intl/intl.dart';
 import 'package:my_porject/chat_screen.dart';
 
 class ConversationList extends StatefulWidget {
+  User user;
   Map<String, dynamic> chatHistory ;
-  ConversationList({super.key, required this.chatHistory});
+  ConversationList({super.key, required this.chatHistory,required this.user});
 
   @override
   _ConversationListState createState() => _ConversationListState();
@@ -60,7 +61,7 @@ class _ConversationListState extends State<ConversationList> {
       Navigator.push(
           context,
           MaterialPageRoute(builder: (context){
-            return ChatScreen(chatRoomId: roomId, userMap: userMap, currentUserName: user1Name,);
+            return ChatScreen(chatRoomId: roomId, userMap: userMap, user: widget.user,);
           })
       );
     }

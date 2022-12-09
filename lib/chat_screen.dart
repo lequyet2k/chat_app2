@@ -15,9 +15,9 @@ class ChatScreen extends StatefulWidget {
 
   late String chatRoomId ;
 
-  late String currentUserName;
+  User user;
 
-  ChatScreen({super.key, required this.chatRoomId, required this.userMap, required this.currentUserName});
+  ChatScreen({super.key, required this.chatRoomId, required this.userMap, required this.user});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -75,14 +75,14 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     if(message.isNotEmpty) {
       Map<String, dynamic> messages = {
-        'sendBy' : widget.currentUserName,
+        'sendBy' : widget.user.displayName,
         'message' : message,
         'type' : "text",
         'time' :  DateTime.now(),
       };
       await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').add(messages);
       await _firestore.collection('chatroom').doc(widget.chatRoomId).set({
-        'user1' : widget.currentUserName,
+        'user1' : widget.user.displayName,
         'user2' : widget.userMap['name'],
         'lastMessage' : message,
         'type' : "text",
@@ -105,7 +105,7 @@ class _ChatScreenState extends State<ChatScreen> {
       await _firestore.collection('users').doc(widget.userMap['uid']).collection('chatHistory').doc(_auth.currentUser!.uid).set({
         'lastMessage' : message,
         'type' : "text",
-        'name' : widget.currentUserName,
+        'name' : widget.user.displayName,
         'time' : DateTime.now(),
         'uid' : _auth.currentUser!.uid,
         'avatar' : currentUserAvatar,
@@ -138,7 +138,7 @@ class _ChatScreenState extends State<ChatScreen> {
     int status = 1 ;
 
     await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').doc(fileName).set({
-      'sendBy' : widget.currentUserName,
+      'sendBy' : widget.user.displayName,
       'message' : _message.text,
       'type' : "img",
       'time' :  DateTime.now(),
@@ -158,7 +158,7 @@ class _ChatScreenState extends State<ChatScreen> {
         'message' : imageUrl,
       });
       await _firestore.collection('chatroom').doc(widget.chatRoomId).set({
-        'user1' : widget.currentUserName,
+        'user1' : widget.user.displayName,
         'user2' : widget.userMap['name'],
         'lastMessage' : "Bạn đã gửi 1 ảnh",
         'type' : "img",
@@ -180,9 +180,9 @@ class _ChatScreenState extends State<ChatScreen> {
         status =  value.docs[0]['status'];
       });
       await _firestore.collection('users').doc(widget.userMap['uid']).collection('chatHistory').doc(_auth.currentUser!.uid).set({
-        'lastMessage' : "${widget.currentUserName} đã gửi 1 ảnh",
+        'lastMessage' : "${widget.user.displayName} đã gửi 1 ảnh",
         'type' : "img",
-        'name' : widget.currentUserName,
+        'name' : widget.user.displayName,
         'time' : DateTime.now(),
         'uid' : _auth.currentUser!.uid,
         'avatar' : currentUserAvatar,
@@ -345,7 +345,7 @@ class _ChatScreenState extends State<ChatScreen> {
       return Row(
         children: [
           SizedBox(width: 2,),
-          map['sendBy'] != widget.currentUserName ?
+          map['sendBy'] != widget.user.displayName ?
           Container(
             height: size.width / 13 ,
             width: size.width / 13 ,
@@ -356,8 +356,8 @@ class _ChatScreenState extends State<ChatScreen> {
           ): Container(
           ),
           Container(
-            width: map['sendBy'] == widget.currentUserName ?  size.width * 0.98 : size.width * 0.7,
-            alignment: map['sendBy'] == widget.currentUserName ? Alignment.centerRight : Alignment.centerLeft,
+            width: map['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.7,
+            alignment: map['sendBy'] == widget.user.displayName ? Alignment.centerRight : Alignment.centerLeft,
             child: Container(
               constraints: BoxConstraints( maxWidth: size.width / 1.5),
               padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -379,7 +379,7 @@ class _ChatScreenState extends State<ChatScreen> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           const SizedBox(width: 2,),
-          map['sendBy'] != widget.currentUserName ?
+          map['sendBy'] != widget.user.displayName ?
           Container(
             margin: EdgeInsets.only(bottom: 8),
             height: size.width / 13 ,
@@ -392,9 +392,9 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           Container(
             height: size.height / 2.5,
-            width: map['sendBy'] == widget.currentUserName ?  size.width * 0.98 : size.width * 0.77,
+            width: map['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
             padding: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
-            alignment: map['sendBy'] == widget.currentUserName
+            alignment: map['sendBy'] == widget.user.displayName
                 ? Alignment.centerRight
                 : Alignment.centerLeft,
             child: InkWell(
@@ -418,7 +418,7 @@ class _ChatScreenState extends State<ChatScreen> {
       return Row(
         children: [
           SizedBox(width: 2,),
-          map['sendBy'] != widget.currentUserName ?
+          map['sendBy'] != widget.user.displayName ?
           Container(
             height: size.width / 13 ,
             width: size.width / 13 ,
@@ -429,8 +429,8 @@ class _ChatScreenState extends State<ChatScreen> {
           ): Container(
           ),
           Container(
-            width: map['sendBy'] == widget.currentUserName ?  size.width * 0.98 : size.width * 0.77,
-            alignment: map['sendBy'] == widget.currentUserName ? Alignment.centerRight : Alignment.centerLeft,
+            width: map['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
+            alignment: map['sendBy'] == widget.user.displayName  ? Alignment.centerRight : Alignment.centerLeft,
             child: Container(
               width: size.width / 3,
               // constraints: BoxConstraints( maxWidth: size.width / 1.5),

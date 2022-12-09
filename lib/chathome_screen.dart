@@ -74,7 +74,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       setStatus("Offline");
     }
   }
-
   int _selectedIndex = 0 ;
   void _onItemTapped(int index){
     setState(() {
@@ -103,24 +102,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void onSearch() async {
     showSearch(
       context: context,
-      delegate: CustomSearch(),
+      delegate: CustomSearch(user: widget.user),
     );
-    // FirebaseFirestore _firestore =  FirebaseFirestore.instance;
-    //
-    // setState(() {
-    //   isLoading = true;
-    // });
-    //
-    // await _firestore.collection('users').where("email", isEqualTo: _search.text).get().then((value) {
-    //   setState(() {
-    //     userMap = value.docs[0].data() ;
-    //     isLoading = false;
-    //   });
-    // });
-    //
-    // Navigator.push(
-    //     context,
-    //     MaterialPageRoute(builder: (context) =>  FindingScreen(userMap: userMap,)));
   }
 
   @override
@@ -286,7 +269,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
                             Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
-                            return ConversationList(chatHistory: map,);
+                            return ConversationList(chatHistory: map,user: widget.user);
                           },
                         );
                       } else {
