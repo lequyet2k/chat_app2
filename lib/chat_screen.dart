@@ -269,6 +269,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: <Widget>[
             Expanded(
               child: Container(
+                color: Colors.black,
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').orderBy('time',descending: false).snapshots(),
                   builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -288,48 +289,50 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
             ),
-            Align(
+            Container(
               alignment: Alignment.bottomCenter,
               child: Container(
-                padding: EdgeInsets.only(right: 20, left: 20),
-                height: 70,
+                padding: EdgeInsets.only(bottom: 10,top: 10),
+                height: size.height / 16,
                 width: double.infinity,
-                color: Colors.white,
+                color: Colors.black,
                 child: Row(
                   children: <Widget>[
-                    ElevatedButton(
-                      onPressed: (){
-                        getImage();
-                      },
-                      child: Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.lightBlue,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Icon(Icons.add, color: Colors.white,size: 20,),
-                      ),
+                    IconButton(
+                        onPressed: () {
+                          getImage();
+                        },
+                        icon: Icon(Icons.image_outlined, color: Colors.blueAccent,),
                     ),
-                    SizedBox(width: 15,),
+                    IconButton(
+                        onPressed: () {},
+                        icon: Icon(Icons.location_on, color: Colors.blueAccent,),
+                    ),
+                    IconButton(
+                        onPressed: (){},
+                        icon: Icon(Icons.keyboard_voice, color: Colors.blueAccent,),
+                    ),
+                    // SizedBox(width: 15,),
                     Expanded(
                         child: TextField(
                           decoration: InputDecoration(
-                            hintText: "Write message...",
-                            hintStyle: TextStyle(color: Colors.black54),
-                            border: InputBorder.none,
+                            filled: true,
+                            fillColor: Colors.grey.shade700,
+                            hintText: "Aa",
+                            hintStyle: TextStyle(color: Colors.white30),
+                            contentPadding: EdgeInsets.all(8.0),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                            ),
                           ),
                           controller: _message,
                         ),
                     ),
-                    SizedBox(width: 15,),
-                    FloatingActionButton(
-                      onPressed: () {
-                        onSendMessage();
+                    IconButton(
+                        onPressed: () {
+                          onSendMessage();
                         },
-                      child: Icon(Icons.send, color: Colors.white,size: 18,),
-                      backgroundColor: Colors.blue,
-                      elevation: 0,
+                        icon: Icon(Icons.send, color: Colors.blueAccent,),
                     ),
                   ],
                 ),
@@ -438,12 +441,20 @@ class _ChatScreenState extends State<ChatScreen> {
               margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                color: Colors.grey,
+                color: Colors.grey.shade900,
               ),
               child: Row(
                 children: [
-                  Icon(
-                      Icons.call_sharp,
+                  Container(
+                    padding: EdgeInsets.all(4.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: Colors.grey,
+                    ),
+                    child: Icon(
+                        Icons.call_sharp,
+                      color: Colors.white70,
+                    ),
                   ),
                   SizedBox(width: 5,),
                   Column(
@@ -452,6 +463,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           "Video Call",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
+                          color: Colors.white70,
                         ),
                       ),
                       Text(
@@ -460,6 +472,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     // : (map['timeSpend'] / 60).toString() + "p "+ (map['timeSpend'] % 60).toString() + "s",
                         style: TextStyle(
                           fontSize: 13,
+                          color: Colors.grey.shade300,
                         ),
                       ),
                     ],

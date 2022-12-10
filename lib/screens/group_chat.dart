@@ -46,6 +46,7 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.black,
         title: Text("Group"),
         actions: [
           IconButton(
@@ -86,6 +87,7 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
           }
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.black,
         onPressed: () {
           Navigator.push(
               context,

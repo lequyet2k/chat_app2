@@ -100,6 +100,7 @@ class _AddMemberState extends State<AddMember> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.black,
         title: Text(
           "Add Members",
         ),
@@ -167,6 +168,7 @@ class _AddMemberState extends State<AddMember> {
         ),
       ),
       floatingActionButton: memberList.length >= 2 ? FloatingActionButton(
+        backgroundColor: Colors.black,
         child: Icon(Icons.forward),
         onPressed: () {
           Navigator.push(

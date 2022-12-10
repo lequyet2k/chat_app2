@@ -62,6 +62,7 @@ class _CreateGroupState extends State<CreateGroup> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.black,
         title: Text(
           "Group Name",
         ),
@@ -97,6 +98,9 @@ class _CreateGroupState extends State<CreateGroup> {
             ),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              primary: Colors.black,
+            ),
               onPressed: () {
                 createGroup();
               },

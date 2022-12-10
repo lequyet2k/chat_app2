@@ -181,9 +181,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           children: List.generate(snapshot.data?.docs.length as int, (index) {
                             Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
                             return Padding(
-                              padding: EdgeInsets.only(right: 20),
-                              child: map['status'] == 'Online' ?
-                              Column(
+                              padding: EdgeInsets.only(left:5,right: 10),
+                              child :Column(
                                 children: <Widget>[
                                   Container(
                                     width: 60,
@@ -247,7 +246,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   ),
                                 ],
                               )
-                                  : Container(),
+
                             );
                           }),
                         );

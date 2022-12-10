@@ -139,6 +139,7 @@ class _SettingState extends State<Setting> {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.black,
         title: Text("Setting"),
       ),
       body: isLoading ? Container(
@@ -169,6 +170,9 @@ class _SettingState extends State<Setting> {
                   Text(map['email']),
                   Container(
                     child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.black,
+                      ),
                       onPressed: (){
                         getImage();
                       },
@@ -177,6 +181,9 @@ class _SettingState extends State<Setting> {
                   ),
                   Container(
                     child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.black,
+                      ),
                       onPressed: (){
                         logOuttt();
                       },
