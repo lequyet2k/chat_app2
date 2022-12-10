@@ -8,9 +8,11 @@ import 'group_chat.dart';
 
 class GroupInfo extends StatefulWidget {
 
+  User user;
+
   final String groupName, groupId, currentUserName;
 
-  const GroupInfo({Key? key, required this.groupName, required this.groupId, required this.currentUserName}) : super(key: key);
+  GroupInfo({Key? key, required this.groupName, required this.groupId,required this.user, required this.currentUserName}) : super(key: key);
 
   @override
   State<GroupInfo> createState() => _GroupInfoState();
@@ -128,7 +130,7 @@ class _GroupInfoState extends State<GroupInfo> {
       await _firestore.collection('users').doc(uid).collection('groups').doc(widget.groupId).delete();
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => GroupChatHomeScreen()),
+        MaterialPageRoute(builder: (context) => GroupChatHomeScreen(user: widget.user,)),
       );
     }else {
       print("Cant leave group!");
@@ -204,7 +206,7 @@ class _GroupInfoState extends State<GroupInfo> {
                 onTap: () {
                   Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => AddMemberInGroup(groupName: widget.groupName, groupId: widget.groupId, membersList: membersList, currentUserName: widget.currentUserName,)),
+                      MaterialPageRoute(builder: (context) => AddMemberInGroup(groupName: widget.groupName, groupId: widget.groupId, membersList: membersList, currentUserName: widget.currentUserName,user: widget.user,)),
                   );
                 },
                 leading: Icon(

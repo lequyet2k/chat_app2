@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:my_porject/chathome_screen.dart';
 import 'package:my_porject/screens/group_chat_room.dart';
 import 'package:my_porject/screens/create_group/add_member.dart';
 
 class GroupChatHomeScreen extends StatefulWidget {
-  const GroupChatHomeScreen({Key? key}) : super(key: key);
+  User user;
+  GroupChatHomeScreen({Key? key, required this.user}) : super(key: key);
 
   @override
   State<GroupChatHomeScreen> createState() => _GroupChatHomeScreenState();
@@ -14,8 +14,8 @@ class GroupChatHomeScreen extends StatefulWidget {
 
 class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
 
-  FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   bool isLoading = true;
   late String currentUserName;
 
@@ -73,7 +73,7 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
               onTap: () {
                 Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => GroupChatRoom(groupChatId: groupList[index]['id'], groupName: groupList[index]['name'], currentUserName: currentUserName,))
+                    MaterialPageRoute(builder: (context) => GroupChatRoom(groupChatId: groupList[index]['id'], groupName: groupList[index]['name'], currentUserName: currentUserName,user: widget.user,))
                 );
               },
               leading: Icon(Icons.group),
@@ -91,7 +91,7 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
         onPressed: () {
           Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => AddMember())
+              MaterialPageRoute(builder: (context) => AddMember(user: widget.user,))
           );
         },
         child: Icon(Icons.create),

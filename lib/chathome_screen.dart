@@ -87,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       if(index == 1) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const GroupChatHomeScreen()),
+          MaterialPageRoute(builder: (context) => GroupChatHomeScreen(user: widget.user,)),
         );
       }
     });

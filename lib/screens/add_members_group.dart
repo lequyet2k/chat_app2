@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:my_porject/screens/group_chat.dart';
 
 class AddMemberInGroup extends StatefulWidget {
+  User user;
 
   final String groupName, groupId,currentUserName;
   final List membersList;
 
-  const AddMemberInGroup({Key? key, required this.groupName, required this.groupId, required this.membersList, required this.currentUserName}) : super(key: key);
+  AddMemberInGroup({Key? key, required this.groupName, required this.groupId, required this.membersList, required this.currentUserName,required this.user}) : super(key: key);
 
   @override
   State<AddMemberInGroup> createState() => _AddMemberInGroupState();
@@ -39,13 +40,10 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
 
     await _firestore.collection('users').where("email", isEqualTo: _search.text).get().then((value) {
       setState(() {
-        print(value.docs[0].data()['name']);
         userMap = value.docs[0].data() ;
         isLoading = false;
       });
-      print(userMap);
     });
-
     _search.clear();
   }
 
@@ -56,6 +54,7 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
       "email" : userMap!['email'],
       "uid" : userMap!['uid'],
       "isAdmin" : false,
+      'avatar' : userMap!['avatar'],
     });
 
     await _firestore.collection('groups').doc(widget.groupId).update({
@@ -74,7 +73,7 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
     });
     
     Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) =>  GroupChatHomeScreen()),
+        MaterialPageRoute(builder: (context) =>  GroupChatHomeScreen(user: widget.user,)),
             (route) => false
     );
   }

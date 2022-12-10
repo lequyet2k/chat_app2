@@ -4,15 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:my_porject/screens/group_info.dart';
 
 class GroupChatRoom extends StatelessWidget {
+  User user;
   final String groupChatId,groupName,currentUserName;
 
-  GroupChatRoom({Key? key, required this.groupChatId, required this.groupName, required this.currentUserName}) : super(key: key);
+  GroupChatRoom({Key? key, required this.groupChatId, required this.groupName,required this.user, required this.currentUserName}) : super(key: key);
 
   final TextEditingController _message = TextEditingController();
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   void onSendMessage() async {
+    String? avatarUrl;
+
+    await _firestore.collection('users').doc(user.uid).get().then((value) {
+      avatarUrl = value.data()!['avatar'].toString();
+    });
 
     if(_message.text.isNotEmpty) {
       Map<String, dynamic> chatData = {
@@ -20,6 +26,7 @@ class GroupChatRoom extends StatelessWidget {
         "message" : _message.text,
         "type" : "text",
         "time" : DateTime.now(),
+        'avatar' : avatarUrl,
       };
 
       _message.clear();
@@ -35,24 +42,25 @@ class GroupChatRoom extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.black,
         title: Text(groupName),
         actions: [
           IconButton(
             onPressed: () {
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => GroupInfo(groupName: groupName, groupId: groupChatId, currentUserName: currentUserName,)),
+                  MaterialPageRoute(builder: (context) => GroupInfo(groupName: groupName, groupId: groupChatId, currentUserName: currentUserName,user: user,)),
               );
             },
             icon: Icon(Icons.more_vert),
           )
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Container(
-              height: size.height / 1.27,
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: Container(
+                color: Colors.grey.shade500,
               width: size.width,
               child: StreamBuilder<QuerySnapshot>(
                 stream: _firestore.collection('groups').doc(groupChatId).collection('chats').orderBy('time',descending: false).snapshots(),
@@ -71,54 +79,56 @@ class GroupChatRoom extends StatelessWidget {
                 },
               )
             ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                padding: EdgeInsets.only(right: 20, left: 20),
-                height: 70,
-                width: double.infinity,
-                color: Colors.white,
-                child: Row(
-                  children: <Widget>[
-                    ElevatedButton(
-                      onPressed: (){
-                      },
-                      child: Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.lightBlue,
-                          borderRadius: BorderRadius.circular(30),
+          ),
+          Container(
+            height: size.height / 15,
+            width: double.infinity,
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              padding: EdgeInsets.only(bottom: 10,top: 10),
+              color: Colors.black,
+              child: Row(
+                children: <Widget>[
+                  IconButton(
+                    onPressed: () {
+                    },
+                    icon: Icon(Icons.image_outlined, color: Colors.blueAccent,),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.location_on, color: Colors.blueAccent,),
+                  ),
+                  IconButton(
+                    onPressed: (){},
+                    icon: Icon(Icons.keyboard_voice, color: Colors.blueAccent,),
+                  ),
+                  // SizedBox(width: 15,),
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.grey.shade700,
+                        hintText: "Aa",
+                        hintStyle: TextStyle(color: Colors.white30),
+                        contentPadding: EdgeInsets.all(8.0),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
                         ),
-                        child: Icon(Icons.add, color: Colors.white,size: 20,),
                       ),
+                      controller: _message,
                     ),
-                    SizedBox(width: 15,),
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: "Write message...",
-                          hintStyle: TextStyle(color: Colors.black54),
-                          border: InputBorder.none,
-                        ),
-                        controller: _message,
-                      ),
-                    ),
-                    SizedBox(width: 15,),
-                    FloatingActionButton(
-                      onPressed: () async {
-                        onSendMessage();
-                      },
-                      child: Icon(Icons.send, color: Colors.white,size: 18,),
-                      backgroundColor: Colors.blue,
-                      elevation: 0,
-                    ),
-                  ],
-                ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      onSendMessage();
+                    },
+                    icon: Icon(Icons.send, color: Colors.blueAccent,),
+                  ),
+                ],
               ),
-            )
-          ],
-        ),
+            ),
+          )
+        ],
       ),
     );
   }
@@ -126,44 +136,71 @@ class GroupChatRoom extends StatelessWidget {
   Widget messageTitle(Size size , Map<String, dynamic> chatMap) {
     return Builder(builder: (context) {
       if(chatMap['type'] == 'text') {
-        return Container(
-          width: size.width,
-          alignment: chatMap['sendBy'] == currentUserName ? Alignment.centerRight : Alignment.centerLeft,
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              color: Colors.blue,
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            SizedBox(width: 2,),
+            chatMap['sendBy'] != user.displayName ?
+            Container(
+              margin: EdgeInsets.only(bottom: 5),
+              height: size.width / 13 ,
+              width: size.width / 13 ,
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(chatMap['avatar']),
+                maxRadius: 30,
+              ),
+            ): Container(
             ),
-            child: Column(
+            Column(
               children: [
-                Text(
-                  chatMap['sendBy'],
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
+                chatMap['sendBy'] != user.displayName ?
+                Container(
+                  padding: EdgeInsets.only(left: 8),
+                  width:  size.width * 0.7,
+                  alignment:  Alignment.centerLeft,
+                  child: Text(
+                    chatMap['sendBy'],
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey.shade800,
+                    ),
                   ),
-                ),
-                SizedBox(height: size.height / 200,),
-                Text(
-                  chatMap['message'],
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
+                ): Container(),
+                Container(
+                  width: chatMap['sendBy'] == user.displayName ?  size.width * 0.98 : size.width * 0.7,
+                  alignment: chatMap['sendBy'] == user.displayName ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Container(
+                    constraints: BoxConstraints( maxWidth: size.width / 1.5),
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: Colors.black,
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          chatMap['message'],
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
+          ],
         );
       }
       else if(chatMap['type'] == 'img') {
         return Container(
           width: size.width,
-          alignment: chatMap['sendBy'] ==  currentUserName ? Alignment.centerRight : Alignment.centerLeft,
+          alignment: chatMap['sendBy'] ==  user.displayName ? Alignment.centerRight : Alignment.centerLeft,
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),

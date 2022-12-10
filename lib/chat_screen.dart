@@ -269,7 +269,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: <Widget>[
             Expanded(
               child: Container(
-                color: Colors.black,
+                color: Colors.grey.shade500,
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').orderBy('time',descending: false).snapshots(),
                   builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -367,7 +367,7 @@ class _ChatScreenState extends State<ChatScreen> {
               margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                color: Colors.blue,
+                color: Colors.black,
               ),
               child: Text(
                 map['message'],
@@ -419,10 +419,12 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     } else {
       return Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           SizedBox(width: 2,),
           map['sendBy'] != widget.user.displayName ?
           Container(
+            margin: EdgeInsets.only(bottom: 5),
             height: size.width / 13 ,
             width: size.width / 13 ,
             child: CircleAvatar(

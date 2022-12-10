@@ -5,8 +5,9 @@ import 'package:uuid/uuid.dart';
 import 'package:my_porject/screens/group_chat.dart';
 
 class CreateGroup extends StatefulWidget {
+  User user;
   final List<Map<String, dynamic>> memberList ;
-  const CreateGroup({Key? key, required this.memberList}) : super(key: key);
+  CreateGroup({Key? key, required this.memberList, required this.user}) : super(key: key);
 
   @override
   State<CreateGroup> createState() => _CreateGroupState();
@@ -51,7 +52,7 @@ class _CreateGroupState extends State<CreateGroup> {
     });
 
     Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => GroupChatHomeScreen()),
+        MaterialPageRoute(builder: (context) => GroupChatHomeScreen(user: widget.user,)),
             (route) => false);
   }
 

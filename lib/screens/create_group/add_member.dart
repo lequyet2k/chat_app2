@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:my_porject/screens/create_group/create_group.dart';
 
 class AddMember extends StatefulWidget {
-  const AddMember({Key? key}) : super(key: key);
+  User user;
+  AddMember({Key? key, required this.user}) : super(key: key);
 
   @override
   State<AddMember> createState() => _AddMemberState();
@@ -37,6 +38,7 @@ class _AddMemberState extends State<AddMember> {
           "email" : map['email'],
           "uid" : map['uid'],
           "isAdmin" : true,
+          "avatar" : map['avatar'],
         });
       });
     });
@@ -50,17 +52,12 @@ class _AddMemberState extends State<AddMember> {
 
     await _firestore.collection('users').where("email", isEqualTo: _search.text).get().then((value) {
       setState(() {
-        print(value.docs[0].data()['name']);
         userMap = value.docs[0].data() ;
         isLoading = false;
       });
-      print(userMap);
     });
-
     _search.clear();
   }
-
-  Map<String, dynamic>? emptyMap ;
 
   void onResultTap() {
 
@@ -78,11 +75,11 @@ class _AddMemberState extends State<AddMember> {
           'email' : userMap!['email'],
           'uid' : userMap!['uid'],
           'isAdmin' : false,
+          'avatar' : userMap!['avatar'],
         });
         userMap = null;
       });
     }
-    print(memberList);
   }
 
   void removeMember(int index) {
@@ -173,7 +170,7 @@ class _AddMemberState extends State<AddMember> {
         onPressed: () {
           Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => CreateGroup(memberList: memberList,)),
+              MaterialPageRoute(builder: (context) => CreateGroup(memberList: memberList,user: widget.user,)),
           );
         },
       ) : SizedBox(),
