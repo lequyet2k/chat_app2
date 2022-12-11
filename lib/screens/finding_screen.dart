@@ -37,8 +37,6 @@ class CustomSearch extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
 
-    late String user1Name;
-
     return StreamBuilder<QuerySnapshot>(
       stream: _firestore.collection('users').snapshots(),
       builder: (context, snapshots){

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:my_porject/chat_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -69,4 +70,46 @@ Future logOut() async {
   } catch(e) {
     print("error");
   }
+}
+
+Future signInWithGoogle() async {
+
+  FirebaseAuth _auth = FirebaseAuth.instance;
+
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  try{
+    final GoogleSignInAccount? googleUser = await GoogleSignIn(
+        scopes: <String>['email']).signIn();
+
+    if(googleUser != null) {
+      final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await _auth.signInWithCredential(credential);
+
+      await _firestore.collection('users').doc(_auth.currentUser?.uid).set({
+        "name" :  googleUser.displayName,
+        "email" : googleUser.email,
+        "status" : true,
+        "uid" : _auth.currentUser!.uid,
+        "avatar" : "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F5c1b8830-75fc-11ed-a92f-3d766ba9d8a3.jpg?alt=media&token=6160aa31-424d-42f6-871e-0ca425e937cb",
+      });
+      return googleUser;
+    } else{
+      print("Account creation failed");
+      return googleUser;
+    }
+
+  } catch(e) {
+    print(e);
+    return null;
+  }
+
+
+
 }

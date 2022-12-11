@@ -127,7 +127,8 @@ class LoginPage extends State<Login> {
                                 icon: Image.asset(
                                   "assets/images/google_icon.png",
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                },
                               ),
                             ),
                             const SizedBox(width: 20),

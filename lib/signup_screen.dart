@@ -119,7 +119,9 @@ class _SignUpScreen extends State<SignUp> {
                               icon: Image.asset(
                                 "assets/images/google_icon.png",
                               ),
-                              onPressed: () {},
+                              onPressed: () {
+                                signInWithGoogle();
+                              },
                             ),
                           ),
                           const SizedBox(width: 20),

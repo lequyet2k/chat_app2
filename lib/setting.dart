@@ -206,7 +206,7 @@ class _SettingState extends State<Setting> {
                       color: Colors.white
                     ),
                   ),
-                  SizedBox(height: 20,),
+                  SizedBox(height: 30,),
                   Container(
                     margin: EdgeInsets.only(left: 20,right: 20),
                     height: size.height / 6,
@@ -233,6 +233,7 @@ class _SettingState extends State<Setting> {
                               Text(
                                   "Name :",
                                 style: TextStyle(
+                                  color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                   fontSize: 14
                                 ),
@@ -241,13 +242,15 @@ class _SettingState extends State<Setting> {
                               Text(
                                 map['name'],
                                 style: TextStyle(
+                                    color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                   fontSize: 14
                                 ),
                               ),
                               IconButton(
                                   onPressed: (){},
-                                  icon: Icon(Icons.create_outlined),
+                                  icon: Icon(Icons.create_outlined,
+                                  ),
                               ),
                             ],
                           ),
@@ -312,7 +315,7 @@ class _SettingState extends State<Setting> {
                               ),
                               IconButton(
                                 onPressed: (){},
-                                icon: Icon(Icons.highlight_off),
+                                icon: Icon(Icons.create_outlined),
                               ),
                             ],
                           ),
@@ -320,7 +323,7 @@ class _SettingState extends State<Setting> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 20,),
+                  SizedBox(height: 30,),
                   Container(
                     margin: EdgeInsets.only(left: 20,right: 20),
                     height: size.height / 10,
@@ -380,28 +383,33 @@ class _SettingState extends State<Setting> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 20,),
+                  SizedBox(height: 40,),
                   GestureDetector(
                     onTap: () {
                       logOuttt();
                     },
                     child: Container(
-                      padding: EdgeInsets.all(12),
+                      margin: EdgeInsets.only(left: 20,right: 20),
                       height: size.height / 20,
-                      width: size.width / 5,
                       decoration: BoxDecoration(
-                        color: Colors.redAccent,
-                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.grey.shade500,
+                        borderRadius: BorderRadius.circular(15),
                       ),
                       child: Container(
-                        alignment: Alignment.center,
-                        child: Text(
-                          "Log Out",
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black87,
-                          ),
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          children: [
+                            SizedBox(width: 5,),
+                            Icon(Icons.logout_outlined, color: Colors.redAccent,),
+                            SizedBox(width: 7,),
+                            Text(
+                              "Log Out",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
