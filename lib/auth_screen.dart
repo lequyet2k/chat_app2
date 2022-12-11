@@ -21,7 +21,7 @@ Future<User?> createAccount(String name, String email, String password) async {
       await _firestore.collection('users').doc(_auth.currentUser?.uid).set({
         "name" :  name,
         "email" : email,
-        "status" : "Unavalible",
+        "status" : true,
         "uid" : _auth.currentUser!.uid,
         "avatar" : "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F5c1b8830-75fc-11ed-a92f-3d766ba9d8a3.jpg?alt=media&token=6160aa31-424d-42f6-871e-0ca425e937cb",
       });

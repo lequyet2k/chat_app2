@@ -35,6 +35,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   late String email = widget.userMap['email'];
 
+  bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -193,11 +195,10 @@ class _ChatScreenState extends State<ChatScreen> {
   final itemScrollController = ItemScrollController();
   late int index;
   void scrollToIndex() async {
-    await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').get().then((value){
-      //index = value.size - 1 ;
-      itemScrollController.jumpTo(index: value.size);
+    await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').get().then((value) {
+      print(value.docs.length);
+      itemScrollController.jumpTo(index: value.docs.length - 1);
     });
-    //itemScrollController.jumpTo(index: index);
   }
 
   @override
@@ -265,7 +266,12 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
         ),
-        body: Column(
+        body: isLoading ? Container(
+          height: size.height ,
+          width: size.width ,
+          alignment: Alignment.center,
+          child: const CircularProgressIndicator(),
+        ) : Column(
           children: <Widget>[
             Expanded(
               child: Container(

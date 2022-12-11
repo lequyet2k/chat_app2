@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_porject/chat_screen.dart';
+import 'package:my_porject/resources/methods.dart';
 
 class ConversationList extends StatefulWidget {
   User user;
@@ -21,8 +22,6 @@ class _ConversationListState extends State<ConversationList> {
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   late Map<String, dynamic> userMap;
-
-  late String user1Name;
 
   final DateFormat formatter = DateFormat('Hm');
 
@@ -48,15 +47,9 @@ class _ConversationListState extends State<ConversationList> {
       setState(() {
         userMap = value.docs[0].data() ;
       });
-      print(userMap);
-    });
-    await _firestore.collection('users').where("email", isEqualTo: _auth.currentUser?.email).get().then((value) {
-      setState(() {
-        user1Name = value.docs[0].get("name");
-      });
     });
 
-    String roomId = chatRoomId(user1Name,widget.chatHistory['name']);
+    String roomId = ChatRoomId().chatRoomId(widget.user.displayName,widget.chatHistory['name']);
     if(mounted) {
       Navigator.push(
           context,
@@ -65,14 +58,7 @@ class _ConversationListState extends State<ConversationList> {
           })
       );
     }
-  }
 
-  String chatRoomId(String user1, String user2){
-    if(user1[0].toLowerCase().codeUnits[0] > user2.toLowerCase().codeUnits[0]){
-      return "$user1$user2";
-    } else {
-      return "$user2$user1";
-    }
   }
 
   @override

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:get/get.dart';
 import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
 import 'package:my_porject/widgets/conversationList.dart';
@@ -11,6 +12,9 @@ import 'package:my_porject/screens/finding_screen.dart';
 import 'package:my_porject/setting.dart';
 import 'package:my_porject/screens/group_chat.dart';
 import 'package:provider/provider.dart';
+import 'package:my_porject/resources/methods.dart';
+
+import 'chat_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   User user;
@@ -22,12 +26,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
-  FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  FirebaseAuth _auth = FirebaseAuth.instance;
-
-  String? currentUserName;
-
-  late Map<String, dynamic> currentUserMap;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   late UserProvider userProvider;
 
@@ -70,8 +70,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if(state == AppLifecycleState.resumed) {
       setStatus("Online");
+      changeStatus('Online');
     }else {
       setStatus("Offline");
+      changeStatus('Offline');
     }
   }
   int _selectedIndex = 0 ;
@@ -94,8 +96,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   final TextEditingController _search = TextEditingController();
-
-  late Map<String, dynamic> userMap;
 
   bool isLoading = false;
 
@@ -174,79 +174,91 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: StreamBuilder(
-                    stream: _firestore.collection('users').doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0").collection('chatHistory').orderBy('time',descending: true).snapshots(),
+                    stream: _firestore.collection('users').doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0").collection('chatHistory').orderBy('status',descending: false).startAt([1]).snapshots(),
                       builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot)  {
                       if(snapshot.data!= null){
                         return Row(
+                          textDirection: TextDirection.rtl,
                           children: List.generate(snapshot.data?.docs.length as int, (index) {
                             Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
-                            return Padding(
-                              padding: EdgeInsets.only(left:5,right: 10),
-                              child :Column(
-                                children: <Widget>[
-                                  Container(
-                                    width: 60,
-                                    height: 60,
-                                    child: Stack(
-                                      children: <Widget>[
-                                        Container(
-                                          height: 70,
-                                          width: 70,
-                                          decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              image: DecorationImage(
-                                                image: NetworkImage(
-                                                  map['avatar'],
-                                                ),
-                                                fit: BoxFit.cover,
-                                              )
-                                          ),
-                                        ),
-                                        map['status'] == 'Online'
-                                            ? Positioned(
-                                          top: 38,
-                                          left: 42,
-                                          child: Container(
-                                            width: 20,
-                                            height: 20,
+                            String roomId = ChatRoomId().chatRoomId(widget.user.displayName, map['name']);
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context){
+                                      return ChatScreen(chatRoomId: roomId, userMap: map, user: widget.user,);
+                                    })
+                                );
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.only(left:5,right: 10),
+                                child :Column(
+                                  children: <Widget>[
+                                    Container(
+                                      width: 60,
+                                      height: 60,
+                                      child: Stack(
+                                        children: <Widget>[
+                                          Container(
+                                            height: 70,
+                                            width: 70,
                                             decoration: BoxDecoration(
-                                                color: Color(0xFF66BB6A),
                                                 shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color: Color(0xFFFFFFFF),
-                                                  width: 3,
+                                                image: DecorationImage(
+                                                  image: NetworkImage(
+                                                    map['avatar'],
+                                                  ),
+                                                  fit: BoxFit.cover,
                                                 )
                                             ),
                                           ),
-                                        )
-                                            :Container(
-                                          width: 70,
-                                          height: 70,
-                                          decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              image: DecorationImage(
-                                                  image: NetworkImage(
-                                                      map['avatar']),
-                                                  fit: BoxFit.cover)),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  SizedBox(
-                                    width: 75,
-                                    child: Align(
-                                      child: Text(
-                                        map['name'],
-                                        overflow: TextOverflow.ellipsis,
+                                          map['status'] == 'Online'
+                                              ? Positioned(
+                                            top: 38,
+                                            left: 42,
+                                            child: Container(
+                                              width: 20,
+                                              height: 20,
+                                              decoration: BoxDecoration(
+                                                  color: Color(0xFF66BB6A),
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(
+                                                    color: Color(0xFFFFFFFF),
+                                                    width: 3,
+                                                  )
+                                              ),
+                                            ),
+                                          )
+                                              :Container(
+                                            width: 70,
+                                            height: 70,
+                                            decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                image: DecorationImage(
+                                                    image: NetworkImage(
+                                                        map['avatar']),
+                                                    fit: BoxFit.cover)),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ),
-                                ],
-                              )
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    SizedBox(
+                                      width: 75,
+                                      child: Align(
+                                        child: Text(
+                                          map['name'],
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
 
+                              ),
                             );
                           }),
                         );

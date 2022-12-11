@@ -345,7 +345,7 @@ class _SettingState extends State<Setting> {
                               Icon(Icons.notifications_active_outlined),
                               SizedBox(width: 7,),
                               Text(
-                                "Notifications and sounds",
+                                "Notifications",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 14
@@ -386,19 +386,22 @@ class _SettingState extends State<Setting> {
                       logOuttt();
                     },
                     child: Container(
-                      padding: EdgeInsets.all(14),
+                      padding: EdgeInsets.all(12),
                       height: size.height / 20,
                       width: size.width / 5,
                       decoration: BoxDecoration(
                         color: Colors.redAccent,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Text(
-                        "Log Out",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: Text(
+                          "Log Out",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black87,
+                          ),
                         ),
                       ),
                     ),

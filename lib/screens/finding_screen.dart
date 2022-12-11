@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/chat_screen.dart';
+import 'package:my_porject/resources/methods.dart';
 
 class CustomSearch extends SearchDelegate {
 
@@ -10,14 +11,6 @@ class CustomSearch extends SearchDelegate {
 
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  String chatRoomId(String? user1, String user2){
-    if(user1![0].toLowerCase().codeUnits[0] > user2.toLowerCase().codeUnits[0]){
-      return "$user1$user2";
-    } else {
-      return "$user2$user1";
-    }
-  }
 
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -62,7 +55,7 @@ class CustomSearch extends SearchDelegate {
               if(map['name'].toString().contains(query.toLowerCase()) || map['email'].toString().contains(query.toLowerCase())){
                 return ListTile(
                   onTap: () async {
-                    String roomId = chatRoomId(user.displayName,map['name']);
+                    String roomId = ChatRoomId().chatRoomId(user.displayName,map['name']);
                     Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => ChatScreen(chatRoomId: roomId, userMap: map,user:  user,))
@@ -121,7 +114,7 @@ class CustomSearch extends SearchDelegate {
                     backgroundImage: NetworkImage(map['avatar']),
                   ),
                   onTap: () async {
-                    String roomId = chatRoomId(user.displayName,map['name']);
+                    String roomId = ChatRoomId().chatRoomId(user.displayName,map['name']);
                     Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => ChatScreen(chatRoomId: roomId, userMap: map,user:  user,))
