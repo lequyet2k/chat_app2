@@ -31,8 +31,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  late String user1Name ;
-
   late String email = widget.userMap['email'];
 
   bool isLoading = false;

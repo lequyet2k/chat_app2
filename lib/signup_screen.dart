@@ -120,7 +120,25 @@ class _SignUpScreen extends State<SignUp> {
                                 "assets/images/google_icon.png",
                               ),
                               onPressed: () {
-                                signInWithGoogle();
+                                // setState(() {
+                                //   isLoading = true;
+                                // });
+                                // signInWithGoogle().then((user) {
+                                //   print(user);
+                                //   if(user != null) {
+                                //     setState(() {
+                                //       isLoading = false;
+                                //     });
+                                //     Navigator.push(
+                                //         context,
+                                //         MaterialPageRoute(
+                                //           builder: (context) => HomeScreen(user: user,),
+                                //         ));
+                                //     print("Login Successfull");
+                                //   } else {
+                                //     print("Login Failed");
+                                //   }
+                                // });
                               },
                             ),
                           ),
@@ -256,7 +274,6 @@ class _SignUpScreen extends State<SignUp> {
                               }
                             });
                           }
-
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black,

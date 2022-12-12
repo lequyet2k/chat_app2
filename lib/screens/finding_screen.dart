@@ -112,7 +112,7 @@ class CustomSearch extends SearchDelegate {
                     backgroundImage: NetworkImage(map['avatar']),
                   ),
                   onTap: () async {
-                    String roomId = ChatRoomId().chatRoomId(user.displayName,map['name']);
+                    String roomId = ChatRoomId().chatRoomId(_auth.currentUser!.displayName,map['name']);
                     Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => ChatScreen(chatRoomId: roomId, userMap: map,user:  user,))

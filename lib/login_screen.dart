@@ -213,6 +213,7 @@ class LoginPage extends State<Login> {
                                   setState(() {
                                     isLoading = false;
                                   });
+                                  print(user);
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(builder: (context) => HomeScreen(user: user,)),
