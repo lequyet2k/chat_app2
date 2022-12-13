@@ -26,7 +26,7 @@ class _SignUpScreen extends State<SignUp> {
       _isVisible = !_isVisible;
     });
   }
-
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -120,25 +120,25 @@ class _SignUpScreen extends State<SignUp> {
                                 "assets/images/google_icon.png",
                               ),
                               onPressed: () {
-                                // setState(() {
-                                //   isLoading = true;
-                                // });
-                                // signInWithGoogle().then((user) {
-                                //   print(user);
-                                //   if(user != null) {
-                                //     setState(() {
-                                //       isLoading = false;
-                                //     });
-                                //     Navigator.push(
-                                //         context,
-                                //         MaterialPageRoute(
-                                //           builder: (context) => HomeScreen(user: user,),
-                                //         ));
-                                //     print("Login Successfull");
-                                //   } else {
-                                //     print("Login Failed");
-                                //   }
-                                // });
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                signInWithGoogle().then((user) {
+                                  print(user);
+                                  if(user != null) {
+                                    setState(() {
+                                      isLoading = false;
+                                    });
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => HomeScreen(user: user,),
+                                        ));
+                                    print("Login Successfull");
+                                  } else {
+                                    print("Login Failed");
+                                  }
+                                });
                               },
                             ),
                           ),
@@ -167,87 +167,94 @@ class _SignUpScreen extends State<SignUp> {
                       ),
                     ),
                     SizedBox(height:10,),
-                    Container(
-                      height: 55,
-                      width: 320,
-                      margin: const EdgeInsets.only(bottom: 5),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                            prefixIcon: const Padding(
-                              padding: EdgeInsetsDirectional.only(start: 12),
-                              child: Icon(Icons.account_circle),
-                            ),
-                            hintText: "Name",
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20))),
-                        controller: name,
-                      ),
-                    ),
-                    Container(
-                      height: 55,
-                      width: 320,
-                      margin: const EdgeInsets.all(5.0),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                            prefixIcon: const Padding(
-                              padding: EdgeInsetsDirectional.only(start: 12),
-                              child: Icon(Icons.email),
-                            ),
-                            hintText: "Email",
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20))),
-                        controller: email,
-                      ),
-                    ),
-                    Container(
-                      height: 55,
-                      width: 320,
-                      margin: const EdgeInsets.all(5.0),
-                      child: TextFormField(
-                        obscureText: _isVisible ? false : true,
-                        decoration: InputDecoration(
-                            prefixIcon: const Padding(
-                              padding: EdgeInsetsDirectional.only(start: 12),
-                              child: Icon(Icons.password),
-                            ),
-                            hintText: "Password",
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20)),
-                            suffixIcon: Padding(
-                              padding: const EdgeInsetsDirectional.only(end: 12),
-                              child: IconButton(
-                                onPressed: () => updateStatus(),
-                                icon: Icon(_isVisible ? Icons.visibility : Icons.visibility_off),
+                    Form(
+                      key: _formKey,
+                        child: Column(
+                          children: [
+                            Container(
+                              height: 55,
+                              width: 320,
+                              margin: const EdgeInsets.only(bottom: 5),
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                    prefixIcon: const Padding(
+                                      padding: EdgeInsetsDirectional.only(start: 12),
+                                      child: Icon(Icons.account_circle),
+                                    ),
+                                    hintText: "Name",
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(20))),
+                                controller: name,
                               ),
-                            )),
-                        controller: password,
-                      ),
-                    ),
-                Container(
-                  height: 55,
-                  width: 320,
-                  margin: const EdgeInsets.all(5.0),
-                  child: TextFormField(
-                    obscureText: _isVisible ? false :true,
-                    decoration: InputDecoration(
-                        prefixIcon: const Padding(
-                          padding: EdgeInsetsDirectional.only(start: 12),
-                          child: Icon(Icons.password),
-                        ),
-                        hintText: "Confirm Password",
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                        suffixIcon: Padding(
-                          padding: const EdgeInsetsDirectional.only(end: 12),
-                          child: IconButton(
-                            onPressed: () => updateStatus(),
-                            icon: Icon(_isVisible ? Icons.visibility : Icons.visibility_off),
-                          ),
-                        )),
+                            ),
+                            Container(
+                              height: 55,
+                              width: 320,
+                              margin: const EdgeInsets.all(5.0),
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                    prefixIcon: const Padding(
+                                      padding: EdgeInsetsDirectional.only(start: 12),
+                                      child: Icon(Icons.email),
+                                    ),
+                                    hintText: "Email",
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(20))),
+                                controller: email,
+                              ),
+                            ),
+                            Container(
+                              height: 55,
+                              width: 320,
+                              margin: const EdgeInsets.all(5.0),
+                              child: TextFormField(
+                                obscureText: _isVisible ? false : true,
+                                decoration: InputDecoration(
+                                    prefixIcon: const Padding(
+                                      padding: EdgeInsetsDirectional.only(start: 12),
+                                      child: Icon(Icons.password),
+                                    ),
+                                    hintText: "Password",
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(20)),
+                                    suffixIcon: Padding(
+                                      padding: const EdgeInsetsDirectional.only(end: 12),
+                                      child: IconButton(
+                                        onPressed: () => updateStatus(),
+                                        icon: Icon(_isVisible ? Icons.visibility : Icons.visibility_off),
+                                      ),
+                                    )),
+                                controller: password,
+                              ),
+                            ),
+                            Container(
+                              height: 55,
+                              width: 320,
+                              margin: const EdgeInsets.all(5.0),
+                              child: TextFormField(
+                                obscureText: _isVisible ? false :true,
+                                decoration: InputDecoration(
+                                    prefixIcon: const Padding(
+                                      padding: EdgeInsetsDirectional.only(start: 12),
+                                      child: Icon(Icons.password),
+                                    ),
+                                    hintText: "Confirm Password",
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(20)),
+                                    suffixIcon: Padding(
+                                      padding: const EdgeInsetsDirectional.only(end: 12),
+                                      child: IconButton(
+                                        onPressed: () => updateStatus(),
+                                        icon: Icon(_isVisible ? Icons.visibility : Icons.visibility_off),
+                                      ),
+                                    )),
 
-                    controller: passwordAgain,
-                  ),
-                ),
+                                controller: passwordAgain,
+                              ),
+                            ),
+                          ],
+                        )
+                    ),
                   SizedBox(height: 10,),
                     SizedBox(
                       width: 200,
@@ -266,7 +273,7 @@ class _SignUpScreen extends State<SignUp> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => HomeScreen(user: user,),
+                                      builder: (context) => Login(email: email.text, password: password.text,),
                                     ));
                                 print("Login Successfull");
                               } else {
@@ -303,7 +310,7 @@ class _SignUpScreen extends State<SignUp> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => Login(),
+                                    builder: (context) => Login(email: email.text,password: password.text,),
                                   ));
                             },
                             child: const Text(

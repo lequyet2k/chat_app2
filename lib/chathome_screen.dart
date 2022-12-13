@@ -103,6 +103,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       context: context,
       delegate: CustomSearch(user: widget.user),
     );
+    _search.clear();
   }
 
   @override
@@ -249,14 +250,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                       width: 75,
                                       child: Align(
                                         child: Text(
-                                          map['name'],
+                                          map['name'] ?? "UserName",
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ),
                                   ],
                                 )
-
                               ),
                             );
                           }),

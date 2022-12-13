@@ -75,7 +75,7 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     if(message.isNotEmpty) {
       Map<String, dynamic> messages = {
-        'sendBy' : widget.user.displayName,
+        'sendBy' : _auth.currentUser!.displayName,
         'message' : message,
         'type' : "text",
         'time' :  DateTime.now(),

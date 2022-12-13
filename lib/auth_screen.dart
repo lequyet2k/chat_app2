@@ -1,12 +1,7 @@
-import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:my_porject/chat_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:my_porject/signup_screen.dart';
 
 
 Future<User?> createAccount(String name, String email, String password) async {
@@ -15,23 +10,21 @@ Future<User?> createAccount(String name, String email, String password) async {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   try{
-    User? user =  (await _auth.createUserWithEmailAndPassword(email: email, password: password))
-        .user;
-    if(user != null) {
+    UserCredential? userCredential =  (await _auth.createUserWithEmailAndPassword(email: email, password: password));
+    if(userCredential != null) {
       print("Account created Succesfull");
-      await user.updateDisplayName(name);
+      userCredential.user!.updateDisplayName(name);
       await _firestore.collection('users').doc(_auth.currentUser?.uid).set({
-        "name" :  _auth.currentUser?.displayName,
+        "name" :  name,
         "email" : email,
         "status" : "Online",
         "uid" : _auth.currentUser!.uid,
         "avatar" : "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F5c1b8830-75fc-11ed-a92f-3d766ba9d8a3.jpg?alt=media&token=6160aa31-424d-42f6-871e-0ca425e937cb",
       });
-
-      return user;
+      return userCredential.user;
     } else {
       print("Account creation failed");
-      return user;
+      return userCredential.user;
     }
   }catch(e) {
     print(e);
@@ -48,7 +41,9 @@ Future<User?> logIn(String email, String password ) async {
     User? user = (await _auth.signInWithEmailAndPassword(
         email: email, password: password)).user;
 
-    await _firestore.collection('users').doc(_auth.currentUser!.uid).get().then((value) => user?.updateDisplayName(value['name']));
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).get().then((value) {
+      user?.updateDisplayName(value['name']);
+    });
 
     if(user != null) {
       print("Login Successful");
@@ -65,7 +60,6 @@ Future<User?> logIn(String email, String password ) async {
 
 Future logOut() async {
   FirebaseAuth _auth = FirebaseAuth.instance;
-  FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   try{
     await _auth.signOut();

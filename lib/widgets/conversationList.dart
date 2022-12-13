@@ -2,6 +2,7 @@ import 'dart:core';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:my_porject/chat_screen.dart';
 import 'package:my_porject/resources/methods.dart';
@@ -85,7 +86,7 @@ class _ConversationListState extends State<ConversationList> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Text(widget.chatHistory['name'],style: TextStyle(fontSize: 16),),
+                              Text(widget.chatHistory['name'] == null ?  "UserName" : widget.chatHistory['name'],style: TextStyle(fontSize: 16),),
                               SizedBox(height: 6,),
                               Text(widget.chatHistory['lastMessage'], style: TextStyle(
                                   fontSize: 13,

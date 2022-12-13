@@ -12,24 +12,33 @@ import 'package:provider/provider.dart';
 
 
 class Login extends StatefulWidget {
-
+  String? email;
+  String? password;
+  Login({this.email,this.password});
   @override
-  State createState() => LoginPage();
+  State<Login> createState() => LoginPage();
 }
 
 class LoginPage extends State<Login> {
+  TextEditingController? _email = TextEditingController();
+  TextEditingController? _password =  TextEditingController();
   late final String imgUrl;
-
-  var email = TextEditingController();
-  var password =  TextEditingController();
   bool isLoading = false;
 
   bool _isVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _email?.text = widget.email ?? "";
+    _password?.text = widget.password ?? "" ;
+  }
   void updateStatus(){
     setState(() {
       _isVisible = !_isVisible;
     });
   }
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +179,7 @@ class LoginPage extends State<Login> {
                                 hintText: "Email",
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(20))),
-                            controller: email,
+                            controller: _email,
                             ),
                       ),
                       SizedBox(height: 5,),
@@ -179,6 +188,7 @@ class LoginPage extends State<Login> {
                         width: 320,
                         margin: const EdgeInsets.all(5.0),
                         child: TextFormField(
+                          key: _formKey,
                           obscureText: _isVisible ? false : true,
                           decoration: InputDecoration(
                               prefixIcon: const Padding(
@@ -195,7 +205,7 @@ class LoginPage extends State<Login> {
                                   icon: Icon(_isVisible ? Icons.visibility : Icons.visibility_off),
                                 ),
                               )),
-                          controller: password,
+                          controller: _password,
                         ),
                       ),
                       SizedBox(height: 10,),
@@ -204,11 +214,11 @@ class LoginPage extends State<Login> {
                         height: 35,
                         child: ElevatedButton(
                           onPressed: () {
-                            if(email.text.isNotEmpty && password.text.isNotEmpty){
+                            if((_email!.text.isNotEmpty && _password!.text.isNotEmpty)){
                               setState(() {
                                 isLoading = true;
                               });
-                              logIn(email.text, password.text).then((user) {
+                              logIn(_email!.text, _password!.text).then((user) {
                                 if(user != null) {
                                   setState(() {
                                     isLoading = false;
