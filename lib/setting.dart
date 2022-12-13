@@ -84,6 +84,7 @@ class _SettingState extends State<Setting> {
         });
       }
     }
+    print(imageFile);
     setState(() {
       isLoading = false;
     });

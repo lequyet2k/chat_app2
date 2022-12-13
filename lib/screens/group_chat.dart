@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:my_porject/chathome_screen.dart';
 import 'package:my_porject/screens/group_chat_room.dart';
 import 'package:my_porject/screens/create_group/add_member.dart';
 
@@ -51,12 +52,9 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => HomeScreen()),
-              // );
+              Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen(user: widget.user)));
             },
-            icon: Icon(Icons.more_vert),
+            icon: Icon(Icons.home),
           )
         ],
       ),

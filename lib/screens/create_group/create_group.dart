@@ -51,12 +51,12 @@ class _CreateGroupState extends State<CreateGroup> {
       "time" : DateTime.now(),
     });
     await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(groupId).set({
-      'lastMessage' : "$currentUserName Created This Group",
+      'lastMessage' : "You Created This Group",
       'type' : "notify",
       'name' : _groupName.text,
       'time' : DateTime.now(),
       'uid' : groupId,
-      'avatar' : "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F00542a90-6bd7-11ed-a6e9-857423274b69.jpg?alt=media&token=42ef5531-4cb0-4725-ae26-de2a915461d2",
+      'avatar' : "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98",
       'status' : "Online",
       'datatype' : "group",
     });
@@ -68,7 +68,7 @@ class _CreateGroupState extends State<CreateGroup> {
         'name' : _groupName.text,
         'time' : DateTime.now(),
         'uid' : groupId,
-        'avatar' : "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F00542a90-6bd7-11ed-a6e9-857423274b69.jpg?alt=media&token=42ef5531-4cb0-4725-ae26-de2a915461d2",
+        'avatar' : "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98",
         'status' : "Online",
         'datatype' : "group",
       });
