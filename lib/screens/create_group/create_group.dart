@@ -50,7 +50,29 @@ class _CreateGroupState extends State<CreateGroup> {
       "type" : "notify",
       "time" : DateTime.now(),
     });
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(groupId).set({
+      'lastMessage' : "$currentUserName Created This Group",
+      'type' : "notify",
+      'name' : _groupName.text,
+      'time' : DateTime.now(),
+      'uid' : groupId,
+      'avatar' : "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F00542a90-6bd7-11ed-a6e9-857423274b69.jpg?alt=media&token=42ef5531-4cb0-4725-ae26-de2a915461d2",
+      'status' : "Online",
+      'datatype' : "group",
+    });
 
+    for(int i = 1 ; i < widget.memberList.length ; i++) {
+      await _firestore.collection('users').doc(widget.memberList[i]['uid']).collection('chatHistory').doc(groupId).set({
+        'lastMessage' : "$currentUserName Created This Group",
+        'type' : "notify",
+        'name' : _groupName.text,
+        'time' : DateTime.now(),
+        'uid' : groupId,
+        'avatar' : "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F00542a90-6bd7-11ed-a6e9-857423274b69.jpg?alt=media&token=42ef5531-4cb0-4725-ae26-de2a915461d2",
+        'status' : "Online",
+        'datatype' : "group",
+      });
+    }
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => GroupChatHomeScreen(user: widget.user,)),
             (route) => false);

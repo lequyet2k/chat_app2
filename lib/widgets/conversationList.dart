@@ -2,9 +2,11 @@ import 'dart:core';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:my_porject/chat_screen.dart';
 import 'package:my_porject/resources/methods.dart';
+import 'package:my_porject/screens/group_chat_room.dart';
 
 class ConversationList extends StatefulWidget {
   User user;
@@ -60,12 +62,26 @@ class _ConversationListState extends State<ConversationList> {
     }
 
   }
+  void groupConversation() async {
+    if(mounted) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context){
+            return GroupChatRoom(groupChatId: widget.chatHistory['uid'], groupName: widget.chatHistory['name'], user: widget.user, currentUserName: widget.user.displayName);
+          })
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: (){
-        conversation();
+        if(widget.chatHistory['datatype'] == 'group') {
+          groupConversation();
+        }else {
+          conversation();
+        }
       },
       child: Container(
         padding: EdgeInsets.only(left: 16, right: 16, top :10, bottom: 10),
@@ -85,7 +101,7 @@ class _ConversationListState extends State<ConversationList> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Text(widget.chatHistory['name'],style: TextStyle(fontSize: 16),),
+                              Text(widget.chatHistory['name'] == null ?  "UserName" : widget.chatHistory['name'],style: TextStyle(fontSize: 16),),
                               SizedBox(height: 6,),
                               Text(widget.chatHistory['lastMessage'], style: TextStyle(
                                   fontSize: 13,

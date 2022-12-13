@@ -9,10 +9,11 @@ import 'group_chat.dart';
 class GroupInfo extends StatefulWidget {
 
   User user;
+  List memberListt;
+  final String groupName, groupId;
+  final String? currentUserName;
 
-  final String groupName, groupId, currentUserName;
-
-  GroupInfo({Key? key, required this.groupName, required this.groupId,required this.user, required this.currentUserName}) : super(key: key);
+  GroupInfo({Key? key, required this.groupName, required this.groupId,required this.user, required this.currentUserName,required this.memberListt}) : super(key: key);
 
   @override
   State<GroupInfo> createState() => _GroupInfoState();
@@ -52,7 +53,21 @@ class _GroupInfoState extends State<GroupInfo> {
       });
     });
   }
+  void update(String text1,String text2) async {
+    await _firestore.collection('users').doc(widget.user.uid).collection('chatHistory').doc(widget.groupId).update({
+      'lastMessage' : text1,
+      'type' : "notify",
+      'time' : DateTime.now(),
+    });
 
+    for(int i = 1 ; i < membersList.length ; i++) {
+      await _firestore.collection('users').doc(membersList[i]['uid']).collection('chatHistory').doc(widget.groupId).update({
+        'lastMessage' : text2,
+        'type' : "notify",
+        'time' : DateTime.now(),
+      });
+    }
+  }
   void showRemoveDialog(int index) {
     showDialog(
         context: context,
@@ -83,15 +98,26 @@ class _GroupInfoState extends State<GroupInfo> {
           "type": "notify",
           "time" : DateTime.now(),
         });
-
         await _firestore.collection('users').doc(membersList[index]['uid']).collection('groups').doc(widget.groupId).delete();
+        await _firestore.collection('users').doc(widget.user.uid).collection('chatHistory').doc(widget.groupId).update({
+          'lastMessage' : "Bạn removed ${membersList[index]['name']}",
+          'type' : "notify",
+          'time' : DateTime.now(),
+        });
 
+        for(int i = 1 ; i < membersList.length ; i++) {
+          await _firestore.collection('users').doc(membersList[i]['uid']).collection('chatHistory').doc(widget.groupId).update({
+            'lastMessage' : "${widget.currentUserName} removed ${membersList[index]['name']}",
+            'type' : "notify",
+            'time' : DateTime.now(),
+          });
+        }
         membersList.removeAt(index);
 
         await _firestore.collection('groups').doc(widget.groupId).update({
           "members" : membersList,
         });
-
+        // await _firestore.collection('users').doc(uid).collection('chatHistory').doc(widget.groupId).delete();
         setState(() {
           isLoading = false;
         });
@@ -116,7 +142,13 @@ class _GroupInfoState extends State<GroupInfo> {
         "type": "notify",
         "time" : DateTime.now(),
       });
-
+      for(int i = 0 ; i < membersList.length ; i++) {
+        await _firestore.collection('users').doc(membersList[i]['uid']).collection('chatHistory').doc(widget.groupId).update({
+          'lastMessage' : "${widget.currentUserName} has left the group",
+          'type' : "notify",
+          'time' : DateTime.now(),
+        });
+      }
       for(int i = 0 ; i < membersList.length ; i++) {
         if(membersList[i]['uid'] == uid){
           membersList.removeAt(i);
@@ -126,8 +158,8 @@ class _GroupInfoState extends State<GroupInfo> {
       await _firestore.collection('groups').doc(widget.groupId).update({
         "members" : membersList,
       });
-
       await _firestore.collection('users').doc(uid).collection('groups').doc(widget.groupId).delete();
+      await _firestore.collection('users').doc(uid).collection('chatHistory').doc(widget.groupId).delete();
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => GroupChatHomeScreen(user: widget.user,)),
@@ -206,7 +238,7 @@ class _GroupInfoState extends State<GroupInfo> {
                 onTap: () {
                   Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => AddMemberInGroup(groupName: widget.groupName, groupId: widget.groupId, membersList: membersList, currentUserName: widget.currentUserName,user: widget.user,)),
+                      MaterialPageRoute(builder: (context) => AddMemberInGroup(groupName: widget.groupName, groupId: widget.groupId, membersList: membersList, currentUserName: widget.currentUserName!,user: widget.user,)),
                   );
                 },
                 leading: Icon(

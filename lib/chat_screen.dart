@@ -31,8 +31,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  late String user1Name ;
-
   late String email = widget.userMap['email'];
 
   bool isLoading = false;
@@ -77,7 +75,7 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     if(message.isNotEmpty) {
       Map<String, dynamic> messages = {
-        'sendBy' : widget.user.displayName,
+        'sendBy' : _auth.currentUser!.displayName,
         'message' : message,
         'type' : "text",
         'time' :  DateTime.now(),
@@ -97,6 +95,7 @@ class _ChatScreenState extends State<ChatScreen> {
         'uid' : widget.userMap['uid'],
         'avatar' : widget.userMap['avatar'],
         'status' : widget.userMap['status'],
+        'datatype' : 'p2p',
       });
       String? currentUserAvatar;
       String? status;
@@ -112,6 +111,7 @@ class _ChatScreenState extends State<ChatScreen> {
         'uid' : _auth.currentUser!.uid,
         'avatar' : currentUserAvatar,
         'status' : status,
+        'datatype' : 'p2p',
       });
     } else {
       print("Enter some text");
@@ -174,6 +174,7 @@ class _ChatScreenState extends State<ChatScreen> {
         'uid' : widget.userMap['uid'],
         'avatar' : widget.userMap['avatar'],
         'status' : widget.userMap['status'],
+        'datatype' : 'p2p',
       });
       String? currentUserAvatar;
       String? status;
@@ -189,6 +190,7 @@ class _ChatScreenState extends State<ChatScreen> {
         'uid' : _auth.currentUser!.uid,
         'avatar' : currentUserAvatar,
         'status' : status,
+        'datatype' : 'p2p',
       });
     }
   }

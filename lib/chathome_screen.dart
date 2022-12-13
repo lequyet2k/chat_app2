@@ -103,6 +103,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       context: context,
       delegate: CustomSearch(user: widget.user),
     );
+    _search.clear();
   }
 
   @override
@@ -173,14 +174,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: StreamBuilder(
-                    stream: _firestore.collection('users').doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0").collection('chatHistory').orderBy('status',descending: false).startAt([1]).snapshots(),
+                    stream: _firestore.collection('users').doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0").collection('chatHistory').orderBy('status',descending: false).snapshots(),
                       builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot)  {
                       if(snapshot.data!= null){
                         return Row(
                           textDirection: TextDirection.rtl,
-                          children: List.generate(snapshot.data?.docs.length as int, (index) {
+                          children: List.generate((snapshot.data?.docs.length as int ), (index) {
                             Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
-                            String roomId = ChatRoomId().chatRoomId(widget.user.displayName, map['name']);
+                          String roomId = ChatRoomId().chatRoomId(widget.user.displayName, map['name']);
                             return GestureDetector(
                               onTap: () {
                                 Navigator.push(
@@ -249,14 +250,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                       width: 75,
                                       child: Align(
                                         child: Text(
-                                          map['name'],
+                                          map['name'] ?? "UserName",
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ),
                                   ],
                                 )
-
                               ),
                             );
                           }),
@@ -269,7 +269,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 ),
                 Container(
                   child: StreamBuilder(
-                    stream: _firestore.collection('users').doc(widget.user.uid).collection('chatHistory').orderBy('time',descending: true).snapshots(),
+                    stream: _firestore.collection('users').doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0").collection('chatHistory').orderBy('time',descending: true).snapshots(),
                     builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
                       if(snapshot.data!= null){
                         return ListView.builder(
