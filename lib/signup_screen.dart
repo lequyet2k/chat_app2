@@ -120,7 +120,7 @@ class _SignUpScreen extends State<SignUp> {
                                 "assets/images/google_icon.png",
                               ),
                               onPressed: () {
-                                signInWithGoogle();
+                                // signInWithGoogle();
                               },
                             ),
                           ),
