@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
+import 'package:my_porject/screens/group_chat_room.dart';
 import 'package:my_porject/widgets/conversationList.dart';
 import 'package:my_porject/screens/finding_screen.dart';
 import 'package:my_porject/setting.dart';
@@ -184,12 +185,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           String roomId = ChatRoomId().chatRoomId(widget.user.displayName, map['name']);
                             return GestureDetector(
                               onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context){
-                                      return ChatScreen(chatRoomId: roomId, userMap: map, user: widget.user,);
-                                    })
-                                );
+                                if(map['datatype'] == 'group'){
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => GroupChatRoom(groupChatId: map['uid'], groupName: map['name'], user: widget.user, currentUserName: widget.user.displayName))
+                                  );
+                                } else {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context){
+                                        return ChatScreen(chatRoomId: roomId, userMap: map, user: widget.user,);
+                                      })
+                                  );
+                                }
                               },
                               child: Padding(
                                 padding: EdgeInsets.only(left:5,right: 10),
