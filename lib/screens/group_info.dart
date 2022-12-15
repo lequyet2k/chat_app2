@@ -53,21 +53,7 @@ class _GroupInfoState extends State<GroupInfo> {
       });
     });
   }
-  void update(String text1,String text2) async {
-    await _firestore.collection('users').doc(widget.user.uid).collection('chatHistory').doc(widget.groupId).update({
-      'lastMessage' : text1,
-      'type' : "notify",
-      'time' : DateTime.now(),
-    });
 
-    for(int i = 1 ; i < membersList.length ; i++) {
-      await _firestore.collection('users').doc(membersList[i]['uid']).collection('chatHistory').doc(widget.groupId).update({
-        'lastMessage' : text2,
-        'type' : "notify",
-        'time' : DateTime.now(),
-      });
-    }
-  }
   void showRemoveDialog(int index) {
     showDialog(
         context: context,

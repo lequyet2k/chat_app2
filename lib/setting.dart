@@ -32,6 +32,8 @@ class _SettingState extends State<Setting> {
 
   late Map<String, dynamic> userMap ;
 
+  bool isSwitched = false;
+  bool isSwitched2 = false;
 
   Future getImage() async {
     ImagePicker _picker = ImagePicker();
@@ -106,17 +108,17 @@ class _SettingState extends State<Setting> {
     await FirebaseFirestore.instance.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value) => {
       n = value.docs.length
     });
-    // for(int i = 0 ; i < n! ; i++) {
-    //   String? uId;
-    //   await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value){
-    //     if(value.docs[i]['datatype'] == 'p2p'){
-    //       uId = value.docs[i]['uid'] ;
-    //     }
-    //   });
-    //   await _firestore.collection('users').doc(uId).collection('chatHistory').doc(_auth.currentUser!.uid).update({
-    //     'status' : 'Offline',
-    //   });
-    // }
+    for(int i = 0 ; i < n! ; i++) {
+      String? uId;
+      await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value){
+        if(value.docs[i]['datatype'] == 'p2p'){
+          uId = value.docs[i]['uid'] ;
+        }
+      });
+      await _firestore.collection('users').doc(uId).collection('chatHistory').doc(_auth.currentUser!.uid).update({
+        'status' : 'Offline',
+      });
+    }
     logOut();
     setState(() {
       isLoading = false;
@@ -316,9 +318,16 @@ class _SettingState extends State<Setting> {
                                     fontSize: 14
                                 ),
                               ),
-                              IconButton(
-                                onPressed: (){},
-                                icon: Icon(Icons.create_outlined),
+                              Switch(
+                                value: isSwitched,
+                                onChanged: (value) {
+                                  setState(() {
+                                    isSwitched = value;
+                                    print(isSwitched);
+                                  });
+                                },
+                                activeTrackColor: Colors.green,
+                                activeColor: Colors.white70,
                               ),
                             ],
                           ),
@@ -358,9 +367,16 @@ class _SettingState extends State<Setting> {
                                 ),
                               ),
                               Spacer(),
-                              IconButton(
-                                onPressed: (){},
-                                icon: Icon(Icons.create_outlined),
+                              Switch(
+                                value: isSwitched2,
+                                onChanged: (value) {
+                                  setState(() {
+                                    isSwitched2 = value;
+                                    print(isSwitched2);
+                                  });
+                                },
+                                activeTrackColor: Colors.green,
+                                activeColor: Colors.white70,
                               ),
                             ],
                           ),

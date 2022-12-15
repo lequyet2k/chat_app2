@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:geolocator/geolocator.dart';
+import 'package:my_porject/resources/methods.dart';
 import 'package:my_porject/screens/callscreen/call_utils.dart';
 import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -7,6 +9,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:uuid/uuid.dart';
 import 'package:my_porject/models/user_model.dart';
 
@@ -44,6 +47,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   late Userr receiver;
   late Userr sender;
+  late String lat;
+  late String long;
 
   void getUserInfo() async {
 
@@ -203,6 +208,66 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  void sendLocation() async {
+    await getLocation().then((value) {
+      lat = '${value.latitude}';
+      long = '${value.longitude}';
+    });
+    await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').add({
+      'sendBy' : widget.user.displayName,
+      'message' : 'Bạn đã gửi một vị trí trực tiếp',
+      'type' : "location",
+      'time' :  DateTime.now(),
+    });
+
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['uid']).set({
+      'lastMessage' : "Bạn đã gửi một vị trí trực tiếp",
+      'type' : "location",
+      'name' : widget.userMap['name'],
+      'time' : DateTime.now(),
+      'uid' : widget.userMap['uid'],
+      'avatar' : widget.userMap['avatar'],
+      'status' : widget.userMap['status'],
+      'datatype' : 'p2p',
+    });
+    String? currentUserAvatar;
+    String? status;
+    await _firestore.collection("users").where("email" , isEqualTo: _auth.currentUser!.email).get().then((value) {
+      currentUserAvatar = value.docs[0]['avatar'];
+      status = value.docs[0]['status'];
+    });
+    await _firestore.collection('users').doc(widget.userMap['uid']).collection('chatHistory').doc(_auth.currentUser!.uid).set({
+      'lastMessage' : "${widget.user.displayName} da gui mot vi tri truc tiep",
+      'type' : "location",
+      'name' : widget.user.displayName,
+      'time' : DateTime.now(),
+      'uid' : _auth.currentUser!.uid,
+      'avatar' : currentUserAvatar,
+      'status' : status,
+      'datatype' : 'p2p',
+    });
+    scrollToIndex();
+  }
+  void liveLocation() {
+    LocationSettings locationSettings = const LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 100
+    );
+
+    Geolocator.getPositionStream(locationSettings: locationSettings).listen((Position position) {
+      lat = position.latitude.toString();
+      long = position.longitude.toString();
+    });
+  }
+
+  Future<void> _openMap(String lat, String long) async {
+    String googleUrl = 'https://www.google.com/maps/search/?api=1&query=$lat,$long';
+
+    await canLaunchUrlString(googleUrl)
+        ? await launchUrlString(googleUrl)
+        : throw 'Could not launch $googleUrl';
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -313,7 +378,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         icon: Icon(Icons.image_outlined, color: Colors.blueAccent,),
                     ),
                     IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          sendLocation();
+                        },
                         icon: Icon(Icons.location_on, color: Colors.blueAccent,),
                     ),
                     IconButton(
@@ -425,7 +492,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       );
-    } else {
+    } else if(map['type'] == "videocall"){
       return Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -493,6 +560,102 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       );
+    } else if(map['type']  == 'location') {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          SizedBox(width: 2,),
+          map['sendBy'] != widget.user.displayName ?
+          Container(
+            margin: EdgeInsets.only(bottom: 5),
+            height: size.width / 13 ,
+            width: size.width / 13 ,
+            child: CircleAvatar(
+              backgroundImage: NetworkImage(userMap['avatar']),
+              maxRadius: 30,
+            ),
+          ): Container(
+          ),
+          Container(
+            width: map['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
+            alignment: map['sendBy'] == widget.user.displayName  ? Alignment.centerRight : Alignment.centerLeft,
+            child: Container(
+              width: size.width / 1.5,
+              // constraints: BoxConstraints( maxWidth: size.width / 1.5),
+              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                color: Colors.grey.shade900,
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(4.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          color: Colors.blueAccent,
+                        ),
+                        child: Icon(
+                          Icons.location_on_outlined,
+                          color: Colors.white70,
+                          size: 18,
+                        ),
+                      ),
+                      SizedBox(width: 10,),
+                      Column(
+                        children: [
+                          Text(
+                            "Vi tri truc tiep",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white70,
+                            ),
+                          ),
+                          Text(
+                            // int.parse(map['timeSpend'].toString()) < 60 ?
+                            "${map['sendBy']} da bat dau chia se" ,
+                            // : (map['timeSpend'] / 60).toString() + "p "+ (map['timeSpend'] % 60).toString() + "s",
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade300,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10,),
+                  GestureDetector(
+                    onTap: (){
+                      _openMap(lat, long);
+                    },
+                    child: Container(
+                      // margin: EdgeInsets.only(right: 5,left: 0),
+                      width: size.width,
+                      height: 25,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.grey.shade400,
+                      ),
+                      child: Container(
+                        alignment: Alignment.center,
+                          child: Text(
+                              "Xem vi tri"
+                          ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Container();
     }
   }
 }

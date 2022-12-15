@@ -71,6 +71,24 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
       "name" : widget.groupName,
       "id" : widget.groupId,
     });
+
+    await _firestore.collection('users').doc(userMap!['uid']).collection('chatHistory').doc(widget.groupId).set({
+      'lastMessage' : "${widget.currentUserName} added ${userMap!['name']}",
+      'type' : "notify",
+      'name' : widget.groupName,
+      'time' : DateTime.now(),
+      'uid' : widget.groupId,
+      'avatar' : "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98",
+      'status' : "Online",
+      'datatype' : "group",
+    });
+    for(int i = 1 ; i < membersList.length ; i++) {
+      await _firestore.collection('users').doc(membersList[i]['uid']).collection('chatHistory').doc(widget.groupId).update({
+        'lastMessage' : "${widget.currentUserName} added ${userMap!['name']}",
+        'type' : "notify",
+        'time' : DateTime.now(),
+      });
+    }
     
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) =>  GroupChatHomeScreen(user: widget.user,)),
