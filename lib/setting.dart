@@ -171,7 +171,7 @@ class _SettingState extends State<Setting> {
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
                                   image: NetworkImage(
-                                    map['avatar'],
+                                    map['avatar'] ?? widget.user.photoURL,
                                   ),
                                   fit: BoxFit.cover,
                                 )

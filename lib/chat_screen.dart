@@ -59,7 +59,6 @@ class _ChatScreenState extends State<ChatScreen> {
       email: widget.userMap['email'],
       status: widget.userMap['status'],
     );
-    Map<String, dynamic> currentUser;
     await _firestore.collection('users').doc(_auth.currentUser!.uid).get().then((value) {
         Map<String, dynamic>? map = value.data();
         sender = Userr(
@@ -203,7 +202,6 @@ class _ChatScreenState extends State<ChatScreen> {
   late int index;
   void scrollToIndex() async {
     await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').get().then((value) {
-      print(value.docs.length);
       itemScrollController.jumpTo(index: value.docs.length - 1);
     });
   }

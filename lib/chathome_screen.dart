@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
+import 'package:my_porject/screens/chat_bot/chat_bot.dart';
 import 'package:my_porject/screens/group_chat_room.dart';
 import 'package:my_porject/widgets/conversationList.dart';
 import 'package:my_porject/screens/finding_screen.dart';
@@ -128,22 +129,36 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               "Conversations",
                             style: TextStyle(fontSize: 22,fontWeight: FontWeight.bold),
                           ),
-                          Container(
-                            padding: EdgeInsets.only(left: 8, right: 8, top: 2, bottom: 2),
-                            height: 30,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(30),
-                              color: Colors.pink[50],
-                            ),
-                            child: Row(
-                              children: <Widget>[
-                                Icon(Icons.add, color :Colors.pink, size: 20,),
-                                SizedBox(width: 2,),
-                                Text(
-                                  "Add friend",
-                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                                )
-                              ],
+                          GestureDetector(
+                            onTap: (){
+                              Navigator.push(
+                                  context,
+                                MaterialPageRoute(builder: (context) => ChatBot(user: widget.user,)),
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.only(left: 8, right: 8, top: 2, bottom: 2),
+                              height: 30,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color: Colors.pink[50],
+                              ),
+                              child: Row(
+                                children: <Widget>[
+                                  Tab(
+                                    icon: Image.asset( //        <-- Image
+                                      'assets/icons/chatbot-icon.png',
+                                      height: 25,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Text(
+                                    "ChatBot",
+                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(width : 5),
+                                ],
+                              ),
                             ),
                           ),
                         ],

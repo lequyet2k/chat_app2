@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '3.0.0-21.0.dev'
+  sdk: '2.18.5'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  dialog_flowtter:
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -90,6 +91,9 @@ flutter:
      - assets/images/user_4.png
      - assets/images/user_5.png
      - assets/images/avatar_user_default.jpeg
+     - assets/images/chatbot.png
+     - assets/dialog_flow_auth.json
+     - assets/icons/chatbot-icon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
