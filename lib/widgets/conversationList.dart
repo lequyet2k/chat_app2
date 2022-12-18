@@ -30,7 +30,7 @@ class _ConversationListState extends State<ConversationList> {
   String convertTime(Timestamp now) {
     int timestamp = now.millisecondsSinceEpoch;
     DateTime tsdate = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    String datetime = tsdate.year.toString() + "/" + tsdate.month.toString() + "/" + tsdate.day.toString();
+    String datetime = tsdate.year.toString().substring(2) + "/" + tsdate.month.toString() + "/" + tsdate.day.toString();
     return datetime;
   }
   String convertHours(Timestamp now) {
@@ -103,15 +103,31 @@ class _ConversationListState extends State<ConversationList> {
                             children: <Widget>[
                               Text(widget.chatHistory['name'] == null ?  "UserName" : widget.chatHistory['name'],style: TextStyle(fontSize: 16),),
                               SizedBox(height: 6,),
-                              Text(widget.chatHistory['lastMessage'], style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey.shade600,)
-                                  //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal),
+                              Row(
+                                children: [
+                                  Container(
+                                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 2.1,),
+                                    child: Text(widget.chatHistory['lastMessage'], style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey.shade600,)
+                                        //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal),
+                                    ),
+                                  ),
+                                  Text(" "),
+                                  Text(
+                                    convertHours(widget.chatHistory['time']),
+                                    //widget.chatHistory['time'],
+                                    style: TextStyle(
+                                      fontSize:   12,
+                                      //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ),
-                    )
+                    ),
                   ],
                 ),
             ),
@@ -120,14 +136,6 @@ class _ConversationListState extends State<ConversationList> {
               children: [
                 Text(
                   convertTime(widget.chatHistory['time']),
-                  //widget.chatHistory['time'],
-                  style: TextStyle(
-                    fontSize:   12,
-                    //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal,
-                  ),
-                ),
-                Text(
-                  convertHours(widget.chatHistory['time']),
                   //widget.chatHistory['time'],
                   style: TextStyle(
                     fontSize:   12,
