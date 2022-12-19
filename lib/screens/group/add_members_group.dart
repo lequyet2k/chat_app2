@@ -1,15 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:my_porject/screens/group_chat.dart';
+import 'package:my_porject/screens/group/group_chat.dart';
 
 class AddMemberInGroup extends StatefulWidget {
   User user;
 
-  final String groupName, groupId,currentUserName;
+  final String groupName, groupId;
   final List membersList;
 
-  AddMemberInGroup({Key? key, required this.groupName, required this.groupId, required this.membersList, required this.currentUserName,required this.user}) : super(key: key);
+  AddMemberInGroup({Key? key, required this.groupName, required this.groupId, required this.membersList,required this.user}) : super(key: key);
 
   @override
   State<AddMemberInGroup> createState() => _AddMemberInGroupState();
@@ -62,7 +62,7 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
     });
 
     await _firestore.collection('groups').doc(widget.groupId).collection('chats').add({
-      "message" : "${widget.currentUserName} added ${userMap!['name']}",
+      "message" : "${widget.user.displayName} added ${userMap!['name']}",
       "type": "notify",
       "time" : DateTime.now(),
     });
@@ -73,7 +73,7 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
     });
 
     await _firestore.collection('users').doc(userMap!['uid']).collection('chatHistory').doc(widget.groupId).set({
-      'lastMessage' : "${widget.currentUserName} added ${userMap!['name']}",
+      'lastMessage' : "${widget.user.displayName} added ${userMap!['name']}",
       'type' : "notify",
       'name' : widget.groupName,
       'time' : DateTime.now(),
@@ -84,7 +84,7 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
     });
     for(int i = 1 ; i < membersList.length ; i++) {
       await _firestore.collection('users').doc(membersList[i]['uid']).collection('chatHistory').doc(widget.groupId).update({
-        'lastMessage' : "${widget.currentUserName} added ${userMap!['name']}",
+        'lastMessage' : "${widget.user.displayName} added ${userMap!['name']}",
         'type' : "notify",
         'time' : DateTime.now(),
       });

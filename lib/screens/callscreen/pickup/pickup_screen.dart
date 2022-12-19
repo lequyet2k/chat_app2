@@ -12,7 +12,6 @@ class PickUpScreen extends StatelessWidget {
 
   Future<void> _handleCameraAndMic(Permission permission) async {
     final status = await permission.request();
-    print(status);
   }
 
   @override

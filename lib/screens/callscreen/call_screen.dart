@@ -135,9 +135,9 @@ class _CallScreenState extends State<CallScreen> {
             break;
         }
 
-        if(ds.data() == null){
-          Navigator.pop(context);
-        }
+        // if(ds.data() == null){
+        //   Navigator.pop(context);
+        // }
       });
     });
   }

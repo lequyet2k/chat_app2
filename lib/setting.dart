@@ -265,6 +265,7 @@ class _SettingState extends State<Setting> {
                               border: Border(
                                   bottom: BorderSide(
                                     color: Colors.black38,
+
                                   )
                               )
                           ),
