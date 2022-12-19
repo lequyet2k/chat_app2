@@ -2,7 +2,6 @@ import 'dart:core';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:my_porject/chat_screen.dart';
 import 'package:my_porject/resources/methods.dart';
@@ -18,10 +17,6 @@ class ConversationList extends StatefulWidget {
 }
 
 class _ConversationListState extends State<ConversationList> {
-  
-  FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
-  FirebaseAuth _auth = FirebaseAuth.instance;
 
   late Map<String, dynamic> userMap;
 
@@ -42,8 +37,6 @@ class _ConversationListState extends State<ConversationList> {
 
   void conversation() async {
     FirebaseFirestore _firestore =  FirebaseFirestore.instance;
-
-    FirebaseAuth _auth = FirebaseAuth.instance;
 
     await _firestore.collection('users').where("uid", isEqualTo: widget.chatHistory['uid']).get().then((value) {
       setState(() {
