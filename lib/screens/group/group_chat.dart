@@ -1,0 +1,154 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:my_porject/chathome_screen.dart';
+import 'package:my_porject/screens/group/group_chat_room.dart';
+import 'package:my_porject/screens/group/create_group/add_member.dart';
+
+
+class GroupChatHomeScreen extends StatefulWidget {
+  User user;
+  GroupChatHomeScreen({Key? key, required this.user}) : super(key: key);
+
+  @override
+  State<GroupChatHomeScreen> createState() => _GroupChatHomeScreenState();
+}
+
+class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  bool isLoading = true;
+  List memberList = [] ;
+  List groupList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getGroup();
+  }
+
+  void getGroup() async {
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('groups').get().then((value) {
+      setState(() {
+        groupList = value.docs;
+        isLoading = false;
+      });
+    });
+    // await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('groups')
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    final Size size = MediaQuery.of(context).size;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.only(top: 15,left: 15),
+          child: Text(
+              'Groups',
+              style: TextStyle(
+                color: Colors.black54,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              )
+          ),
+        ),
+        Expanded(
+          child: Stack(
+            children: [
+              ListView.builder(
+                  itemCount: groupList.length,
+                  itemBuilder: (context, index) {
+                    return StreamBuilder(
+                      stream: _firestore.collection('users').doc(_auth.currentUser!.uid).collection('groups').snapshots(),
+                      builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
+                        if(snapshot.data!= null){
+                          return ListView.builder(
+                              itemCount: snapshot.data?.docs.length,
+                              shrinkWrap: true,
+                              padding: EdgeInsets.only(top: 0),
+                              physics: NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
+                                return listGroup(map : map);
+                              }
+                          );
+                        } else {
+                          return Container();
+                        }
+                      },
+                    );
+                  }
+              ),
+              Positioned(
+                right: 20.0,
+                bottom: 20.0,
+                child: FloatingActionButton(
+                  backgroundColor: Colors.black,
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => AddMember(user: widget.user,))
+                    );
+                  },
+                  child: Icon(Icons.create),
+                  tooltip: "Create Group",
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget listGroup({required Map<String, dynamic> map}) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => GroupChatRoom(groupChatId: map['id'], groupName: map['name'], user: widget.user))
+        );
+      },
+      child: Expanded(
+        child: Container(
+          padding: EdgeInsets.only(left: 16, right: 16, top :0, bottom: 10),
+          child: Row(
+            children: <Widget>[
+              CircleAvatar(
+                backgroundImage: AssetImage('assets/images/groupAvatar.png'),
+                maxRadius: 30,
+              ),
+              SizedBox(width: 16,),
+              Expanded(
+                child: Container(
+                  color: Colors.transparent,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(map['name'],style: TextStyle(fontSize: 16),),
+                      SizedBox(height: 6,),
+                      Container(
+                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 2.1,),
+                        child: Text('Members: ${map['members'].toString().length}', style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade600,)
+                          //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -12,6 +12,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:uuid/uuid.dart';
 import 'package:my_porject/models/user_model.dart';
+import 'package:my_porject/resources/methods.dart';
 
 class ChatScreen extends StatefulWidget {
   Map<String, dynamic> userMap ;
@@ -258,13 +259,6 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  Future<void> _openMap(String lat, String long) async {
-    String googleUrl = 'https://www.google.com/maps/search/?api=1&query=$lat,$long';
-
-    await canLaunchUrlString(googleUrl)
-        ? await launchUrlString(googleUrl)
-        : throw 'Could not launch $googleUrl';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -628,7 +622,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   SizedBox(height: 10,),
                   GestureDetector(
                     onTap: (){
-                      _openMap(lat, long);
+                      openMap(lat, long);
                     },
                     child: Container(
                       // margin: EdgeInsets.only(right: 5,left: 0),

@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/chathome_screen.dart';
-import 'package:my_porject/screens/add_members_group.dart';
+import 'package:my_porject/screens/group/add_members_group.dart';
 
 import 'group_chat.dart';
 
@@ -11,9 +11,8 @@ class GroupInfo extends StatefulWidget {
   User user;
   List memberListt;
   final String groupName, groupId;
-  final String? currentUserName;
 
-  GroupInfo({Key? key, required this.groupName, required this.groupId,required this.user, required this.currentUserName,required this.memberListt}) : super(key: key);
+  GroupInfo({Key? key, required this.groupName, required this.groupId,required this.user, required this.memberListt}) : super(key: key);
 
   @override
   State<GroupInfo> createState() => _GroupInfoState();
@@ -80,7 +79,7 @@ class _GroupInfoState extends State<GroupInfo> {
         });
 
         await _firestore.collection('groups').doc(widget.groupId).collection('chats').add({
-          "message" : "${widget.currentUserName} removed ${membersList[index]['name']}",
+          "message" : "${widget.user.displayName} removed ${membersList[index]['name']}",
           "type": "notify",
           "time" : DateTime.now(),
         });
@@ -93,7 +92,7 @@ class _GroupInfoState extends State<GroupInfo> {
 
         for(int i = 1 ; i < membersList.length ; i++) {
           await _firestore.collection('users').doc(membersList[i]['uid']).collection('chatHistory').doc(widget.groupId).update({
-            'lastMessage' : "${widget.currentUserName} removed ${membersList[index]['name']}",
+            'lastMessage' : "${widget.user.displayName} removed ${membersList[index]['name']}",
             'type' : "notify",
             'time' : DateTime.now(),
           });
@@ -124,13 +123,13 @@ class _GroupInfoState extends State<GroupInfo> {
       String uid = _auth.currentUser!.uid;
 
       await _firestore.collection('groups').doc(widget.groupId).collection('chats').add({
-        "message" : "${widget.currentUserName} has left the group",
+        "message" : "${widget.user.displayName} has left the group",
         "type": "notify",
         "time" : DateTime.now(),
       });
       for(int i = 0 ; i < membersList.length ; i++) {
         await _firestore.collection('users').doc(membersList[i]['uid']).collection('chatHistory').doc(widget.groupId).update({
-          'lastMessage' : "${widget.currentUserName} has left the group",
+          'lastMessage' : "${widget.user.displayName} has left the group",
           'type' : "notify",
           'time' : DateTime.now(),
         });
@@ -224,7 +223,7 @@ class _GroupInfoState extends State<GroupInfo> {
                 onTap: () {
                   Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => AddMemberInGroup(groupName: widget.groupName, groupId: widget.groupId, membersList: membersList, currentUserName: widget.currentUserName!,user: widget.user,)),
+                      MaterialPageRoute(builder: (context) => AddMemberInGroup(groupName: widget.groupName, groupId: widget.groupId, membersList: membersList,user: widget.user,)),
                   );
                 },
                 leading: Icon(

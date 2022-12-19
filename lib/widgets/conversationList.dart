@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_porject/chat_screen.dart';
 import 'package:my_porject/resources/methods.dart';
-import 'package:my_porject/screens/group_chat_room.dart';
+import 'package:my_porject/screens/group/group_chat_room.dart';
 
 class ConversationList extends StatefulWidget {
   User user;
@@ -60,7 +60,7 @@ class _ConversationListState extends State<ConversationList> {
       Navigator.push(
           context,
           MaterialPageRoute(builder: (context){
-            return GroupChatRoom(groupChatId: widget.chatHistory['uid'], groupName: widget.chatHistory['name'], user: widget.user, currentUserName: widget.user.displayName);
+            return GroupChatRoom(groupChatId: widget.chatHistory['uid'], groupName: widget.chatHistory['name'], user: widget.user,);
           })
       );
     }

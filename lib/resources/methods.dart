@@ -1,6 +1,8 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class ChatRoomId {
   String chatRoomId(String? user1, String user2){
@@ -31,4 +33,12 @@ Future<Position> getLocation() async {
   }
 
   return await Geolocator.getCurrentPosition();
+}
+
+Future<void> openMap(String lat, String long) async {
+  String googleUrl = 'https://www.google.com/maps/search/?api=1&query=$lat,$long';
+
+  await canLaunchUrlString(googleUrl)
+      ? await launchUrlString(googleUrl)
+      : throw 'Could not launch $googleUrl';
 }

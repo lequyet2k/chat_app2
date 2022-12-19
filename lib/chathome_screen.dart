@@ -7,11 +7,11 @@ import 'package:flutter/scheduler.dart';
 import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
 import 'package:my_porject/screens/chat_bot/chat_bot.dart';
-import 'package:my_porject/screens/group_chat_room.dart';
-import 'package:my_porject/widgets/conversationList.dart';
-import 'package:my_porject/screens/finding_screen.dart';
+import 'package:my_porject/screens/group/finding_screen.dart';
 import 'package:my_porject/setting.dart';
-import 'package:my_porject/screens/group_chat.dart';
+import 'package:my_porject/screens/group/group_chat.dart';
+import 'package:my_porject/widgets/conversationList.dart';
+import 'package:my_porject/widgets/listChat.dart';
 import 'package:provider/provider.dart';
 import 'package:my_porject/resources/methods.dart';
 
@@ -34,7 +34,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    super.initState();
     WidgetsBinding.instance.addObserver(this);
     setStatus("Online");
     changeStatus("Online");
@@ -42,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       userProvider = Provider.of<UserProvider>(context, listen: false);
       userProvider.refreshUser();
     });
+    super.initState();
   }
 
 
@@ -50,6 +50,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       "status" : status,
     });
   }
+
 
   void changeStatus(String statuss) async {
     int? n;
@@ -78,21 +79,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
   int _selectedIndex = 0 ;
+
+  Widget body(int index) {
+    if(index == 0) {
+      return listChat(widget.user);
+    } else if(index == 1) {
+      return GroupChatHomeScreen(user: widget.user,);
+    } else {
+      return Container();
+    }
+  }
+
   void _onItemTapped(int index){
     setState(() {
       _selectedIndex = index;
-      if(index == 2) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => Setting(user: widget.user,)),
-        );
-      }
-      if(index == 1) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => GroupChatHomeScreen(user: widget.user,)),
-        );
-      }
     });
   }
 
@@ -114,205 +114,188 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     return PickUpLayout(
       scaffold: Scaffold(
-          body: SingleChildScrollView(
-            physics: BouncingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                SafeArea(
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 16, top: 10, right: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text(
-                              "Conversations",
-                            style: TextStyle(fontSize: 22,fontWeight: FontWeight.bold),
-                          ),
-                          GestureDetector(
-                            onTap: (){
-                              Navigator.push(
-                                  context,
-                                MaterialPageRoute(builder: (context) => ChatBot(user: widget.user,)),
-                              );
-                            },
-                            child: Container(
-                              padding: EdgeInsets.only(left: 8, right: 8, top: 2, bottom: 2),
-                              height: 30,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30),
-                                color: Colors.pink[50],
-                              ),
-                              child: Row(
-                                children: <Widget>[
-                                  Tab(
-                                    icon: Image.asset( //        <-- Image
-                                      'assets/icons/chatbot-icon.png',
-                                      height: 25,
-                                      fit: BoxFit.cover,
-                                    ),
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 16, top: 10, right: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(
+                            "Conversations",
+                          style: TextStyle(fontSize: 22,fontWeight: FontWeight.bold),
+                        ),
+                        GestureDetector(
+                          onTap: (){
+                            Navigator.push(
+                                context,
+                              MaterialPageRoute(builder: (context) => ChatBot(user: widget.user,)),
+                            );
+                          },
+                          child: Container(
+                            padding: EdgeInsets.only(left: 8, right: 8, top: 2, bottom: 2),
+                            height: 30,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              color: Colors.pink[50],
+                            ),
+                            child: Row(
+                              children: <Widget>[
+                                Tab(
+                                  icon: Image.asset( //        <-- Image
+                                    'assets/icons/chatbot-icon.png',
+                                    height: 25,
+                                    fit: BoxFit.cover,
                                   ),
-                                  Text(
-                                    "ChatBot",
-                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                                  ),
-                                  SizedBox(width : 5),
-                                ],
-                              ),
+                                ),
+                                Text(
+                                  "ChatBot",
+                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(width : 5),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                ),
-                Container(
-                  padding: EdgeInsets.only(top: 16, right: 16, left: 16),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: "Search..",
-                      hintStyle: TextStyle(color: Colors.grey.shade600),
-                      prefixIcon: Icon(Icons.search, color: Colors.grey.shade600, size: 20,),
-                      filled: true,
-                      fillColor: Colors.grey.shade100,
-                      contentPadding: EdgeInsets.all(8.0),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade100,
-                        )
-                      ),
-                    ),
-                    controller: _search,
-                    onTap: onSearch,
                   ),
+              ),
+              Container(
+                padding: EdgeInsets.only(top: 16, right: 16, left: 16),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: "Search..",
+                    hintStyle: TextStyle(color: Colors.grey.shade600),
+                    prefixIcon: Icon(Icons.search, color: Colors.grey.shade600, size: 20,),
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                    contentPadding: EdgeInsets.all(8.0),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade100,
+                      )
+                    ),
+                  ),
+                  controller: _search,
+                  onTap: onSearch,
                 ),
-                SizedBox(height: 20,),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: StreamBuilder(
-                    stream: _firestore.collection('users').doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0").collection('chatHistory').orderBy('status',descending: false).snapshots(),
-                      builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot)  {
-                      if(snapshot.data!= null){
-                        return Row(
-                          textDirection: TextDirection.rtl,
-                          children: List.generate((snapshot.data?.docs.length as int ), (index) {
-                            Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
-                          String roomId = ChatRoomId().chatRoomId(widget.user.displayName, map['name']);
+              ),
+              SizedBox(height: 20,),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: StreamBuilder(
+                  stream: _firestore.collection('users').doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0").collection('chatHistory').orderBy('status',descending: false).snapshots(),
+                    builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot)  {
+                    if(snapshot.data!= null){
+                      return Row(
+                        textDirection: TextDirection.rtl,
+                        children: List.generate((snapshot.data?.docs.length as int ), (index) {
+                          Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
+                        String roomId = ChatRoomId().chatRoomId(widget.user.displayName, map['name']);
+                          if(map['datatype'] != 'group'){
                             return GestureDetector(
                               onTap: () {
-                                if(map['datatype'] == 'group'){
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => GroupChatRoom(groupChatId: map['uid'], groupName: map['name'], user: widget.user, currentUserName: widget.user.displayName))
-                                  );
-                                } else {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context){
-                                        return ChatScreen(chatRoomId: roomId, userMap: map, user: widget.user,);
-                                      })
-                                  );
-                                }
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context){
+                                      return ChatScreen(chatRoomId: roomId, userMap: map, user: widget.user,);
+                                    })
+                                );
                               },
                               child: Padding(
-                                padding: EdgeInsets.only(left:5,right: 10),
-                                child :Column(
-                                  children: <Widget>[
-                                    Container(
-                                      width: 60,
-                                      height: 60,
-                                      child: Stack(
-                                        children: <Widget>[
-                                          Container(
-                                            height: 70,
-                                            width: 70,
-                                            decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                image: DecorationImage(
-                                                  image: NetworkImage(
-                                                    map['avatar'],
-                                                  ),
-                                                  fit: BoxFit.cover,
-                                                )
-                                            ),
-                                          ),
-                                          map['status'] == 'Online'
-                                              ? Positioned(
-                                            top: 38,
-                                            left: 42,
-                                            child: Container(
-                                              width: 20,
-                                              height: 20,
+                                  padding: EdgeInsets.only(left:5,right: 10),
+                                  child :Column(
+                                    children: <Widget>[
+                                      Container(
+                                        width: 60,
+                                        height: 60,
+                                        child: Stack(
+                                          children: <Widget>[
+                                            Container(
+                                              height: 70,
+                                              width: 70,
                                               decoration: BoxDecoration(
-                                                  color: Color(0xFF66BB6A),
                                                   shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                    color: Color(0xFFFFFFFF),
-                                                    width: 3,
+                                                  image: DecorationImage(
+                                                    image: NetworkImage(
+                                                      map['avatar'],
+                                                    ),
+                                                    fit: BoxFit.cover,
                                                   )
                                               ),
                                             ),
-                                          )
-                                              :Container(
-                                            width: 70,
-                                            height: 70,
-                                            decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                image: DecorationImage(
-                                                    image: NetworkImage(
-                                                        map['avatar']),
-                                                    fit: BoxFit.cover)),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    SizedBox(
-                                      width: 75,
-                                      child: Align(
-                                        child: Text(
-                                          map['name'] ?? "UserName",
-                                          overflow: TextOverflow.ellipsis,
+                                            map['status'] == 'Online'
+                                                ? Positioned(
+                                              top: 38,
+                                              left: 42,
+                                              child: Container(
+                                                width: 20,
+                                                height: 20,
+                                                decoration: BoxDecoration(
+                                                    color: Color(0xFF66BB6A),
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                      color: Color(0xFFFFFFFF),
+                                                      width: 3,
+                                                    )
+                                                ),
+                                              ),
+                                            )
+                                                :Container(
+                                              width: 70,
+                                              height: 70,
+                                              decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  image: DecorationImage(
+                                                      image: NetworkImage(
+                                                          map['avatar']),
+                                                      fit: BoxFit.cover)),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                )
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      SizedBox(
+                                        width: 75,
+                                        child: Align(
+                                          child: Text(
+                                            map['name'] ?? "UserName",
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
                               ),
                             );
-                          }),
-                        );
-                      } else {
-                        return Container();
-                      }
+                          } else {
+                            return Container();
+                          }
+                        }),
+                      );
+                    } else {
+                      return Container();
                     }
-                  ),
+                  }
                 ),
-                Container(
-                  child: StreamBuilder(
-                    stream: _firestore.collection('users').doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0").collection('chatHistory').orderBy('time',descending: true).snapshots(),
-                    builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
-                      if(snapshot.data!= null){
-                        return ListView.builder(
-                          itemCount: snapshot.data?.docs.length,
-                          shrinkWrap: true,
-                          padding: EdgeInsets.only(top: 16),
-                          physics: NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
-                            return ConversationList(chatHistory: map,user: widget.user);
-                          },
-                        );
-                      } else {
-                        return Container();
-                      }
-                    }
+              ),
+              SizedBox(height: 5,),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20)),
                   ),
+                  child: body(_selectedIndex),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
           bottomNavigationBar: BottomNavigationBar(
             selectedItemColor: Colors.black,
@@ -320,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
             unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
             type: BottomNavigationBarType.fixed,
-            items: <BottomNavigationBarItem>[
+            items: const <BottomNavigationBarItem>[
               BottomNavigationBarItem(
                   icon: Icon(Icons.message_rounded),
                 label: "Message",
@@ -338,6 +321,47 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             onTap: _onItemTapped,
           ),
       ),
+    );
+  }
+
+  Widget listChat(User user) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.only(top: 15,left: 15),
+          child: Text(
+            'Recent Chats',
+            style: TextStyle(
+              color: Colors.black54,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            )
+          ),
+        ),
+        Container(
+          child: StreamBuilder(
+              stream: _firestore.collection('users').doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0").collection('chatHistory').orderBy('time',descending: true).snapshots(),
+              builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
+                if(snapshot.data!= null){
+                  return ListView.builder(
+                    itemCount: snapshot.data?.docs.length,
+                    shrinkWrap: true,
+                    padding: EdgeInsets.only(top: 2),
+                    physics: NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
+                      return ConversationList(chatHistory: map,user: widget.user);
+                    },
+                  );
+                } else {
+                  return Container();
+                }
+              }
+          ),
+        ),
+      ],
     );
   }
 }

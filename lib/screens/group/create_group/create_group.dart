@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:my_porject/screens/group_chat.dart';
+import 'package:my_porject/screens/group/group_chat.dart';
 
 class CreateGroup extends StatefulWidget {
   User user;
@@ -19,7 +19,6 @@ class _CreateGroupState extends State<CreateGroup> {
   bool isLoading = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  String? currentUserName;
 
   void createGroup() async {
 
@@ -28,9 +27,6 @@ class _CreateGroupState extends State<CreateGroup> {
     });
 
     String groupId  = Uuid().v1();
-    await _firestore.collection('users').doc(_auth.currentUser!.uid).get().then((value) {
-      currentUserName = value['name'];
-    }) ;
 
     await _firestore.collection('groups').doc(groupId).set({
       "members" : widget.memberList,
@@ -42,11 +38,12 @@ class _CreateGroupState extends State<CreateGroup> {
       await _firestore.collection('users').doc(uid).collection('groups').doc(groupId).set({
         "name" : _groupName.text,
         "id" : groupId,
+        'members' : widget.memberList,
       });
     }
 
     await _firestore.collection('groups').doc(groupId).collection('chats').add({
-      "message" : " $currentUserName Created This Group",
+      "message" : "${widget.user.displayName} Created This Group",
       "type" : "notify",
       "time" : DateTime.now(),
     });
@@ -63,7 +60,7 @@ class _CreateGroupState extends State<CreateGroup> {
 
     for(int i = 1 ; i < widget.memberList.length ; i++) {
       await _firestore.collection('users').doc(widget.memberList[i]['uid']).collection('chatHistory').doc(groupId).set({
-        'lastMessage' : "$currentUserName Created This Group",
+        'lastMessage' : "${widget.user.displayName} Created This Group",
         'type' : "notify",
         'name' : _groupName.text,
         'time' : DateTime.now(),
