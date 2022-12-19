@@ -1,12 +1,12 @@
 import 'dart:ui';
 import 'package:flutter/gestures.dart';
-import 'package:my_porject/chathome_screen.dart';
+import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/provider/user_provider.dart';
-import 'package:my_porject/signup_screen.dart';
+import 'package:my_porject/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:my_porject/chat_screen.dart';
+import 'package:my_porject/screens/chat_screen.dart';
 import 'package:blur/blur.dart';
-import 'package:my_porject/auth_screen.dart';
+import 'package:my_porject/screens/auth_screen.dart';
 import 'package:my_porject/components/upside.dart';
 import 'package:provider/provider.dart';
 

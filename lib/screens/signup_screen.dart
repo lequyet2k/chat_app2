@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:my_porject/auth_screen.dart';
-import 'package:my_porject/login_screen.dart';
-import 'package:my_porject/chathome_screen.dart';
+import 'package:my_porject/screens/auth_screen.dart';
+import 'package:my_porject/screens/login_screen.dart';
+import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/components/upside_signup.dart';
 
 

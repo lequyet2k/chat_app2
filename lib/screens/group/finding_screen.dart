@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:my_porject/chat_screen.dart';
+import 'package:my_porject/screens/chat_screen.dart';
 import 'package:my_porject/resources/methods.dart';
 
 class CustomSearch extends SearchDelegate {

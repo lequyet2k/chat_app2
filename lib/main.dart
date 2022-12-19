@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_porject/provider/user_provider.dart';
-import 'package:my_porject/welcome_screen.dart';
+import 'package:my_porject/screens/welcome_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:my_porject/resources/firebase_options.dart';
 import 'package:provider/provider.dart';

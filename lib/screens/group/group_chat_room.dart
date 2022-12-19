@@ -9,7 +9,7 @@ import 'package:my_porject/screens/group/group_info.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../chat_screen.dart';
+import '../chat_screen.dart';
 import '../../resources/methods.dart';
 
 class GroupChatRoom extends StatefulWidget {

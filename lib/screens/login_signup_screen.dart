@@ -1,9 +1,9 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:my_porject/auth_screen.dart';
-import 'package:my_porject/signup_screen.dart';
-import 'package:my_porject/login_screen.dart';
+import 'package:my_porject/screens/auth_screen.dart';
+import 'package:my_porject/screens/signup_screen.dart';
+import 'package:my_porject/screens/login_screen.dart';
 
 
 class SigninOrSignupScreen extends StatelessWidget {
