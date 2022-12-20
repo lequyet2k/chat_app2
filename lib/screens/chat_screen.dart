@@ -9,10 +9,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 import 'package:uuid/uuid.dart';
 import 'package:my_porject/models/user_model.dart';
-import 'package:my_porject/resources/methods.dart';
 
 class ChatScreen extends StatefulWidget {
   Map<String, dynamic> userMap ;
@@ -343,7 +341,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         itemCount: snapshot.data?.docs.length as int,
                         itemBuilder: (context, index) {
                           Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
-                          return messages(size, map,widget.userMap,context);
+                          return messages(size, map, widget.userMap, index, snapshot.data?.docs.length as int, context);
                         },
                         itemScrollController: itemScrollController,
                       );
@@ -410,8 +408,8 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
-  Widget messages(Size size, Map<String, dynamic> map,Map<String, dynamic> userMap, BuildContext context) {
-    if(map['type'] == "text") {
+  Widget messages(Size size, Map<String, dynamic> map,Map<String, dynamic> userMap,int index,int length, BuildContext context) {
+    if(map['status'] == 'removed') {
       return Row(
         children: [
           SizedBox(width: 2,),
@@ -425,182 +423,172 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ): Container(
           ),
-          Container(
-            width: map['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.7,
-            alignment: map['sendBy'] == widget.user.displayName ? Alignment.centerRight : Alignment.centerLeft,
+          GestureDetector(
+            onLongPress: (){},
             child: Container(
-              constraints: BoxConstraints( maxWidth: size.width / 1.5),
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: Colors.black,
-              ),
-              child: Text(
-                map['message'],
-                style: TextStyle(color: Colors.white,fontSize: 17),
+              width: map['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.7,
+              alignment: map['sendBy'] == widget.user.displayName ? Alignment.centerRight : Alignment.centerLeft,
+              child: Container(
+                constraints: BoxConstraints( maxWidth: size.width / 1.5),
+                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: Colors.black,
+                ),
+                child: Text(
+                  map['message'],
+                  style: TextStyle(
+                      color: Colors.grey.shade700,
+                      fontSize: 17,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
               ),
             ),
           ),
         ],
       );
-    } else if (map['type'] == "img") {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          const SizedBox(width: 2,),
-          map['sendBy'] != widget.user.displayName ?
-          Container(
-            margin: EdgeInsets.only(bottom: 8),
-            height: size.width / 13 ,
-            width: size.width / 13 ,
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(userMap['avatar']),
-              maxRadius: 30,
-            ),
-          ): Container(
-          ),
-          Container(
-            height: size.height / 2.5,
-            width: map['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
-            padding: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
-            alignment: map['sendBy'] == widget.user.displayName
-                ? Alignment.centerRight
-                : Alignment.centerLeft,
-            child: InkWell(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => ShowImage(imageUrl: map['message'])),
+    } else {
+      if(map['type'] == "text") {
+        return Row(
+          children: [
+            SizedBox(width: 2,),
+            map['sendBy'] != widget.user.displayName ?
+            Container(
+              height: size.width / 13 ,
+              width: size.width / 13 ,
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(userMap['avatar']),
+                maxRadius: 30,
               ),
+            ): Container(
+            ),
+            GestureDetector(
+              onLongPress: (){
+                if(map['sendBy'] == widget.user.displayName){
+                  changeMessage(index, length);
+                }
+              },
+              child: Container(
+                width: map['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.7,
+                alignment: map['sendBy'] == widget.user.displayName ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  constraints: BoxConstraints( maxWidth: size.width / 1.5),
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.black,
+                  ),
+                  child: Text(
+                    map['message'],
+                    style: TextStyle(color: Colors.white,fontSize: 17),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      } else if (map['type'] == "img") {
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            const SizedBox(width: 2,),
+            map['sendBy'] != widget.user.displayName ?
+            Container(
+              margin: EdgeInsets.only(bottom: 8),
+              height: size.width / 13 ,
+              width: size.width / 13 ,
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(userMap['avatar']),
+                maxRadius: 30,
+              ),
+            ): Container(
+            ),
+            GestureDetector(
+              onLongPress: (){
+                if(map['sendBy'] == widget.user.displayName){
+                  changeMessage(index, length);
+                }
+              },
               child: Container(
                 height: size.height / 2.5,
-                width: size.width / 2,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                alignment: map['message'] != "" ? null : Alignment.center,
-                child: map['message'] != ""? ClipRRect(borderRadius: BorderRadius.circular(18.0),child: Image.network(map['message'], fit: BoxFit.cover,)) : CircularProgressIndicator(),
-              ),
-            ),
-          ),
-        ],
-      );
-    } else if(map['type'] == "videocall"){
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          SizedBox(width: 2,),
-          map['sendBy'] != widget.user.displayName ?
-          Container(
-            margin: EdgeInsets.only(bottom: 5),
-            height: size.width / 13 ,
-            width: size.width / 13 ,
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(userMap['avatar']),
-              maxRadius: 30,
-            ),
-          ): Container(
-          ),
-          Container(
-            width: map['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
-            alignment: map['sendBy'] == widget.user.displayName  ? Alignment.centerRight : Alignment.centerLeft,
-            child: Container(
-              width: size.width / 3,
-              // constraints: BoxConstraints( maxWidth: size.width / 1.5),
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: Colors.grey.shade900,
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(4.0),
+                width: map['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
+                padding: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
+                alignment: map['sendBy'] == widget.user.displayName
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft,
+                child: InkWell(
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => ShowImage(imageUrl: map['message'])),
+                  ),
+                  child: Container(
+                    height: size.height / 2.5,
+                    width: size.width / 2,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Icon(
-                        Icons.call_sharp,
-                      color: Colors.white70,
-                    ),
+                    alignment: map['message'] != "" ? null : Alignment.center,
+                    child: map['message'] != ""? ClipRRect(borderRadius: BorderRadius.circular(18.0),child: Image.network(map['message'], fit: BoxFit.cover,)) : CircularProgressIndicator(),
                   ),
-                  SizedBox(width: 5,),
-                  Column(
-                    children: [
-                      Text(
-                          "Video Call",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white70,
-                        ),
-                      ),
-                      Text(
-              // int.parse(map['timeSpend'].toString()) < 60 ?
-                        map['timeSpend'].toString() + "s" ,
-                    // : (map['timeSpend'] / 60).toString() + "p "+ (map['timeSpend'] % 60).toString() + "s",
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey.shade300,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-        ],
-      );
-    } else if(map['type']  == 'location') {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          SizedBox(width: 2,),
-          map['sendBy'] != widget.user.displayName ?
-          Container(
-            margin: EdgeInsets.only(bottom: 5),
-            height: size.width / 13 ,
-            width: size.width / 13 ,
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(userMap['avatar']),
-              maxRadius: 30,
-            ),
-          ): Container(
-          ),
-          Container(
-            width: map['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
-            alignment: map['sendBy'] == widget.user.displayName  ? Alignment.centerRight : Alignment.centerLeft,
-            child: Container(
-              width: size.width / 1.5,
-              // constraints: BoxConstraints( maxWidth: size.width / 1.5),
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: Colors.grey.shade900,
+          ],
+        );
+      } else if(map['type'] == "videocall"){
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            SizedBox(width: 2,),
+            map['sendBy'] != widget.user.displayName ?
+            Container(
+              margin: EdgeInsets.only(bottom: 5),
+              height: size.width / 13 ,
+              width: size.width / 13 ,
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(userMap['avatar']),
+                maxRadius: 30,
               ),
-              child: Column(
-                children: [
-                  Row(
+            ): Container(
+            ),
+            GestureDetector(
+              onLongPress: (){
+                if(map['sendBy'] == widget.user.displayName){
+                  changeMessage(index, length);
+                }
+              },
+              child: Container(
+                width: map['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
+                alignment: map['sendBy'] == widget.user.displayName  ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  width: size.width / 3,
+                  // constraints: BoxConstraints( maxWidth: size.width / 1.5),
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.grey.shade900,
+                  ),
+                  child: Row(
                     children: [
                       Container(
                         padding: EdgeInsets.all(4.0),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(100),
-                          color: Colors.blueAccent,
+                          color: Colors.grey,
                         ),
                         child: Icon(
-                          Icons.location_on_outlined,
+                          Icons.call_sharp,
                           color: Colors.white70,
-                          size: 18,
                         ),
                       ),
-                      SizedBox(width: 10,),
+                      SizedBox(width: 5,),
                       Column(
                         children: [
                           Text(
-                            "Vi tri truc tiep",
+                            "Video Call",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.white70,
@@ -608,7 +596,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                           Text(
                             // int.parse(map['timeSpend'].toString()) < 60 ?
-                            "${map['sendBy']} da bat dau chia se" ,
+                            map['timeSpend'].toString() + "s" ,
                             // : (map['timeSpend'] / 60).toString() + "p "+ (map['timeSpend'] % 60).toString() + "s",
                             style: TextStyle(
                               fontSize: 13,
@@ -619,35 +607,193 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 10,),
-                  GestureDetector(
-                    onTap: (){
-                      openMap(lat, long);
-                    },
-                    child: Container(
-                      // margin: EdgeInsets.only(right: 5,left: 0),
-                      width: size.width,
-                      height: 25,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.grey.shade400,
-                      ),
-                      child: Container(
-                        alignment: Alignment.center,
-                          child: Text(
-                              "Xem vi tri"
-                          ),
-                      ),
-                    ),
-                  )
-                ],
+                ),
               ),
             ),
-          ),
-        ],
-      );
-    } else {
-      return Container();
+          ],
+        );
+      } else if(map['type']  == 'location') {
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            SizedBox(width: 2,),
+            map['sendBy'] != widget.user.displayName ?
+            Container(
+              margin: EdgeInsets.only(bottom: 5),
+              height: size.width / 13 ,
+              width: size.width / 13 ,
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(userMap['avatar']),
+                maxRadius: 30,
+              ),
+            ): Container(
+            ),
+            GestureDetector(
+              onLongPress: (){
+                if(map['sendBy'] == widget.user.displayName){
+                  changeMessage(index, length);
+                }
+              },
+              child: Container(
+                width: map['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
+                alignment: map['sendBy'] == widget.user.displayName  ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  width: size.width / 1.5,
+                  // constraints: BoxConstraints( maxWidth: size.width / 1.5),
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.grey.shade900,
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(4.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(100),
+                              color: Colors.blueAccent,
+                            ),
+                            child: Icon(
+                              Icons.location_on_outlined,
+                              color: Colors.white70,
+                              size: 18,
+                            ),
+                          ),
+                          SizedBox(width: 10,),
+                          Column(
+                            children: [
+                              Text(
+                                "Vi tri truc tiep",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                              Text(
+                                // int.parse(map['timeSpend'].toString()) < 60 ?
+                                "${map['sendBy']} da bat dau chia se" ,
+                                // : (map['timeSpend'] / 60).toString() + "p "+ (map['timeSpend'] % 60).toString() + "s",
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10,),
+                      GestureDetector(
+                        onTap: (){
+                          openMap(lat, long);
+                        },
+                        child: Container(
+                          // margin: EdgeInsets.only(right: 5,left: 0),
+                          width: size.width,
+                          height: 25,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.grey.shade400,
+                          ),
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Text(
+                                "Xem vi tri"
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      } else {
+        return Container();
+      }
+    }
+  }
+  
+  void changeMessage(int index, int length) {
+    showModalBottomSheet(
+      backgroundColor: Colors.grey,
+        shape:  RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        context: context,
+        builder: (BuildContext context) {
+          return SizedBox(
+            height: 60,
+            child: Column(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      removeMessage(index, length);
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: MediaQuery.of(context).size.width,
+                      child: Text(
+                          "Remove message",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Expanded(
+                //   child: GestureDetector(
+                //     onTap: (){
+                //       removeMessage(index, length);
+                //     },
+                //     child: Container(
+                //       alignment: Alignment.center,
+                //       width: MediaQuery.of(context).size.width,
+                //       child: Text(
+                //           "Edit message",
+                //         style: TextStyle(
+                //           fontWeight: FontWeight.w500,
+                //           fontSize: 17,
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
+              ],
+            ),
+          );
+        }
+    );
+  }
+
+  void removeMessage(int index, int length) async {
+    String? str;
+    await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').orderBy('time').get().then((value) {
+      str = value.docs[index].id;
+    });
+    if(str != null) {
+      await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').doc(str).update({
+        'message' : 'Bạn đã xóa một tin nhắn',
+        'status' : 'removed',
+      });
+      if(index == length - 1){
+        await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['uid']).update({
+          'lastMessage' : 'Bạn đã xóa một tin nhắn',
+        });
+        await _firestore.collection('users').doc(widget.userMap['uid']).collection('chatHistory').doc(_auth.currentUser!.uid).update({
+          'lastMessage' : '${widget.user.displayName} đã xóa một tin nhắn',
+        });
+      }
     }
   }
 }
