@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:my_porject/screens/group/group_chat_room.dart';
 import 'package:uuid/uuid.dart';
 import 'package:my_porject/screens/group/group_chat.dart';
 
@@ -71,7 +72,7 @@ class _CreateGroupState extends State<CreateGroup> {
       });
     }
     Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => GroupChatHomeScreen(user: widget.user,)),
+        MaterialPageRoute(builder: (context) => GroupChatRoom(groupChatId: groupId, groupName: _groupName.text, user: widget.user)),
             (route) => false);
   }
 

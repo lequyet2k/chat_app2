@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/screens/group/group_info.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:uuid/uuid.dart';
@@ -157,6 +158,10 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_)=> HomeScreen(user: widget.user))),
+        ),
         backgroundColor: Colors.black,
         title: Text(widget.groupName),
         actions: [

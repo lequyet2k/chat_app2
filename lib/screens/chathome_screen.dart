@@ -53,15 +53,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     await FirebaseFirestore.instance.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value) => {
       n = value.docs.length
     });
-    for(int i = 0 ; i < n! ; i++) {
-      String? uId;
-      await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').where('datatype', isNotEqualTo: 'group').get().then((value){
-        uId = value.docs[i]['uid'] ;
-      });
-      await _firestore.collection('users').doc(uId).collection('chatHistory').doc(_auth.currentUser!.uid).update({
-        'status' : statuss,
-      });
-    }
+    // for(int i = 0 ; i < n! ; i++) {
+    //   String? uId;
+    //   await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').where('datatype', isNotEqualTo: 'group').get().then((value){
+    //     uId = value.docs[i]['uid'] ;
+    //   });
+    //   await _firestore.collection('users').doc(uId).collection('chatHistory').doc(_auth.currentUser!.uid).update({
+    //     'status' : statuss,
+    //   });
+    // }
   }
 
   @override
