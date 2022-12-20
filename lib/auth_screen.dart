@@ -1,6 +1,5 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -14,7 +13,7 @@ Future<User?> createAccount(String name, String email, String password) async {
     UserCredential? userCredential =  (await _auth.createUserWithEmailAndPassword(email: email, password: password));
     if(userCredential != null) {
       print("Account created Succesfull");
-      await userCredential.user!.updateDisplayName(name);
+      userCredential.user!.updateDisplayName(name);
       await _firestore.collection('users').doc(_auth.currentUser?.uid).set({
         "name" :  name,
         "email" : email,
@@ -70,7 +69,7 @@ Future logOut() async {
   }
 }
 
-Future<User?> signInWithGoogle() async {
+Future signInWithGoogle() async {
 
   FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -106,39 +105,4 @@ Future<User?> signInWithGoogle() async {
     print(e);
     return null;
   }
-}
-
-Future<User?> signInWithFacebook() async {
-
-  FirebaseAuth _auth = FirebaseAuth.instance;
-
-  FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  final LoginResult loginResult = await FacebookAuth.instance.login(permissions: ['email']);
-
-  if(loginResult == LoginStatus.success){
-    final userData = FacebookAuth.instance.getUserData();
-
-    final OAuthCredential oAuthCredential = FacebookAuthProvider.credential(loginResult.accessToken!.token);
-
-    User? user = (await FirebaseAuth.instance.signInWithCredential(oAuthCredential)).user;
-
-    if(user != null ){
-      await _firestore.collection('users').doc(_auth.currentUser?.uid).set({
-        "name" :  user.displayName,
-        "email" : user.email,
-        "status" : "Online",
-        "uid" : _auth.currentUser!.uid,
-        "avatar" : user.photoURL,
-      });
-      print("Login Successful");
-      return user;
-    } else {
-      print("Login Failed");
-      return user;
-    }
-  } else {
-    print(loginResult.message);
-  }
-
 }

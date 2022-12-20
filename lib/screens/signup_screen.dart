@@ -181,7 +181,25 @@ class _SignUpScreen extends State<SignUp> {
                                 "assets/images/facebook_icon.png",
                               ),
                               onPressed: () async {
-                                showRegisterDialog(2);
+                                // signInWithFacebook();
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                signInWithFacebook().then((user) {
+                                  if(user != null) {
+                                    setState(() {
+                                      isLoading = false;
+                                    });
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => HomeScreen(user: user,),
+                                        ));
+                                    print("Login Successfull");
+                                  } else {
+                                    print("Login Failed");
+                                  }
+                                });
                               },
                             ),
                           ),
