@@ -130,7 +130,7 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                     SizedBox(height: 6,),
                     Container(
                       constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 2.1,),
-                      child: Text('Members: ${memberList.length ?? 2}', style: TextStyle(
+                      child: Text('Members: ${memberList.length}', style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey.shade600,)
                         //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal),

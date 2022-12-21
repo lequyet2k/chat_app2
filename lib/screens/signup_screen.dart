@@ -6,7 +6,7 @@ import 'package:my_porject/components/upside_signup.dart';
 
 
 class SignUp extends StatefulWidget {
-  const SignUp({super.key});
+  const SignUp({key});
 
   @override
   State createState() => _SignUpScreen();

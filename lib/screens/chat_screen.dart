@@ -19,7 +19,7 @@ class ChatScreen extends StatefulWidget {
 
   User user;
 
-  ChatScreen({super.key, required this.chatRoomId, required this.userMap, required this.user});
+  ChatScreen({key, required this.chatRoomId, required this.userMap, required this.user});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -467,7 +467,7 @@ class _ChatScreenState extends State<ChatScreen> {
             GestureDetector(
               onLongPress: (){
                 if(map['sendBy'] == widget.user.displayName){
-                  changeMessage(index, length);
+                  changeMessage(index, length, map['message'], map['type']);
                 }
               },
               child: Container(
@@ -509,7 +509,7 @@ class _ChatScreenState extends State<ChatScreen> {
             GestureDetector(
               onLongPress: (){
                 if(map['sendBy'] == widget.user.displayName){
-                  changeMessage(index, length);
+                  changeMessage(index, length, map['message'], map['type']);
                 }
               },
               child: Container(
@@ -556,7 +556,7 @@ class _ChatScreenState extends State<ChatScreen> {
             GestureDetector(
               onLongPress: (){
                 if(map['sendBy'] == widget.user.displayName){
-                  changeMessage(index, length);
+                  changeMessage(index, length, map['message'], map['type']);
                 }
               },
               child: Container(
@@ -631,7 +631,7 @@ class _ChatScreenState extends State<ChatScreen> {
             GestureDetector(
               onLongPress: (){
                 if(map['sendBy'] == widget.user.displayName){
-                  changeMessage(index, length);
+                  changeMessage(index, length, map['message'], map['type']);
                 }
               },
               child: Container(
@@ -719,16 +719,16 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
   
-  void changeMessage(int index, int length) {
+  void changeMessage(int index, int length, String message, String messageType) {
     showModalBottomSheet(
       backgroundColor: Colors.grey,
         shape:  RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
+          borderRadius: BorderRadius.circular(15.0),
         ),
         context: context,
         builder: (BuildContext context) {
           return SizedBox(
-            height: 60,
+            height: messageType == 'text' ? 100 : 70,
             child: Column(
               children: [
                 Expanded(
@@ -751,29 +751,82 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                 ),
-                // Expanded(
-                //   child: GestureDetector(
-                //     onTap: (){
-                //       removeMessage(index, length);
-                //     },
-                //     child: Container(
-                //       alignment: Alignment.center,
-                //       width: MediaQuery.of(context).size.width,
-                //       child: Text(
-                //           "Edit message",
-                //         style: TextStyle(
-                //           fontWeight: FontWeight.w500,
-                //           fontSize: 17,
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-                // ),
+                messageType == 'text' ?
+                Expanded(
+                  child: GestureDetector(
+                    onTap: (){
+                      showEditForm(index, length, message);
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          border: Border(
+                              top: BorderSide(
+                                  color: Colors.black26,
+                                  width: 1.5
+                              )
+                          )
+                      ),
+                      alignment: Alignment.center,
+                      width: MediaQuery.of(context).size.width,
+                      child: Text(
+                        "Edit message",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                ) : Container(),
               ],
             ),
           );
         }
     );
+  }
+
+  void showEditForm(int index, int length, String message) {
+    TextEditingController _controller = TextEditingController();
+    setState(() {
+      _controller.text = message;
+    });
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          content: TextField(
+            controller: _controller,
+            onSubmitted: (text) {
+              editMessage(index, length, text);
+              Navigator.pop(context);
+            },
+          )
+        );
+      },
+    );
+  }
+
+  void editMessage(int index, int length, String message) async {
+    String? str;
+    await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').orderBy('time').get().then((value) {
+      str = value.docs[index].id;
+    });
+    if(str != null) {
+      await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').doc(str).update({
+        'message' : message,
+        'status' : 'edited',
+      });
+      if(index == length - 1){
+        await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['uid']).update({
+          'lastMessage' : 'Bạn: $message',
+          'time' : DateTime.now(),
+        });
+        await _firestore.collection('users').doc(widget.userMap['uid']).collection('chatHistory').doc(_auth.currentUser!.uid).update({
+          'lastMessage' : message,
+          'time' : DateTime.now(),
+        });
+      }
+    }
   }
 
   void removeMessage(int index, int length) async {
@@ -789,9 +842,11 @@ class _ChatScreenState extends State<ChatScreen> {
       if(index == length - 1){
         await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['uid']).update({
           'lastMessage' : 'Bạn đã xóa một tin nhắn',
+          'time' : DateTime.now(),
         });
         await _firestore.collection('users').doc(widget.userMap['uid']).collection('chatHistory').doc(_auth.currentUser!.uid).update({
           'lastMessage' : '${widget.user.displayName} đã xóa một tin nhắn',
+          'time' : DateTime.now(),
         });
       }
     }

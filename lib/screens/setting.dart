@@ -14,7 +14,7 @@ class Setting extends StatefulWidget {
 
   User user;
 
-  Setting({super.key,required this.user});
+  Setting({key,required this.user});
 
   @override
   State<Setting> createState() => _SettingState();

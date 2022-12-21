@@ -10,7 +10,7 @@ import 'package:my_porject/screens/group/group_chat_room.dart';
 class ConversationList extends StatefulWidget {
   User user;
   Map<String, dynamic> chatHistory ;
-  ConversationList({super.key, required this.chatHistory,required this.user});
+  ConversationList({key, required this.chatHistory,required this.user});
 
   @override
   _ConversationListState createState() => _ConversationListState();
@@ -100,12 +100,18 @@ class _ConversationListState extends State<ConversationList> {
                                 children: [
                                   Container(
                                     constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 2.1,),
-                                    child: Text(widget.chatHistory['lastMessage'], style: TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.grey.shade600,)
-                                        //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal),
-                                    ),
-                                  ),
+                                    child: widget.chatHistory['lastMessage'].toString().length >= 21
+                                        ? Text(
+                                      '${widget.chatHistory['lastMessage'].toString().substring(0, 21)}...',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.grey.shade700,)
+                                    )
+                                        : Text(widget.chatHistory['lastMessage'], style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey.shade700,)
+                                    )
+                    ),
                                   Text(" "),
                                   Text(
                                     convertHours(widget.chatHistory['time']),

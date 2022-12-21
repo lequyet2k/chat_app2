@@ -19,7 +19,8 @@ class _AddMemberState extends State<AddMember> {
 
   List<Map<String, dynamic>> memberList = [] ;
   bool isLoading = false;
-  Map<String, dynamic>? userMap;
+  // Map<String, dynamic>? userMap;
+  String query = "";
 
   FirebaseFirestore _firestore =  FirebaseFirestore.instance;
   FirebaseAuth _auth = FirebaseAuth.instance;
@@ -46,21 +47,20 @@ class _AddMemberState extends State<AddMember> {
 
   void onSearch() async {
 
-    setState(() {
-      isLoading = true;
-    });
-
-    await _firestore.collection('users').where("email", isEqualTo: _search.text).get().then((value) {
-      setState(() {
-        userMap = value.docs[0].data() ;
-        isLoading = false;
-      });
-    });
-    _search.clear();
+    // setState(() {
+    //   isLoading = true;
+    // });
+    //
+    // await _firestore.collection('users').where("email", isEqualTo: _search.text).get().then((value) {
+    //   setState(() {
+    //     userMap = value.docs[0].data() ;
+    //     isLoading = false;
+    //   });
+    // });
+    // _search.clear();
   }
 
-  void onResultTap() {
-
+  void addMemberToList(Map<String, dynamic> userMap) async {
     bool isAlreadyExist = false;
 
     for(int i = 0 ; i < memberList.length ; i++) {
@@ -71,19 +71,72 @@ class _AddMemberState extends State<AddMember> {
     if(!isAlreadyExist) {
       setState(() {
         memberList.add({
-          'name' : userMap!['name'],
-          'email' : userMap!['email'],
-          'uid' : userMap!['uid'],
+          'name' : userMap['name'],
+          'email' : userMap['email'],
+          'uid' : userMap['uid'],
           'isAdmin' : false,
-          'avatar' : userMap!['avatar'],
+          'avatar' : userMap['avatar'],
         });
-        userMap = null;
+      });
+      await _firestore.collection('users').doc(userMap['uid']).update({
+        'isTap' : true,
       });
     }
   }
 
-  void removeMember(int index) {
+  Widget onResultTap(String query) {
+    return Expanded(
+      child: SingleChildScrollView(
+        child: StreamBuilder<QuerySnapshot>(
+          stream: _firestore.collection('users').snapshots(),
+          builder: (context, snapshots){
+            return (snapshots.connectionState == ConnectionState.waiting)
+                ? Center(
+              child: CircularProgressIndicator(),
+            ) : ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: snapshots.data!.docs.length,
+                itemBuilder: (context, index) {
+                  var map = snapshots.data!.docs[index].data() as Map<String, dynamic>;
+                  if(query.isEmpty) {
+                    return Container();
+                  }
+                  if(map['name'].toString().contains(query.toLowerCase()) || map['email'].toString().contains(query.toLowerCase())){
+                    return ListTile(
+                      onTap: () async {
+                        addMemberToList(map);
+                      },
+                      title: Text(
+                        map['name'],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Text(
+                        map['email'],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      leading: CircleAvatar(
+                        backgroundImage: NetworkImage(map['avatar']),
+                      ),
+                      trailing: map['isTap'] == true ? Icon(Icons.check) : Icon(Icons.add),
+                    );
+                  }
+                  return Container();
+                }
+            );
+          }
+        ),
+      ),
+    );
+  }
+
+  void removeMember(int index) async {
     if(memberList[index]['uid'] != _auth.currentUser!.uid){
+      await _firestore.collection("users").doc(memberList[index]['uid']).update({
+        'isTap' : false,
+      });
       setState(() {
         memberList.removeAt(index);
       });
@@ -101,79 +154,127 @@ class _AddMemberState extends State<AddMember> {
         title: Text(
           "Add Members",
         ),
+
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: EdgeInsets.only(top: 16, right: 16, left: 16),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: "Search..",
-                  hintStyle: TextStyle(color: Colors.grey.shade600),
-                  prefixIcon: Icon(Icons.search, color: Colors.grey.shade600, size: 20,),
-                  filled: true,
-                  fillColor: Colors.grey.shade100,
-                  contentPadding: EdgeInsets.all(8.0),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade100,
-                      )
-                  ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.only(top: 16, right: 16, left: 16),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: "Search..",
+                hintStyle: TextStyle(color: Colors.grey.shade600),
+                prefixIcon: Icon(Icons.search, color: Colors.grey.shade600, size: 20,),
+                filled: true,
+                fillColor: Colors.grey.shade100,
+                contentPadding: EdgeInsets.all(8.0),
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide(
+                      color: Colors.grey.shade100,
+                    )
                 ),
-                controller: _search,
-                onSubmitted: (value){
-                  onSearch();
-                },
               ),
-            ),
-            SizedBox(height: 10,),
-            Flexible(
-              child: ListView.builder(
-                itemCount: memberList.length,
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    onTap: (){
-                      removeMember(index);
-                    },
-                    leading: Icon(Icons.account_circle),
-                    title: Text(
-                      memberList[index]['name'],
-                      style: TextStyle(
-                      ),
-                    ),
-                    subtitle: Text(memberList[index]['email']),
-                    trailing: Icon(Icons.close),
-                  );
-                },
-              ),
-            ),
-            userMap != null? ListTile(
-              onTap: (){
-                onResultTap();
+              // controller: _search,
+              onChanged: (value) {
+                setState(() {
+                  query = value;
+                });
               },
-              leading: Icon(Icons.account_circle),
-              title: Text(userMap!['name']),
-              subtitle: Text(userMap!['email']),
-              trailing: Icon(Icons.add),
-            ) : SizedBox(),
-          ],
-        ),
+            ),
+          ),
+          SizedBox(height: 25,),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: List.generate(
+                  memberList.length,
+                  (index) {
+                    return GestureDetector(
+                      onTap: (){
+                        removeMember(index,);
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(left: 10, right: 15),
+                        child: Column(
+                          children: [
+                            Container(
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    height: 60,
+                                    width: 60,
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            memberList[index]['avatar'] ?? widget.user.photoURL,
+                                          ),
+                                          fit: BoxFit.cover,
+                                        )
+                                    ),
+                                  ),
+                                  Positioned(
+                                    left: 40,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Colors.grey.shade500,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.grey.shade500,
+                                            width: 2,
+                                          )
+                                      ),
+                                      child: memberList[index]['uid'] == _auth.currentUser!.uid ? Icon(
+                                        Icons.person,
+                                        color: Colors.white,
+                                        size: 13.5,
+                                      ) : Icon(
+                                        Icons.close,
+                                        color: Colors.white,
+                                        size: 13.5,
+                                      )
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 5,),
+                            Text(memberList[index]['name']),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+              ),
+            ),
+          ),
+          Container(
+            height: 5,
+            // decoration: const BoxDecoration(
+            //     border: Border(
+            //         bottom: BorderSide(
+            //           color: Colors.grey,
+            //           width: 0.5,
+            //         )
+            //     )
+            // ),
+          ),
+          onResultTap(query),
+        ],
       ),
       floatingActionButton: memberList.length >= 2 ? FloatingActionButton(
         backgroundColor: Colors.black,
         child: Icon(Icons.forward),
         onPressed: () {
           Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => CreateGroup(memberList: memberList,user: widget.user,)),
+            context,
+            MaterialPageRoute(builder: (context) => CreateGroup(memberList: memberList,user: widget.user,)),
           );
         },
       ) : SizedBox(),
+
     );
   }
 }
