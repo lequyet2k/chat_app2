@@ -36,48 +36,51 @@ class CustomSearch extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-
-    return StreamBuilder<QuerySnapshot>(
-      stream: _firestore.collection('users').snapshots(),
-      builder: (context, snapshots){
-        return (snapshots.connectionState == ConnectionState.waiting)
-            ? Center(
-          child: CircularProgressIndicator(),
-        ) : ListView.builder(
-            itemCount: snapshots.data!.docs.length,
-            itemBuilder: (context, index) {
-              var map = snapshots.data!.docs[index].data() as Map<String, dynamic>;
-              if(query.isEmpty) {
+    return SingleChildScrollView(
+      child: StreamBuilder<QuerySnapshot>(
+        stream: _firestore.collection('users').snapshots(),
+        builder: (context, snapshots){
+          return (snapshots.connectionState == ConnectionState.waiting)
+              ? Center(
+            child: CircularProgressIndicator(),
+          ) : ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: snapshots.data!.docs.length,
+              itemBuilder: (context, index) {
+                var map = snapshots.data!.docs[index].data() as Map<String, dynamic>;
+                if(query.isEmpty) {
+                  return Container();
+                }
+                if(map['name'].toString().contains(query.toLowerCase()) || map['email'].toString().contains(query.toLowerCase())){
+                  return ListTile(
+                    onTap: () async {
+                      String roomId = ChatRoomId().chatRoomId(user.displayName,map['name']);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ChatScreen(chatRoomId: roomId, userMap: map,user:  user,))
+                      );
+                    },
+                    title: Text(
+                      map['name'],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text(
+                      map['email'],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    leading: CircleAvatar(
+                      backgroundImage: NetworkImage(map['avatar']),
+                    ),
+                  );
+                }
                 return Container();
               }
-              if(map['name'].toString().contains(query.toLowerCase()) || map['email'].toString().contains(query.toLowerCase())){
-                return ListTile(
-                  onTap: () async {
-                    String roomId = ChatRoomId().chatRoomId(user.displayName,map['name']);
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ChatScreen(chatRoomId: roomId, userMap: map,user:  user,))
-                    );
-                  },
-                  title: Text(
-                    map['name'],
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  subtitle: Text(
-                    map['email'],
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(map['avatar']),
-                  ),
-                );
-              }
-              return Container();
-            }
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -91,6 +94,8 @@ class CustomSearch extends SearchDelegate {
               ? Center(
             child: CircularProgressIndicator(),
           ) : ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
               itemCount: snapshots.data!.docs.length,
               itemBuilder: (context, index) {
                 var map = snapshots.data!.docs[index].data() as Map<String, dynamic>;

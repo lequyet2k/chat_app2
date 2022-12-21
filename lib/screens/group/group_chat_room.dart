@@ -28,23 +28,24 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
 
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  FirebaseAuth _auth = FirebaseAuth.instance;
-
   List memberList = [];
+  String? avatarUrl;
 
   @override
   void initState() {
     getMemberList();
+    getCurrentUserAvatar();
     WidgetsBinding.instance.addPostFrameCallback((_) => scrollToIndex());
     super.initState();
   }
 
-  void onSendMessage() async {
-    String? avatarUrl;
-
+  void getCurrentUserAvatar() async {
     await _firestore.collection('users').doc(widget.user.uid).get().then((value) {
       avatarUrl = value.data()!['avatar'].toString();
     });
+  }
+
+  void onSendMessage() async {
     String message;
     message = _message.text;
     if(_message.text.isNotEmpty) {
@@ -99,6 +100,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       'message' : _message.text,
       'type' : "img",
       'time' :  DateTime.now(),
+      'avatar' : avatarUrl,
     });
 
     var ref = FirebaseStorage.instance.ref().child('images').child("$fileName.jpg");
@@ -107,6 +109,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').doc(fileName).delete();
       status = 0;
     });
+
 
     if(status == 1) {
       String imageUrl = await uploadTask.ref.getDownloadURL();
@@ -142,6 +145,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       'message' : '${widget.user.displayName} đã gửi một vị trí trực tiếp',
       'type' : "location",
       'time' :  DateTime.now(),
+      'avatar' : avatarUrl,
     });
     for(int i = 0 ; i < memberList.length ; i++) {
       await _firestore.collection('users').doc(memberList[i]['uid']).collection('chatHistory').doc(widget.groupChatId).update({

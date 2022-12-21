@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/screens/group/group_chat_room.dart';
 import 'package:my_porject/screens/group/create_group/add_member.dart';
 
@@ -24,18 +23,8 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
   @override
   void initState() {
     super.initState();
-    getGroup();
   }
 
-  void getGroup() async {
-    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('groups').get().then((value) {
-      setState(() {
-        groupList = value.docs;
-        isLoading = false;
-      });
-    });
-    // await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('groups')
-  }
 
   @override
   Widget build(BuildContext context) {
