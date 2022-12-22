@@ -44,6 +44,7 @@ class _ChatScreenState extends State<ChatScreen> {
     getUserInfo();
   }
 
+
   late Userr receiver;
   late Userr sender;
   late String lat;
@@ -205,46 +206,8 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  void sendLocation() async {
-    await getLocation().then((value) {
-      lat = '${value.latitude}';
-      long = '${value.longitude}';
-    });
-    await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').add({
-      'sendBy' : widget.user.displayName,
-      'message' : 'Bạn đã gửi một vị trí trực tiếp',
-      'type' : "location",
-      'time' :  DateTime.now(),
-    });
 
-    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['uid']).set({
-      'lastMessage' : "Bạn đã gửi một vị trí trực tiếp",
-      'type' : "location",
-      'name' : widget.userMap['name'],
-      'time' : DateTime.now(),
-      'uid' : widget.userMap['uid'],
-      'avatar' : widget.userMap['avatar'],
-      'status' : widget.userMap['status'],
-      'datatype' : 'p2p',
-    });
-    String? currentUserAvatar;
-    String? status;
-    await _firestore.collection("users").where("email" , isEqualTo: _auth.currentUser!.email).get().then((value) {
-      currentUserAvatar = value.docs[0]['avatar'];
-      status = value.docs[0]['status'];
-    });
-    await _firestore.collection('users').doc(widget.userMap['uid']).collection('chatHistory').doc(_auth.currentUser!.uid).set({
-      'lastMessage' : "${widget.user.displayName} da gui mot vi tri truc tiep",
-      'type' : "location",
-      'name' : widget.user.displayName,
-      'time' : DateTime.now(),
-      'uid' : _auth.currentUser!.uid,
-      'avatar' : currentUserAvatar,
-      'status' : status,
-      'datatype' : 'p2p',
-    });
-    scrollToIndex();
-  }
+
   void liveLocation() {
     LocationSettings locationSettings = const LocationSettings(
       accuracy: LocationAccuracy.high,
@@ -369,7 +332,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                     IconButton(
                         onPressed: () {
-                          sendLocation();
+                          initLocationDoc();
                         },
                         icon: Icon(Icons.location_on, color: Colors.blueAccent,),
                     ),
@@ -688,7 +651,11 @@ class _ChatScreenState extends State<ChatScreen> {
                       SizedBox(height: 10,),
                       GestureDetector(
                         onTap: (){
-                          openMap(lat, long);
+                          if(map['sendBy'] == widget.user.displayName){
+                            openMap(lat, long);
+                          } else {
+                            takeUserLocation();
+                          }
                         },
                         child: Container(
                           // margin: EdgeInsets.only(right: 5,left: 0),
@@ -713,10 +680,247 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ],
         );
+      } else if (map['type']  == 'locationed') {
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            SizedBox(width: 2,),
+            map['sendBy'] != widget.user.displayName ?
+            Container(
+              margin: EdgeInsets.only(bottom: 5),
+              height: size.width / 13 ,
+              width: size.width / 13 ,
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(userMap['avatar']),
+                maxRadius: 30,
+              ),
+            ): Container(
+            ),
+            GestureDetector(
+              onLongPress: (){
+                if(map['sendBy'] == widget.user.displayName){
+                  changeMessage(index, length, map['message'], map['type']);
+                }
+              },
+              child: Container(
+                width: map['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
+                alignment: map['sendBy'] == widget.user.displayName  ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  width: size.width / 1.8,
+                  // constraints: BoxConstraints( maxWidth: size.width / 1.5),
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.grey.shade900,
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(4.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(100),
+                              color: Colors.blueAccent,
+                            ),
+                            child: Icon(
+                              Icons.location_on_outlined,
+                              color: Colors.white70,
+                              size: 18,
+                            ),
+                          ),
+                          SizedBox(width: 10,),
+                          Container(
+                            child: Text(
+                                "Chia sẻ vị trí đã kết thúc",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
       } else {
         return Container();
       }
     }
+  }
+  bool? isLocationed ;
+
+  void initLocationDoc() async {
+    if(isLocationed == null) {
+      await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.userMap['uid']).set({
+        'isLocationed' : null,
+      });
+    }
+    return checkUserisLocationed();
+  }
+
+
+  void checkUserisLocationed() async {
+    if(isLocationed == null) {
+      isLocationed = true;
+      return showTurnOnLocation();
+    } else {
+      await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.userMap['uid']).get().then((value) {
+        isLocationed = value.data()!['isLocationed'];
+      });
+      if(isLocationed == true) {
+        return showTurnOffLocation();
+      } else {
+        print("alaolaoloasdasasfasfas");
+        return showTurnOnLocation();
+      }
+    }
+  }
+
+  void showTurnOnLocation() {
+    showModalBottomSheet(
+      backgroundColor: Colors.grey,
+        shape:  RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        context: context,
+        builder: (BuildContext context) {
+          return GestureDetector(
+            onTap: () {
+              turnOnLocation();
+              Navigator.pop(context);
+            },
+            child: Container(
+              height: 70,
+              alignment: Alignment.center,
+              width: MediaQuery.of(context).size.width,
+              child: Text(
+                "Share your location",
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+          );
+        }
+    );
+  }
+
+  void turnOnLocation() async {
+    await getLocation().then((value) {
+      lat = '${value.latitude}';
+      long = '${value.longitude}';
+    });
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.userMap['uid']).set({
+      'isLocationed' : true,
+      'lat' : lat,
+      'long' : long,
+    });
+    sendLocation();
+  }
+
+  void sendLocation() async {
+    String messageId = Uuid().v1();
+    await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').doc(messageId).set({
+      'sendBy' : widget.user.displayName,
+      'message' : 'Bạn đã gửi một vị trí trực tiếp',
+      'type' : "location",
+      'time' :  DateTime.now(),
+      'messageId' : messageId,
+    });
+
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.userMap['uid']).update({
+      'messageId' : messageId,
+    });
+
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['uid']).set({
+      'lastMessage' : "Bạn đã gửi một vị trí trực tiếp",
+      'type' : "location",
+      'name' : widget.userMap['name'],
+      'time' : DateTime.now(),
+      'uid' : widget.userMap['uid'],
+      'avatar' : widget.userMap['avatar'],
+      'status' : widget.userMap['status'],
+      'datatype' : 'p2p',
+    });
+    String? currentUserAvatar;
+    String? status;
+    await _firestore.collection("users").where("email" , isEqualTo: _auth.currentUser!.email).get().then((value) {
+      currentUserAvatar = value.docs[0]['avatar'];
+      status = value.docs[0]['status'];
+    });
+    await _firestore.collection('users').doc(widget.userMap['uid']).collection('chatHistory').doc(_auth.currentUser!.uid).set({
+      'lastMessage' : "${widget.user.displayName} da gui mot vi tri truc tiep",
+      'type' : "location",
+      'name' : widget.user.displayName,
+      'time' : DateTime.now(),
+      'uid' : _auth.currentUser!.uid,
+      'avatar' : currentUserAvatar,
+      'status' : status,
+      'datatype' : 'p2p',
+    });
+    scrollToIndex();
+  }
+
+  String? userLat;
+  String? userLong;
+  void takeUserLocation() async {
+    await _firestore.collection('users').doc(widget.userMap['uid']).collection('location').doc(_auth.currentUser!.uid).get().then((value) {
+      userLat = value.data()!['lat'];
+      userLong = value.data()!['long'];
+    });
+    openMap(userLat!, userLong!);
+  }
+
+  void showTurnOffLocation() {
+    showModalBottomSheet(
+        backgroundColor: Colors.grey,
+        shape:  RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        context: context,
+        builder: (BuildContext context) {
+          return GestureDetector(
+            onTap: () {
+              turnOffLocation();
+              Navigator.pop(context);
+            },
+            child: Container(
+              height: 70,
+              alignment: Alignment.center,
+              width: MediaQuery.of(context).size.width,
+              child: Text(
+                "Turn off locationed",
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+          );
+        }
+    );
+  }
+
+  void turnOffLocation() async {
+    String? messageId;
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.userMap['uid']).update({
+      'isLocationed' : false,
+    });
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.userMap['uid']).get().then((value){
+      messageId =  value.data()!['messageId'];
+    });
+    await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').doc(messageId).update({
+      'type' : 'locationed' ,
+    });
   }
   
   void changeMessage(int index, int length, String message, String messageType) {
@@ -851,6 +1055,8 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     }
   }
+
+
 }
 
 class ShowImage extends StatelessWidget {
