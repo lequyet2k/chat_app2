@@ -114,7 +114,7 @@ Future<User?> signInWithFacebook() async {
 
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  final LoginResult loginResult = await FacebookAuth.instance.login(permissions: ['email']);
+  final LoginResult loginResult = await FacebookAuth.instance.login(permissions: ['email','public_profile']);
 
   if(loginResult == LoginStatus.success){
     final userData = FacebookAuth.instance.getUserData();

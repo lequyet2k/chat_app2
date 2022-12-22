@@ -164,46 +164,66 @@ class LoginPage extends State<Login> {
                         ),
                       ),
                       SizedBox(height: 10,),
-                      Container(
-                        height: 55,
-                        width: 320,
-                        margin: const EdgeInsets.all(5.0),
-                        child: TextFormField(
-                            decoration: InputDecoration(
-                                prefixIcon: const Padding(
-                                  padding: EdgeInsetsDirectional.only(start: 12),
-                                  child: Icon(Icons.email),
-                                ),
-                                hintText: "Email",
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20))),
-                            controller: _email,
-                            ),
-                      ),
-                      SizedBox(height: 5,),
-                      Container(
-                        height: 55,
-                        width: 320,
-                        margin: const EdgeInsets.all(5.0),
-                        child: TextFormField(
-                          key: _formKey,
-                          obscureText: _isVisible ? false : true,
-                          decoration: InputDecoration(
-                              prefixIcon: const Padding(
-                                padding: EdgeInsetsDirectional.only(start: 12),
-                                child: Icon(Icons.password),
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            Container(
+                              height: 55,
+                              width: 320,
+                              margin: const EdgeInsets.all(5.0),
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                    prefixIcon: const Padding(
+                                      padding: EdgeInsetsDirectional.only(start: 12),
+                                      child: Icon(Icons.email),
+                                    ),
+                                    hintText: "Email",
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(20))),
+                                controller: _email,
+                                validator: (value) {
+                                  if (value != null && value.isNotEmpty && value.length < 10 ) {
+                                    return "Phải lớn hơn 10 ký tự!";
+                                  } else if(value == null || value.isEmpty) {
+                                    return "Không được để trống!";
+                                  }
+                                  return null;
+                                },
                               ),
-                              hintText: "Password",
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20)),
-                              suffixIcon: Padding(
-                                padding: const EdgeInsetsDirectional.only(end: 12),
-                                child: IconButton(
-                                  onPressed: () => updateStatus(),
-                                  icon: Icon(_isVisible ? Icons.visibility : Icons.visibility_off),
-                                ),
-                              )),
-                          controller: _password,
+                            ),
+                            SizedBox(height: 5,),
+                            Container(
+                              height: 55,
+                              width: 320,
+                              margin: const EdgeInsets.all(5.0),
+                              child: TextFormField(
+                                obscureText: _isVisible ? false : true,
+                                decoration: InputDecoration(
+                                    prefixIcon: const Padding(
+                                      padding: EdgeInsetsDirectional.only(start: 12),
+                                      child: Icon(Icons.password),
+                                    ),
+                                    hintText: "Password",
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(20)),
+                                    suffixIcon: Padding(
+                                      padding: const EdgeInsetsDirectional.only(end: 12),
+                                      child: IconButton(
+                                        onPressed: () => updateStatus(),
+                                        icon: Icon(_isVisible ? Icons.visibility : Icons.visibility_off),
+                                      ),
+                                    )),
+                                controller: _password,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Không được để trống!";
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       SizedBox(height: 10,),
@@ -212,27 +232,29 @@ class LoginPage extends State<Login> {
                         height: 35,
                         child: ElevatedButton(
                           onPressed: () {
-                            if((_email!.text.isNotEmpty && _password!.text.isNotEmpty)){
-                              setState(() {
-                                isLoading = true;
-                              });
-                              logIn(_email!.text, _password!.text).then((user) {
-                                if(user != null) {
-                                  setState(() {
-                                    isLoading = false;
-                                  });
-                                  print(user);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => HomeScreen(user: user,)),
-                                  );
-                                  print("Login Successful");
-                                } else {
-                                  print("Login Failed");
-                                }
-                              });
-                            } else {
+                            if(_formKey.currentState!.validate()){
+                              if((_email!.text.isNotEmpty && _password!.text.isNotEmpty)){
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                logIn(_email!.text, _password!.text).then((user) {
+                                  if(user != null) {
+                                    setState(() {
+                                      isLoading = false;
+                                    });
+                                    print(user);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => HomeScreen(user: user,)),
+                                    );
+                                    print("Login Successful");
+                                  } else {
+                                    print("Login Failed");
+                                  }
+                                });
+                              } else {
 
+                              }
                             }
                           },
                           style: ElevatedButton.styleFrom(

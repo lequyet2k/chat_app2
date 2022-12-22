@@ -99,7 +99,19 @@ class _SignUpScreen extends State<SignUp> {
       );
     }
   }
+
+  String? validatePassword(String value) {
+    RegExp regex =
+    RegExp(r'^(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
+    if(!regex.hasMatch(value)){
+      return 'Phải có tối thiểu 1 chữ cái, 1 số và 1 ký tự đặc biệt';
+    } else {
+      return null;
+    }
+  }
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -280,6 +292,12 @@ class _SignUpScreen extends State<SignUp> {
                                     border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(20))),
                                 controller: name,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Không được để trống!";
+                                  }
+                                  return null;
+                                },
                               ),
                             ),
                             Container(
@@ -296,6 +314,14 @@ class _SignUpScreen extends State<SignUp> {
                                     border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(20))),
                                 controller: email,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Không được để trống!";
+                                  } else if(value != null && (value.length < 10 || value.length > 12)){
+                                    return "Email không hợp lệ";
+                                  }
+                                  return null;
+                                },
                               ),
                             ),
                             Container(
@@ -320,6 +346,16 @@ class _SignUpScreen extends State<SignUp> {
                                       ),
                                     )),
                                 controller: password,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Không được để trống!";
+                                  } else if(value != null && value.length < 6){
+                                    return "Mật khẩu phải dài hơn 6 ký tự";
+                                  } else {
+                                    return validatePassword(value);
+                                  }
+                                  return null;
+                                },
                               ),
                             ),
                             Container(
@@ -345,6 +381,15 @@ class _SignUpScreen extends State<SignUp> {
                                     )),
 
                                 controller: passwordAgain,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Không được để trống!";
+                                  } else if(value != password.text){
+                                    return "Không trùng với mật khẩu vừa nhập";
+                                  } else {
+                                    return null;
+                                  }
+                                },
                               ),
                             ),
                           ],
@@ -356,22 +401,24 @@ class _SignUpScreen extends State<SignUp> {
                       height: 35,
                       child: ElevatedButton(
                         onPressed: () {
-                          if(name.text.isNotEmpty && email.text.isNotEmpty && password.text.isNotEmpty){
-                            setState(() {
-                              isLoading = true;
-                            });
-                            createAccount(name.text, email.text, password.text).then((user) {
-                              if(user != null) {
-                                setState(() {
-                                  isLoading = false;
-                                });
-                                showRegisterDialog(1);
-                                print("Login Successfull");
-                              } else {
-                                showRegisterDialog(2);
-                                print("Login Failed");
-                              }
-                            });
+                          if(_formKey.currentState!.validate()){
+                            if(name.text.isNotEmpty && email.text.isNotEmpty && password.text.isNotEmpty){
+                              setState(() {
+                                isLoading = true;
+                              });
+                              createAccount(name.text, email.text, password.text).then((user) {
+                                if(user != null) {
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                  showRegisterDialog(1);
+                                  print("Login Successfull");
+                                } else {
+                                  showRegisterDialog(2);
+                                  print("Login Failed");
+                                }
+                              });
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
