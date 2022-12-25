@@ -231,14 +231,14 @@ class _ChatScreenState extends State<ChatScreen> {
           backgroundColor: Colors.white,
           flexibleSpace: SafeArea(
             child: Container(
-              padding: EdgeInsets.only(right: 16),
+              padding: EdgeInsets.only(right: 10),
               child: Row(
                 children: <Widget>[
                   IconButton(
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      icon: Icon(Icons.arrow_back_ios, color: Colors.black,),
+                      icon: Icon(Icons.arrow_back_ios, color: Colors.blueAccent,),
                   ),
                   SizedBox(width: 2,),
                   CircleAvatar(
@@ -278,9 +278,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         to: receiver,
                         context: context,
                       ),
-                      icon: Icon(Icons.video_call),
+                      icon: Icon(Icons.video_call,color: Colors.blueAccent,),
                   ),
-                  Icon(Icons.settings, color: Colors.black54,)
                 ],
               ),
             ),
@@ -295,7 +294,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: <Widget>[
             Expanded(
               child: Container(
-                color: Colors.grey.shade500,
+                color: Colors.white24,
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').orderBy('time',descending: false).snapshots(),
                   builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -318,10 +317,10 @@ class _ChatScreenState extends State<ChatScreen> {
             Container(
               alignment: Alignment.bottomCenter,
               child: Container(
-                padding: EdgeInsets.only(bottom: 10,top: 10),
+                // padding: EdgeInsets.only(bottom: 10,top: 10),
                 height: size.height / 16,
                 width: double.infinity,
-                color: Colors.black,
+                color: Colors.white70,
                 child: Row(
                   children: <Widget>[
                     IconButton(
@@ -336,24 +335,28 @@ class _ChatScreenState extends State<ChatScreen> {
                         },
                         icon: Icon(Icons.location_on, color: Colors.blueAccent,),
                     ),
-                    IconButton(
-                        onPressed: (){},
-                        icon: Icon(Icons.keyboard_voice, color: Colors.blueAccent,),
-                    ),
                     // SizedBox(width: 15,),
                     Expanded(
-                        child: TextField(
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.grey.shade700,
-                            hintText: "Aa",
-                            hintStyle: TextStyle(color: Colors.white30),
-                            contentPadding: EdgeInsets.all(8.0),
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
+                        child: Container(
+                          height: size.height / 20.8,
+                          child: TextField(
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.grey.shade300,
+                              // hintText: "Aa",
+                              // hintStyle: TextStyle(color: Colors.white38),
+                              // contentPadding: EdgeInsets.all(8.0),
+                              prefixIcon: Icon(Icons.abc),
+                              suffixIcon: IconButton(
+                                onPressed: () {  },
+                                icon: Icon(Icons.emoji_emotions,color: Colors.blueAccent,),
+                              ) ,
+                              enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                              ),
                             ),
+                            controller: _message,
                           ),
-                          controller: _message,
                         ),
                     ),
                     IconButton(
@@ -397,12 +400,12 @@ class _ChatScreenState extends State<ChatScreen> {
                 margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
-                  color: Colors.black,
+                  color: Colors.grey.shade200,
                 ),
                 child: Text(
                   map['message'],
                   style: TextStyle(
-                      color: Colors.grey.shade700,
+                      color: Colors.grey.shade500,
                       fontSize: 17,
                     fontStyle: FontStyle.italic,
                   ),
@@ -442,7 +445,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
-                    color: Colors.black,
+                    color: Colors.blueAccent,
                   ),
                   child: Text(
                     map['message'],
@@ -532,7 +535,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
-                    color: Colors.grey.shade900,
+                    color: Colors.grey.shade700,
                   ),
                   child: Row(
                     children: [
@@ -607,7 +610,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
-                    color: Colors.grey.shade900,
+                    color: Colors.grey.shade800,
                   ),
                   child: Column(
                     children: [
@@ -712,7 +715,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
-                    color: Colors.grey.shade900,
+                    color: Colors.grey.shade700,
                   ),
                   child: Column(
                     children: [
@@ -757,7 +760,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool? isLocationed ;
 
   void initLocationDoc() async {
-    if(isLocationed == null) {
+    if(isLocationed == false) {
       await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.userMap['uid']).set({
         'isLocationed' : null,
       });

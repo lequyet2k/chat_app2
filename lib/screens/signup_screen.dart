@@ -314,14 +314,14 @@ class _SignUpScreen extends State<SignUp> {
                                     border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(20))),
                                 controller: email,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return "Không được để trống!";
-                                  } else if(value != null && (value.length < 10 || value.length > 12)){
-                                    return "Email không hợp lệ";
-                                  }
-                                  return null;
-                                },
+                                // validator: (value) {
+                                //   if (value == null || value.isEmpty) {
+                                //     return "Không được để trống!";
+                                //   } else if(value != null && (value.length < 10 || value.length > 12)){
+                                //     return "Email không hợp lệ";
+                                //   }
+                                //   return null;
+                                // },
                               ),
                             ),
                             Container(
@@ -346,16 +346,16 @@ class _SignUpScreen extends State<SignUp> {
                                       ),
                                     )),
                                 controller: password,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return "Không được để trống!";
-                                  } else if(value != null && value.length < 6){
-                                    return "Mật khẩu phải dài hơn 6 ký tự";
-                                  } else {
-                                    return validatePassword(value);
-                                  }
-                                  return null;
-                                },
+                                // validator: (value) {
+                                //   if (value == null || value.isEmpty) {
+                                //     return "Không được để trống!";
+                                //   } else if(value != null && value.length < 6){
+                                //     return "Mật khẩu phải dài hơn 6 ký tự";
+                                //   } else {
+                                //     return validatePassword(value);
+                                //   }
+                                //   return null;
+                                // },
                               ),
                             ),
                             Container(

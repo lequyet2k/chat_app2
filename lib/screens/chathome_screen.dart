@@ -120,22 +120,27 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       scaffold: Scaffold(
           body: appBar(_selectedIndex),
           bottomNavigationBar: BottomNavigationBar(
-            selectedItemColor: Colors.black,
+            selectedItemColor: Colors.blueAccent,
             unselectedItemColor: Colors.grey.shade600,
             selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
             unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
             type: BottomNavigationBarType.fixed,
             items: const <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                  icon: Icon(Icons.message_rounded),
+                  icon: Icon(Icons.messenger,size: 28,),
+                  // ImageIcon(
+                  //   AssetImage("assets/images/message_icon.png"),
+                  //   size: 30,
+                  //   // color: Color(0xFF3A5A98),
+                  // ),
                 label: "Message",
               ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.group),
+                  icon: Icon(Icons.group,size: 28,),
                 label: "Group",
               ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.settings),
+                  icon: Icon(Icons.settings,size: 28,),
                 label: "Setting",
               ),
           ],

@@ -78,9 +78,6 @@ class _AddMemberState extends State<AddMember> {
           'avatar' : userMap['avatar'],
         });
       });
-      await _firestore.collection('users').doc(userMap['uid']).update({
-        'isTap' : true,
-      });
     }
   }
 
@@ -120,7 +117,7 @@ class _AddMemberState extends State<AddMember> {
                       leading: CircleAvatar(
                         backgroundImage: NetworkImage(map['avatar']),
                       ),
-                      trailing: map['isTap'] == true ? Icon(Icons.check) : Icon(Icons.add),
+                      trailing: Icon(Icons.add),
                     );
                   }
                   return Container();

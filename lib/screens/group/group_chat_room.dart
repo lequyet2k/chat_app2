@@ -28,6 +28,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
 
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  FirebaseAuth _auth = FirebaseAuth.instance;
+
   List memberList = [];
   String? avatarUrl;
 
@@ -135,28 +137,6 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
   late String lat;
   late String long;
 
-  void sendLocation() async {
-    await getLocation().then((value) {
-      lat = '${value.latitude}';
-      long = '${value.longitude}';
-    });
-    await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').add({
-      'sendBy' : widget.user.displayName,
-      'message' : '${widget.user.displayName} đã gửi một vị trí trực tiếp',
-      'type' : "location",
-      'time' :  DateTime.now(),
-      'avatar' : avatarUrl,
-    });
-    for(int i = 0 ; i < memberList.length ; i++) {
-      await _firestore.collection('users').doc(memberList[i]['uid']).collection('chatHistory').doc(widget.groupChatId).update({
-        'lastMessage' : "${widget.user.displayName} đã gửi một vị trí trực tiếp",
-        'type' : "location",
-        'time' : DateTime.now(),
-      });
-    }
-    scrollToIndex();
-  }
-
   @override
   Widget build(BuildContext context) {
 
@@ -164,29 +144,48 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_)=> HomeScreen(user: widget.user))),
+        backgroundColor: Colors.white,
+        flexibleSpace: SafeArea(
+          child: Container(
+            padding: EdgeInsets.only(top: 4),
+            child: Row(
+              children: <Widget>[
+                IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: Icon(Icons.arrow_back_ios, color: Colors.blueAccent,),
+                ),
+                SizedBox(width: 2,),
+                CircleAvatar(
+                  backgroundImage: NetworkImage('https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98'),
+                  maxRadius: 20,
+                ),
+                SizedBox(width: 12,),
+                Text(
+                  widget.groupName,
+                  style: TextStyle(fontSize: 16,fontWeight: FontWeight.w600),
+                ),
+                Spacer(),
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => GroupInfo(groupName: widget.groupName, groupId: widget.groupChatId, user: widget.user, memberListt: memberList))
+                    );
+                  },
+                  icon: Icon(Icons.more_vert,color: Colors.blueAccent,),
+                ),
+              ],
+            ),
+          ),
         ),
-        backgroundColor: Colors.black,
-        title: Text(widget.groupName),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => GroupInfo(groupName: widget.groupName, groupId: widget.groupChatId,user: widget.user, memberListt: memberList,)),
-              );
-            },
-            icon: Icon(Icons.more_vert),
-          )
-        ],
       ),
       body: Column(
         children: <Widget>[
           Expanded(
             child: Container(
-                color: Colors.grey.shade500,
+                color: Colors.white24,
               width: size.width,
               child: StreamBuilder<QuerySnapshot>(
                 stream: _firestore.collection('groups').doc(widget.groupChatId).collection('chats').orderBy('time',descending: false).snapshots(),
@@ -208,12 +207,12 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
             ),
           ),
           Container(
-            height: size.height / 15,
+            height: size.height / 16,
             width: double.infinity,
             alignment: Alignment.bottomCenter,
             child: Container(
-              padding: EdgeInsets.only(bottom: 10,top: 10),
-              color: Colors.black,
+              // padding: EdgeInsets.only(bottom: 10,top: 10),
+              color: Colors.white70,
               child: Row(
                 children: <Widget>[
                   IconButton(
@@ -224,28 +223,34 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                   ),
                   IconButton(
                     onPressed: () {
-                      sendLocation();
+                      checkUserisLocationed();
                     },
                     icon: Icon(Icons.location_on, color: Colors.blueAccent,),
                   ),
-                  IconButton(
-                    onPressed: (){},
-                    icon: Icon(Icons.keyboard_voice, color: Colors.blueAccent,),
-                  ),
                   // SizedBox(width: 15,),
                   Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey.shade700,
-                        hintText: "Aa",
-                        hintStyle: TextStyle(color: Colors.white30),
-                        contentPadding: EdgeInsets.all(8.0),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
+                    child: SizedBox(
+                      height: size.height / 20.8,
+                      child: TextField(
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.grey.shade300,
+                          // hintText: "Aa",
+                          // hintStyle: TextStyle(color: Colors.white30),
+                          prefixIcon: const Icon(Icons.abc),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+
+                            },
+                            icon: const Icon(Icons.emoji_emotions,color: Colors.blueAccent,),
+                          ) ,
+                          // contentPadding: EdgeInsets.all(8.0),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
                         ),
+                        controller: _message,
                       ),
-                      controller: _message,
                     ),
                   ),
                   IconButton(
@@ -290,12 +295,12 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                   margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
-                    color: Colors.black,
+                    color: Colors.grey.shade200,
                   ),
                   child: Text(
                     chatMap['message'],
                     style: TextStyle(
-                      color: Colors.grey.shade700,
+                      color: Colors.grey.shade500,
                       fontSize: 17,
                       fontStyle: FontStyle.italic,
                     ),
@@ -353,7 +358,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                         margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                          color: Colors.black,
+                          color: Colors.blueAccent,
                         ),
                         child: Column(
                           children: [
@@ -431,7 +436,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                color: Colors.black38,
+                color: Colors.black87,
               ),
               child: Text(
                 chatMap['message'],
@@ -475,7 +480,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                     margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
-                      color: Colors.grey.shade900,
+                      color: Colors.grey.shade800,
                     ),
                     child: Column(
                       children: [
@@ -519,7 +524,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                         SizedBox(height: 10,),
                         GestureDetector(
                           onTap: (){
-                            openMap(lat, long);
+                            takeUserLocation(chatMap['uid']);
                           },
                           child: Container(
                             // margin: EdgeInsets.only(right: 5,left: 0),
@@ -544,10 +549,215 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               ),
             ],
           );
-        } else {
+        } else if(chatMap['type'] == 'locationed') {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              SizedBox(width: 2,),
+              chatMap['sendBy'] != widget.user.displayName ?
+              Container(
+                margin: EdgeInsets.only(bottom: 5),
+                height: size.width / 13 ,
+                width: size.width / 13 ,
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(chatMap['avatar']),
+                  maxRadius: 30,
+                ),
+              ): Container(
+              ),
+              GestureDetector(
+                onLongPress: (){
+                  if(chatMap['sendBy'] == widget.user.displayName){
+                    changeMessage(index, length, chatMap['message'], chatMap['type']);
+                  }
+                },
+                child: Container(
+                  width: chatMap['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
+                  alignment: chatMap['sendBy'] == widget.user.displayName  ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Container(
+                    width: size.width / 1.8,
+                    // constraints: BoxConstraints( maxWidth: size.width / 1.5),
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: Colors.grey.shade700,
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(4.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(100),
+                                color: Colors.blueAccent,
+                              ),
+                              child: Icon(
+                                Icons.location_on_outlined,
+                                color: Colors.white70,
+                                size: 18,
+                              ),
+                            ),
+                            SizedBox(width: 10,),
+                            Container(
+                              child: Text(
+                                "Chia sẻ vị trí đã kết thúc",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
+        else {
           return Container();
         }
       }
+    });
+  }
+
+  bool? isLocationed;
+  void checkUserisLocationed() async {
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.groupChatId).get().then((value) {
+      isLocationed = value.data()!['isLocationed'];
+    });
+    if(isLocationed == true) {
+      return showTurnOffLocation();
+    } else {
+      return showTurnOnLocation();
+    }
+  }
+
+  void showTurnOnLocation() {
+    showModalBottomSheet(
+        backgroundColor: Colors.grey,
+        shape:  RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        context: context,
+        builder: (BuildContext context) {
+          return GestureDetector(
+            onTap: () {
+              turnOnLocation();
+              Navigator.pop(context);
+            },
+            child: Container(
+              height: 70,
+              alignment: Alignment.center,
+              width: MediaQuery.of(context).size.width,
+              child: Text(
+                "Share your location",
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+          );
+        }
+    );
+  }
+
+  void turnOnLocation() async {
+    await getLocation().then((value) {
+      lat = '${value.latitude}';
+      long = '${value.longitude}';
+    });
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.groupChatId).set({
+      'isLocationed' : true,
+      'lat' : lat,
+      'long' : long,
+    });
+    sendLocation();
+  }
+
+  void sendLocation() async {
+    String messageId = Uuid().v1();
+    await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').doc(messageId).set({
+      'sendBy' : widget.user.displayName,
+      'message' : '${widget.user.displayName} đã gửi một vị trí trực tiếp',
+      'type' : "location",
+      'time' :  DateTime.now(),
+      'avatar' : avatarUrl,
+      'messageId' : messageId,
+      'uid' : _auth.currentUser!.uid,
+    });
+
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.groupChatId).update({
+      'messageId' : messageId,
+    });
+
+    for(int i = 0 ; i < memberList.length ; i++) {
+      await _firestore.collection('users').doc(memberList[i]['uid']).collection('chatHistory').doc(widget.groupChatId).update({
+        'lastMessage' : "${widget.user.displayName} đã gửi một vị trí trực tiếp",
+        'type' : "location",
+        'time' : DateTime.now(),
+      });
+    }
+    scrollToIndex();
+  }
+
+  String? userLat;
+  String? userLong;
+  void takeUserLocation(String uid) async {
+    await _firestore.collection('users').doc(uid).collection('location').doc(widget.groupChatId).get().then((value) {
+      userLat = value.data()!['lat'];
+      userLong = value.data()!['long'];
+    });
+    openMap(userLat!, userLong!);
+  }
+
+  void showTurnOffLocation() {
+    showModalBottomSheet(
+        backgroundColor: Colors.grey,
+        shape:  RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        context: context,
+        builder: (BuildContext context) {
+          return GestureDetector(
+            onTap: () {
+              turnOffLocation();
+              Navigator.pop(context);
+            },
+            child: Container(
+              height: 70,
+              alignment: Alignment.center,
+              width: MediaQuery.of(context).size.width,
+              child: Text(
+                "Turn off locationed",
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+          );
+        }
+    );
+  }
+
+  void turnOffLocation() async {
+    String? messageId;
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.groupChatId).update({
+      'isLocationed' : false,
+    });
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.groupChatId).get().then((value){
+      messageId =  value.data()!['messageId'];
+    });
+    await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').doc(messageId).update({
+      'type' : 'locationed' ,
     });
   }
 

@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/screens/group/group_chat_room.dart';
 import 'package:uuid/uuid.dart';
-import 'package:my_porject/screens/group/group_chat.dart';
 
 class CreateGroup extends StatefulWidget {
   User user;
@@ -21,8 +20,21 @@ class _CreateGroupState extends State<CreateGroup> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  void createGroup() async {
+  @override
+  void setState(VoidCallback fn) {
+    // TODO: implement setState
+    super.setState(fn);
+  }
+  List<String> usersName = [];
+  String makeGroupName() {
+    for(int i = 0; i < widget.memberList.length; i++) {
+      usersName.add(widget.memberList[i]['name']);
+    }
+    print(usersName.join(", "));
+    return usersName.join(", ");
+  }
 
+  void createGroup(String groupName) async {
     setState(() {
       isLoading = true;
     });
@@ -37,7 +49,7 @@ class _CreateGroupState extends State<CreateGroup> {
     for(int i = 0;  i < widget.memberList.length ; i++ ){
       String uid  = widget.memberList[i]['uid'];
       await _firestore.collection('users').doc(uid).collection('groups').doc(groupId).set({
-        "name" : _groupName.text,
+        "name" : groupName,
         "id" : groupId,
         'members' : widget.memberList,
       });
@@ -48,31 +60,25 @@ class _CreateGroupState extends State<CreateGroup> {
       "type" : "notify",
       "time" : DateTime.now(),
     });
-    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(groupId).set({
-      'lastMessage' : "You Created This Group",
-      'type' : "notify",
-      'name' : _groupName.text,
-      'time' : DateTime.now(),
-      'uid' : groupId,
-      'avatar' : "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98",
-      'status' : "Online",
-      'datatype' : "group",
-    });
 
-    for(int i = 1 ; i < widget.memberList.length ; i++) {
+    for(int i = 0 ; i < widget.memberList.length ; i++) {
       await _firestore.collection('users').doc(widget.memberList[i]['uid']).collection('chatHistory').doc(groupId).set({
         'lastMessage' : "${widget.user.displayName} Created This Group",
         'type' : "notify",
-        'name' : _groupName.text,
+        'name' : groupName,
         'time' : DateTime.now(),
         'uid' : groupId,
         'avatar' : "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98",
         'status' : "Online",
         'datatype' : "group",
       });
+      await _firestore.collection('users').doc(widget.memberList[i]['uid']).collection('location').doc(groupId).set({
+        'isLocationed' : false,
+      });
     }
+
     Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => GroupChatRoom(groupChatId: groupId, groupName: _groupName.text, user: widget.user)),
+        MaterialPageRoute(builder: (context) => GroupChatRoom(groupChatId: groupId, groupName: groupName, user: widget.user)),
             (route) => false);
   }
 
@@ -123,7 +129,11 @@ class _CreateGroupState extends State<CreateGroup> {
               primary: Colors.black,
             ),
               onPressed: () {
-                createGroup();
+              if(_groupName.text == ''){
+                createGroup(makeGroupName());
+              } else {
+                createGroup(_groupName.text);
+              }
               },
               child: Text("Create Group"),
           ),

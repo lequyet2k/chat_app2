@@ -73,20 +73,22 @@ class _SettingState extends State<Setting> {
         'avatar': imageUrl,
       });
       int? n;
-      await FirebaseFirestore.instance.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value) => {
+      print(imageUrl);
+      await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value) => {
         n = value.docs.length
       });
       for(int i = 0 ; i < n! ; i++) {
         String? uId;
         await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value){
-          uId = value.docs[i]['uid'] ;
-        });
-        await _firestore.collection('users').doc(uId).collection('chatHistory').doc(_auth.currentUser!.uid).update({
-          'avatar' : imageUrl,
+          if(value.docs[i]['datatype'] == 'p2p' && value.docs[i]['uid'] != _auth.currentUser!.uid){
+            uId = value.docs[i]['uid'] ;
+            _firestore.collection('users').doc(uId).collection('chatHistory').doc(_auth.currentUser!.uid).update({
+              'avatar' : imageUrl,
+            });
+          }
         });
       }
     }
-    print(imageFile);
     setState(() {
       isLoading = false;
     });
@@ -111,14 +113,13 @@ class _SettingState extends State<Setting> {
     for(int i = 0 ; i < n! ; i++) {
       String? uId;
       await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value){
-        // if(value.docs[i]['datatype'] == 'p2p'){
-        //   uId = value.docs[i]['uid'] ;
-        // }
-        uId = value.docs[i]['uid'];
+        if(value.docs[i]['datatype'] == 'p2p' && value.docs[i]['uid'] != _auth.currentUser!.uid){
+          uId = value.docs[i]['uid'] ;
+          _firestore.collection('users').doc(uId).collection('chatHistory').doc(_auth.currentUser!.uid).update({
+            'status' : 'Offline',
+          });
+        }
       });
-      // await _firestore.collection('users').doc(uId).collection('chatHistory').doc(_auth.currentUser!.uid).update({
-      //   'status' : 'Offline',
-      // });
     }
     logOut();
     setState(() {

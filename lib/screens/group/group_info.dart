@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/screens/group/add_members_group.dart';
 
 import 'group_chat.dart';
@@ -186,11 +185,10 @@ class _GroupInfoState extends State<GroupInfo> {
                         shape: BoxShape.circle,
                         color: Colors.grey,
                       ),
-                      child: Icon(
-                        Icons.group,
-                        size: size.width / 10 ,
-                        color: Colors.white,
-                      ),
+                      child: CircleAvatar(
+                        backgroundImage: NetworkImage("https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98"),
+                        maxRadius: 30,
+                      )
                     ),
                     SizedBox(
                       width: 20 ,
@@ -247,7 +245,10 @@ class _GroupInfoState extends State<GroupInfo> {
                         onTap: () {
                           showRemoveDialog(index);
                         },
-                        leading: Icon(Icons.account_circle),
+                        leading: CircleAvatar(
+                          backgroundImage: NetworkImage(membersList[index]['avatar']),
+                          maxRadius: 20,
+                        ),
                         title: Text(
                           membersList[index]['name'],
                           style: TextStyle(

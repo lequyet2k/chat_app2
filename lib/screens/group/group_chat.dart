@@ -119,9 +119,19 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                     SizedBox(height: 6,),
                     Container(
                       constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 2.1,),
-                      child: Text('Members: ${memberList.length}', style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade600,)
+                      child: StreamBuilder<DocumentSnapshot>(
+                        stream: _firestore.collection('groups').doc(map['id']).snapshots(),
+                        builder: (BuildContext context,AsyncSnapshot<DocumentSnapshot> snapshots){
+                          if(snapshots.hasData) {
+                            List length = snapshots.data!['members'] ;
+                            return Text('Members: ${length.length}', style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade600,)
+                            );
+                          } else{
+                            return Container();
+                          }
+                        },
                         //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal),
                       ),
                     ),
