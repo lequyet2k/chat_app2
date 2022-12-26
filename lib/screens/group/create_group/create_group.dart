@@ -102,6 +102,7 @@ class _CreateGroupState extends State<CreateGroup> {
       ) :
       Column(
         children: [
+          SizedBox(height: 10,),
           Container(
             padding: EdgeInsets.only(top: 16, right: 16, left: 16),
             child: TextField(
@@ -124,9 +125,13 @@ class _CreateGroupState extends State<CreateGroup> {
               },
             ),
           ),
+          SizedBox(height: 20,),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              primary: Colors.black,
+              backgroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0),
+              ),
             ),
               onPressed: () {
               if(_groupName.text == ''){
@@ -135,7 +140,12 @@ class _CreateGroupState extends State<CreateGroup> {
                 createGroup(_groupName.text);
               }
               },
-              child: Text("Create Group"),
+              child: const Text(
+                "Create Group",
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
           ),
         ],
       ),

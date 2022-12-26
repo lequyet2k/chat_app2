@@ -260,11 +260,12 @@ class _SettingState extends State<Setting> {
                                       fontSize: 14
                                     ),
                                   ),
-                                  IconButton(
-                                      onPressed: (){},
-                                      icon: Icon(Icons.create_outlined,
-                                      ),
-                                  ),
+                                  const SizedBox(width: 20),
+                                  // IconButton(
+                                  //     onPressed: (){},
+                                  //     icon: Icon(Icons.create_outlined,
+                                  //     ),
+                                  // ),
                                 ],
                               ),
                             ),
@@ -298,10 +299,11 @@ class _SettingState extends State<Setting> {
                                         fontSize: 14
                                     ),
                                   ),
-                                  IconButton(
-                                    onPressed: (){},
-                                    icon: Icon(Icons.create_outlined),
-                                  ),
+                                  const SizedBox(width: 20),
+                                  // IconButton(
+                                  //   onPressed: (){},
+                                  //   icon: Icon(Icons.create_outlined),
+                                  // ),
                                 ],
                               ),
                             ),
@@ -320,13 +322,13 @@ class _SettingState extends State<Setting> {
                                     ),
                                   ),
                                   Spacer(),
-                                  Text(
-                                    map['status'],
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14
-                                    ),
-                                  ),
+                                  // Text(
+                                  //   map['status'],
+                                  //   style: TextStyle(
+                                  //       fontWeight: FontWeight.bold,
+                                  //       fontSize: 14
+                                  //   ),
+                                  // ),
                                   Switch(
                                     value: isSwitched,
                                     onChanged: (value) {
@@ -338,6 +340,7 @@ class _SettingState extends State<Setting> {
                                     activeTrackColor: Colors.green,
                                     activeColor: Colors.white70,
                                   ),
+                                  const SizedBox(width: 10,),
                                 ],
                               ),
                             ),
@@ -347,71 +350,27 @@ class _SettingState extends State<Setting> {
                       SizedBox(height: 30,),
                       Container(
                         margin: EdgeInsets.only(left: 20,right: 20),
-                        height: size.height / 10,
+                        height: size.height / 20,
                         decoration: BoxDecoration(
                           color: Colors.grey.shade300,
                           borderRadius: BorderRadius.circular(15),
                         ),
-                        child: Column(
+                        child: Row(
                           children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                  border: Border(
-                                      bottom: BorderSide(
-                                        color: Colors.black38,
-                                      )
-                                  )
-                              ),
-                              height: size.height / 20,
-                              child: Row(
-                                children: [
-                                  SizedBox(width: 5,),
-                                  Icon(Icons.notifications_active_outlined),
-                                  SizedBox(width: 7,),
-                                  Text(
-                                    "Notifications",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14
-                                    ),
-                                  ),
-                                  Spacer(),
-                                  Switch(
-                                    value: isSwitched2,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        isSwitched2 = value;
-                                        print(isSwitched2);
-                                      });
-                                    },
-                                    activeTrackColor: Colors.green,
-                                    activeColor: Colors.white70,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              height: size.height / 20,
-                              child: Row(
-                                children: [
-                                  SizedBox(width: 5,),
-                                  Icon(Icons.help_outline),
-                                  SizedBox(width: 7,),
-                                  Text(
-                                    "Help",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14
-                                    ),
-                                  ),
-                                  Spacer(),
-                                ],
+                            SizedBox(width: 5,),
+                            Icon(Icons.help_outline),
+                            SizedBox(width: 7,),
+                            Text(
+                              "Help",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14
                               ),
                             ),
                           ],
                         ),
                       ),
-                      SizedBox(height: 40,),
+                      const SizedBox(height: 30,),
                       GestureDetector(
                         onTap: () {
                           logOuttt();

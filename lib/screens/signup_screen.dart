@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/screens/auth_screen.dart';
 import 'package:my_porject/screens/login_screen.dart';
@@ -26,77 +27,39 @@ class _SignUpScreen extends State<SignUp> {
     });
   }
 
-  void showRegisterDialog(int index) {
+  showRegisterDialog(int index) async {
     if(index == 1){
-      showDialog(
-        context: context,
-        builder: (_) {
-          return AlertDialog(
-            title: Icon(
-              Icons.check_circle_outline,
-              color: Colors.green,
-              size: 50,
-            ),
-            content: Container(
-                alignment: Alignment.center,
-                width: 20,
-                height: 20,
-                child: Text(
-                    "Register success"
-                )
-            ),
-            actions: [
-              Center(
-                child: TextButton(
-                    onPressed: (){
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Login(email: email.text, password: password.text,),
-                          ));
-                    },
-                    child: Text("Log In")
-                ),
-              )
-            ],
-          );
-        },
-      );
+      return AwesomeDialog(
+          context: context,
+        dialogType: DialogType.success,
+        animType: AnimType.rightSlide,
+        title: 'Register Success',
+          btnOkText: 'Log In',
+          btnOkOnPress: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Login(email: email.text, password: password.text,),
+                ));
+          }
+      )..show();
     } else if(index == 2) {
-      showDialog(
-        context: context,
-        builder: (_) {
-          return AlertDialog(
-            title: Icon(
-              Icons.error_outline,
-              color: Colors.red,
-              size: 50,
-            ),
-            content: Container(
-                alignment: Alignment.center,
-                width: 20,
-                height: 20,
-                child: const Text(
-                    "Register failed"
-                )
-            ),
-            actions: [
-              Center(
-                child: IconButton(
-                  icon: Icon(Icons.arrow_back),
-                    onPressed: (){
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SignUp(),
-                          ));
-                    },
-                ),
-              )
-            ],
-          );
-        },
-      );
+      return AwesomeDialog(
+          context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.rightSlide,
+        title: 'Register Failed',
+        desc: 'The email address is badly formatted',
+          btnCancelText: 'Sign Up Again',
+          btnCancelIcon: Icons.arrow_back_ios,
+          btnCancelOnPress: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SignUp(),
+                ));
+          }
+      )..show();
     }
   }
 

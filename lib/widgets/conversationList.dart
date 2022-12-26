@@ -94,7 +94,18 @@ class _ConversationListState extends State<ConversationList> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Text(widget.chatHistory['name'] == null ?  "UserName" : widget.chatHistory['name'],style: TextStyle(fontSize: 16),),
+                              // Text(widget.chatHistory['name'] == null ?  "UserName" : widget.chatHistory['name'],style: TextStyle(fontSize: 16),),
+                              widget.chatHistory['name'].toString().length >= 25
+                                  ? Text(
+                                  '${widget.chatHistory['name'].toString().substring(0, 25)}...',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    )
+                              )
+                                  : Text(widget.chatHistory['name'], style: TextStyle(
+                                fontSize: 16,
+                              )
+                              ),
                               SizedBox(height: 6,),
                               Row(
                                 children: [

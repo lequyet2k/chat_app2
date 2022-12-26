@@ -115,7 +115,18 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(map['name'],style: TextStyle(fontSize: 16),),
+                    // Text(map['name'],style: TextStyle(fontSize: 16),),
+                    map['name'].toString().length >= 30
+                        ? Text(
+                        '${map['name'].toString().substring(0, 30)}...',
+                        style: TextStyle(
+                          fontSize: 16,
+                        )
+                    )
+                        : Text(map['name'], style: TextStyle(
+                      fontSize: 16,
+                    )
+                    ),
                     SizedBox(height: 6,),
                     Container(
                       constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 2.1,),

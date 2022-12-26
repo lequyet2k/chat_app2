@@ -44,7 +44,6 @@ class _ChatScreenState extends State<ChatScreen> {
     getUserInfo();
   }
 
-
   late Userr receiver;
   late Userr sender;
   late String lat;

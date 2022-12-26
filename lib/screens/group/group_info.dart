@@ -194,12 +194,14 @@ class _GroupInfoState extends State<GroupInfo> {
                       width: 20 ,
                     ),
                     Container(
-                      child: Text(
-                        widget.groupName,
-                        style: TextStyle(
-                          fontSize: size.width / 16,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      child: widget.groupName.length >= 17
+                          ? Text(
+                          '${widget.groupName.substring(0, 17)}...',
+                          style: TextStyle(
+                              fontSize: size.width / 16,fontWeight: FontWeight.w500)
+                      )
+                          : Text(widget.groupName, style: TextStyle(
+                          fontSize: size.width / 16,fontWeight: FontWeight.w500)
                       ),
                     ),
                   ],
