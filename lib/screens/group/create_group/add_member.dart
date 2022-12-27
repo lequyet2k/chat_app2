@@ -64,7 +64,7 @@ class _AddMemberState extends State<AddMember> {
     bool isAlreadyExist = false;
 
     for(int i = 0 ; i < memberList.length ; i++) {
-      if(memberList[i]['uid'] == userMap!['uid']) {
+      if(memberList[i]['uid'] == userMap['uid']) {
         isAlreadyExist = true;
       }
     }

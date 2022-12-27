@@ -42,3 +42,5 @@ Future<void> openMap(String lat, String long) async {
       ? await launchUrlString(googleUrl)
       : throw 'Could not launch $googleUrl';
 }
+
+

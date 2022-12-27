@@ -1,9 +1,15 @@
 // import 'dart:html';
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:my_porject/provider/user_provider.dart';
+import 'package:my_porject/screens/call_log_screen.dart';
 import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
 import 'package:my_porject/screens/chat_bot/chat_bot.dart';
 import 'package:my_porject/screens/finding_screen.dart';
@@ -12,6 +18,7 @@ import 'package:my_porject/screens/group/group_chat.dart';
 import 'package:my_porject/widgets/conversationList.dart';
 import 'package:provider/provider.dart';
 import 'package:my_porject/resources/methods.dart';
+import '../db/log_repository.dart';
 import 'chat_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -29,8 +36,26 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   late UserProvider userProvider;
 
+  late StreamSubscription subscription;
+  var isDeviceConnected = true;
+  bool isAlertSet = false;
+
+  getConnectivity() =>
+      subscription = Connectivity().onConnectivityChanged.listen(
+          (ConnectivityResult result) async {
+            isDeviceConnected = await InternetConnectionChecker().hasConnection;
+            if(!isDeviceConnected && isAlertSet == false) {
+              showDialogInternetCheck();
+              setState(() {
+                isAlertSet = true;
+              });
+            }
+          }
+      );
+
   @override
   void initState() {
+    getConnectivity();
     WidgetsBinding.instance.addObserver(this);
     setStatus("Online");
     changeStatus("Online");
@@ -38,8 +63,52 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       userProvider = Provider.of<UserProvider>(context, listen: false);
       userProvider.refreshUser();
     });
+    LogRepository.init(dbName: '');
     super.initState();
   }
+
+  @override
+  void dispose() {
+    subscription.cancel();
+    super.dispose();
+  }
+
+  showDialogInternetCheck() => showCupertinoDialog<String>(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: const Text(
+          'No Connection',
+          style: TextStyle(
+            letterSpacing: 0.5,
+          ),
+        ),
+        content: const Text(
+            'Please check your internet connectivity',
+          style: TextStyle(
+            letterSpacing: 0.5,
+            fontSize: 12
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+              onPressed: () async {
+                Navigator.pop(context, 'Cancel');
+                setState(() {
+                  isAlertSet = false;
+                });
+                // isDeviceConnected = await InternetConnectionChecker().hasConnection;
+              },
+              child: const Text(
+                  'OK',
+                style: TextStyle(
+                  letterSpacing: 0.5,
+                  fontSize: 15
+                ),
+              )
+          )
+        ],
+      )
+  );
 
 
   void setStatus(String status) async {
@@ -53,15 +122,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     await FirebaseFirestore.instance.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value) => {
       n = value.docs.length
     });
-    // for(int i = 0 ; i < n! ; i++) {
-    //   String? uId;
-    //   await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').where('datatype', isNotEqualTo: 'group').get().then((value){
-    //     uId = value.docs[i]['uid'] ;
-    //   });
-    //   await _firestore.collection('users').doc(uId).collection('chatHistory').doc(_auth.currentUser!.uid).update({
-    //     'status' : statuss,
-    //   });
-    // }
+    for(int i = 0 ; i < n! ; i++) {
+      String? uId;
+      await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value) async {
+        if(value.docs[i]['datatype'] == 'p2p'){
+          uId = value.docs[i]['uid'] ;
+          await _firestore.collection('users').doc(uId).collection('chatHistory').doc(_auth.currentUser!.uid).update({
+            'status' : statuss,
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -79,15 +150,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget body(int index) {
     if(index == 0) {
       return listChat(widget.user);
-    } else if(index == 1) {
+    } else if(index == 2) {
       return GroupChatHomeScreen(user: widget.user,);
+    } else if(index == 1){
+      return CallLogScreen();
     } else {
       return Container();
     }
   }
 
   Widget appBar(int index) {
-    if(index == 0 || index == 1){
+    if(index == 0 || index == 2 || index == 1){
       return searchAndStatusBar();
     } else {
       return Setting(user: widget.user);
@@ -134,6 +207,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   //   // color: Color(0xFF3A5A98),
                   // ),
                 label: "Message",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.phone, size: 28,),
+                label: "Calls",
               ),
               BottomNavigationBarItem(
                   icon: Icon(Icons.group,size: 28,),
@@ -265,7 +342,50 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             onTap: onSearch,
           ),
         ),
-        SizedBox(height: 20,),
+        const SizedBox(height: 7 ,),
+        // !isDeviceConnected ? Container(
+        //   alignment: Alignment.center,
+        //   width: MediaQuery.of(context).size.width,
+        //   height: MediaQuery.of(context).size.height / 30,
+        //   // color: Colors.red,
+        //   child: const Text(
+        //     'No Internet Connection',
+        //     style: TextStyle(
+        //       fontSize: 15,
+        //       fontWeight: FontWeight.w500,
+        //     ),
+        //   ),
+        // ) : Container(),
+        StreamBuilder<ConnectivityResult>(
+          stream: Connectivity().onConnectivityChanged,
+            builder: (_, snapshot) {
+              switch(snapshot.connectionState){
+                case ConnectionState.active :
+                  final state = snapshot.data ;
+                  switch(state) {
+                    case ConnectivityResult.none:
+                      return Container(
+                        alignment: Alignment.center,
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height / 30,
+                        // color: Colors.red,
+                        child: const Text(
+                          'No Internet Connection',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      );
+                    default :
+                      return Container();
+                  }
+                default :
+                  return Container();
+              }
+            }
+        ),
+        const SizedBox(height: 5,),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: StreamBuilder(

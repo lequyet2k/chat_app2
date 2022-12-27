@@ -55,6 +55,10 @@ dependencies:
   firebase_messaging: ^14.1.4
   flutter_facebook_auth: ^5.0.6
   awesome_dialog: ^3.0.2
+  internet_connection_checker: ^1.0.0+1
+  connectivity_plus: ^3.0.2
+  sqflite: ^2.2.2
+  path_provider: ^2.0.11
 
 dev_dependencies:
   flutter_test:

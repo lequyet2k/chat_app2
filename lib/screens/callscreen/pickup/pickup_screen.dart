@@ -1,17 +1,51 @@
 
 import 'package:flutter/material.dart';
+import 'package:my_porject/db/log_repository.dart';
 import 'package:my_porject/models/call_model.dart';
 import 'package:my_porject/screens/callscreen/call_methods.dart';
 import 'package:my_porject/screens/callscreen/call_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class PickUpScreen extends StatelessWidget {
+import '../../../models/log_model.dart';
+
+class PickUpScreen extends StatefulWidget {
   final Call call;
-  final CallMethods callMethods = CallMethods();
+
   PickUpScreen({Key? key, required this.call}) : super(key: key);
+
+  @override
+  State<PickUpScreen> createState() => _PickUpScreenState();
+}
+
+class _PickUpScreenState extends State<PickUpScreen> {
+  final CallMethods callMethods = CallMethods();
+
+  bool isCallMissed = true;
+
+  addToLocalStorage({required String callStatus}) {
+    Log log = Log(
+      callerName: widget.call.callerName,
+      callerPic: widget.call.callerPic,
+      receiverName: widget.call.receiverName,
+      receiverPic: widget.call.receiverPic,
+      timestamp: DateTime.now().toString(),
+      callStatus: callStatus,
+      logId: null,
+    );
+
+    LogRepository.addLogs(log);
+  }
 
   Future<void> _handleCameraAndMic(Permission permission) async {
     final status = await permission.request();
+  }
+  
+  @override
+  void dispose() {
+    if(isCallMissed) {
+      addToLocalStorage(callStatus: 'missed');
+    }
+    super.dispose();
   }
 
   @override
@@ -31,13 +65,13 @@ class PickUpScreen extends StatelessWidget {
             ),
             SizedBox(height: 50,),
             Image.network(
-              call.callerPic!,
+              widget.call.callerPic!,
               height: 150,
               width: 150,
             ),
             SizedBox(height: 15,),
             Text(
-              call.callerName!,
+              widget.call.callerName!,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
@@ -49,7 +83,9 @@ class PickUpScreen extends StatelessWidget {
               children: <Widget>[
                 IconButton(
                     onPressed: () async {
-                      await callMethods.endCall(call : call);
+                      isCallMissed = false;
+                      addToLocalStorage(callStatus: 'received');
+                      await callMethods.endCall(call : widget.call);
                     },
                     color: Colors.redAccent,
                     icon: Icon(Icons.call_end),
@@ -57,11 +93,13 @@ class PickUpScreen extends StatelessWidget {
                 SizedBox(width: 25,),
                 IconButton(
                     onPressed: () async {
+                      isCallMissed = false;
+                      addToLocalStorage(callStatus: 'received');
                       await _handleCameraAndMic(Permission.camera);
                       await _handleCameraAndMic(Permission.microphone);
                       await Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => CallScreen(call: call)),
+                          MaterialPageRoute(builder: (context) => CallScreen(call: widget.call)),
                       );
                     },
                     color: Colors.green,

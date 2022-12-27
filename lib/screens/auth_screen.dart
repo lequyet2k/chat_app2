@@ -63,6 +63,7 @@ Future logOut() async {
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   try{
+    await GoogleSignIn().signOut();
     await _auth.signOut();
 
   } catch(e) {

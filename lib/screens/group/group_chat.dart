@@ -36,7 +36,7 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
       children: [
         Container(
           margin: EdgeInsets.only(top: 15,left: 15),
-          child: Text(
+          child: const Text(
               'Groups',
               style: TextStyle(
                 color: Colors.black54,
