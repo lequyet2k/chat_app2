@@ -63,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       userProvider = Provider.of<UserProvider>(context, listen: false);
       userProvider.refreshUser();
     });
-    LogRepository.init(dbName: '');
+    LogRepository.init(dbName: _auth.currentUser!.uid);
     super.initState();
   }
 
@@ -153,14 +153,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     } else if(index == 2) {
       return GroupChatHomeScreen(user: widget.user,);
     } else if(index == 1){
-      return CallLogScreen();
+      return const CallLogScreen();
     } else {
       return Container();
     }
   }
 
   Widget appBar(int index) {
-    if(index == 0 || index == 2 || index == 1){
+    if(index == 0 || index == 1 || index == 2){
       return searchAndStatusBar();
     } else {
       return Setting(user: widget.user);
@@ -200,24 +200,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             type: BottomNavigationBarType.fixed,
             items: const <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                  icon: Icon(Icons.messenger,size: 28,),
-                  // ImageIcon(
-                  //   AssetImage("assets/images/message_icon.png"),
-                  //   size: 30,
-                  //   // color: Color(0xFF3A5A98),
-                  // ),
+                  icon: Icon(Icons.messenger),
                 label: "Message",
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.phone, size: 28,),
+                icon: Icon(Icons.phone),
                 label: "Calls",
               ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.group,size: 28,),
+                  icon: Icon(Icons.group),
                 label: "Group",
               ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.settings,size: 28,),
+                  icon: Icon(Icons.settings),
                 label: "Setting",
               ),
           ],
@@ -343,19 +338,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
         ),
         const SizedBox(height: 7 ,),
-        // !isDeviceConnected ? Container(
-        //   alignment: Alignment.center,
-        //   width: MediaQuery.of(context).size.width,
-        //   height: MediaQuery.of(context).size.height / 30,
-        //   // color: Colors.red,
-        //   child: const Text(
-        //     'No Internet Connection',
-        //     style: TextStyle(
-        //       fontSize: 15,
-        //       fontWeight: FontWeight.w500,
-        //     ),
-        //   ),
-        // ) : Container(),
         StreamBuilder<ConnectivityResult>(
           stream: Connectivity().onConnectivityChanged,
             builder: (_, snapshot) {

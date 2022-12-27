@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_porject/provider/user_provider.dart';
+import 'package:my_porject/screens/auth_screen.dart';
+import 'package:my_porject/screens/chathome_screen.dart';
+import 'package:my_porject/screens/login_screen.dart';
 import 'package:my_porject/screens/welcome_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:my_porject/resources/firebase_options.dart';
@@ -25,7 +28,16 @@ class  MyApp extends StatelessWidget {
       child: MaterialApp(
         title: "",
         debugShowCheckedModeBanner: false ,
-        home: WelcomeScreen(),
+        home: FutureBuilder(
+          future: getCurrentUser(),
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            if(snapshot.hasData) {
+              return HomeScreen(user: snapshot.data);
+            } else {
+              return Login();
+            }
+          },
+        ),
       ),
     );
   }

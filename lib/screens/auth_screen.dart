@@ -141,5 +141,12 @@ Future<User?> signInWithFacebook() async {
   } else {
     print(loginResult.message);
   }
+}
 
+Future<User?> getCurrentUser() async {
+  FirebaseAuth _auth = FirebaseAuth.instance;
+
+  User? currentUser;
+  currentUser = _auth.currentUser;
+  return currentUser;
 }

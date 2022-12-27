@@ -5,16 +5,16 @@ class Log {
   String? receiverName;
   String? receiverPic;
   String? callStatus;
-  String? timestamp;
+  String? timeStamp;
 
   Log({
-    required this.logId,
+    this.logId,
     required this.callerName,
     required this.callerPic,
     required this.receiverName,
     required this.receiverPic,
     required this.callStatus,
-    required this.timestamp,
+    required this.timeStamp,
   });
 
   // to map
@@ -26,7 +26,7 @@ class Log {
     logMap["receiver_name"] = log.receiverName;
     logMap["receiver_pic"] = log.receiverPic;
     logMap["call_status"] = log.callStatus;
-    logMap["timestamp"] = log.timestamp;
+    logMap["time_stamp"] = log.timeStamp;
     return logMap;
   }
 
@@ -37,6 +37,6 @@ class Log {
     receiverName = logMap["receiver_name"];
     receiverPic = logMap["receiver_pic"];
     callStatus = logMap["call_status"];
-    timestamp = logMap["timestamp"];
+    timeStamp = logMap["time_stamp"];
   }
 }

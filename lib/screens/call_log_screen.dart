@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/call_log_list_container.dart';
+
 class CallLogScreen extends StatefulWidget {
   const CallLogScreen({Key? key}) : super(key: key);
 
@@ -14,7 +16,7 @@ class _CallLogScreenState extends State<CallLogScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          margin: EdgeInsets.only(top: 15,left: 15),
+          margin: const EdgeInsets.only(top: 15,left: 15),
           child: const Text(
               'Calls',
               style: TextStyle(
@@ -24,6 +26,9 @@ class _CallLogScreenState extends State<CallLogScreen> {
                 letterSpacing: 0.5,
               )
           ),
+        ),
+        const Expanded(
+            child: CallLogListContainer(),
         ),
       ],
     );

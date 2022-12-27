@@ -8,7 +8,7 @@ import '../models/log_model.dart';
 class SqliteMethods {
   Database? _db;
 
-  String databaseName = 'logDB' ;
+  String databaseName = ' ' ;
 
   String tableName = 'call_logs';
 
@@ -29,22 +29,21 @@ class SqliteMethods {
     return _db;
   }
 
-  @override
   openDb(dbName) => (databaseName = dbName);
 
-  @override
   init() async {
+
     Directory dir = await getApplicationDocumentsDirectory();
 
     String path = join(dir.path, databaseName);
-    
+
     var db = await openDatabase(path, version: 1, onCreate: _onCreate);
     return db;
   }
 
   _onCreate(Database db, int version) async {
     String createTableQuery =
-        "CREATE TABLE $tableName ($id INTERGER PRIMARY KEY, $callerName TEXT, $callerPic TEXT , $receiverName TEXT, $receiverPic TEXT, $callStatus TEXT, $timeStamp TEXT";
+        "CREATE TABLE $tableName ($id INTEGER PRIMARY KEY, $callerName TEXT, $callerPic TEXT , $receiverName TEXT, $receiverPic TEXT, $callStatus TEXT, $timeStamp TEXT)";
     
     await db.execute(createTableQuery);
     print('table created');
@@ -53,14 +52,13 @@ class SqliteMethods {
   @override
   addLogs(Log log) async {
     var dbClient = await db;
-
+    print("The log has been added in sqlite db");
     await dbClient?.insert(tableName, log.toMap(log));
   }
 
-  @override
-  deleteLog(int logId) async {
+  deleteLogs(int logId) async {
     var dbClient = await db;
-    return await dbClient?.delete(tableName, where : '$id = ?' , whereArgs: [logId]);
+    return await dbClient?.delete(tableName, where : '$id = ?' , whereArgs: [logId + 1]);
   }
 
   updateLogs(Log log) async {
@@ -74,7 +72,6 @@ class SqliteMethods {
     );
   }
 
-  @override
   Future<List<Log>?> getLogs() async {
     try{
       var dbClient = await db;
@@ -92,7 +89,7 @@ class SqliteMethods {
           timeStamp,
         ]
       );
-      
+      print(maps);
       List<Log> logList = [];
       
       if(maps != null) {
@@ -108,7 +105,6 @@ class SqliteMethods {
     }
   }
 
-  @override
   close() async {
     var dbClient = await db;
     dbClient?.close();

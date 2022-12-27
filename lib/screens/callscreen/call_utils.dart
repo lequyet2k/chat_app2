@@ -31,8 +31,7 @@ class CallUtils {
       callStatus: "dialled",
       receiverName: to.name,
       receiverPic: to.avatar,
-      timestamp: DateTime.now().toString(),
-      logId: null,
+      timeStamp: DateTime.now().toString(),
     );
 
     bool callMade = await callMethods.makeCall(call: call);

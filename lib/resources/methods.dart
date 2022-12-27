@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:intl/intl.dart';
 
 class ChatRoomId {
   String chatRoomId(String? user1, String user2){
@@ -41,6 +42,18 @@ Future<void> openMap(String lat, String long) async {
   await canLaunchUrlString(googleUrl)
       ? await launchUrlString(googleUrl)
       : throw 'Could not launch $googleUrl';
+}
+
+String formatDateString(String dateString) {
+  DateTime dateTime = DateTime.parse(dateString);
+  var formatter = DateFormat('dd/MM/yy');
+  return formatter.format(dateTime);
+}
+
+String convertHours(String dateString) {
+  DateTime dateTime = DateTime.parse(dateString);
+  var formatter = DateFormat('hh:mm');
+  return formatter.format(dateTime);
 }
 
 

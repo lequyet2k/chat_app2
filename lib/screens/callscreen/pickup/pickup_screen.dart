@@ -28,9 +28,8 @@ class _PickUpScreenState extends State<PickUpScreen> {
       callerPic: widget.call.callerPic,
       receiverName: widget.call.receiverName,
       receiverPic: widget.call.receiverPic,
-      timestamp: DateTime.now().toString(),
+      timeStamp: DateTime.now().toString(),
       callStatus: callStatus,
-      logId: null,
     );
 
     LogRepository.addLogs(log);
