@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:grouped_list/grouped_list.dart';
 import 'package:my_porject/resources/methods.dart';
 import 'package:my_porject/screens/callscreen/call_utils.dart';
 import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
@@ -40,7 +42,12 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => scrollToIndex());
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      if (controller.hasClients) {
+        scrollToIndex();
+      }
+      scrollToIndex();
+    });
     getUserInfo();
   }
 
@@ -90,6 +97,7 @@ class _ChatScreenState extends State<ChatScreen> {
         'lastMessage' : message,
         'type' : "text",
       });
+      // scrollToIndex();
       await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['uid']).set({
         'lastMessage' : "Bạn: ${message}",
         'type' : "text",
@@ -119,7 +127,6 @@ class _ChatScreenState extends State<ChatScreen> {
     } else {
       print("Enter some text");
     }
-    scrollToIndex();
   }
 
   File? imageFile;
@@ -133,7 +140,6 @@ class _ChatScreenState extends State<ChatScreen> {
         uploadImage();
       }
     });
-    scrollToIndex();
   }
 
   Future uploadImage() async {
@@ -169,6 +175,7 @@ class _ChatScreenState extends State<ChatScreen> {
         'type' : "img",
         'uid' : widget.userMap['uid'],
       });
+      scrollToIndex();
       await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['uid']).set({
         'lastMessage' : "Bạn đã gửi 1 ảnh",
         'type' : "img",
@@ -197,16 +204,16 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     }
   }
-  final itemScrollController = ItemScrollController();
+  final ScrollController controller = ScrollController();
   late int index;
   void scrollToIndex() async {
-    await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').get().then((value) {
-      itemScrollController.jumpTo(index: value.docs.length - 1);
-    });
+    controller.animateTo(
+      controller.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 200), curve: Curves.easeOut,
+    );
   }
-
-
-
+  
+  
   void liveLocation() {
     LocationSettings locationSettings = const LocationSettings(
       accuracy: LocationAccuracy.high,
@@ -218,7 +225,12 @@ class _ChatScreenState extends State<ChatScreen> {
       long = position.longitude.toString();
     });
   }
-
+  int limit = 20;
+  Future<void> abc() async {
+    setState(() {
+      limit += 20;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -289,22 +301,27 @@ class _ChatScreenState extends State<ChatScreen> {
           width: size.width ,
           alignment: Alignment.center,
           child: const CircularProgressIndicator(),
-        ) : Column(
-          children: <Widget>[
-            Expanded(
-              child: Container(
-                color: Colors.white24,
+        ) : RefreshIndicator(
+          onRefresh: () {
+            print(limit);
+            return abc();
+          },
+          child: Column(
+            children: <Widget>[
+              Expanded(
                 child: StreamBuilder<QuerySnapshot>(
-                  stream: _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').orderBy('time',descending: false).snapshots(),
+                  stream: _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').orderBy('time',descending: true).limit(limit).snapshots(),
                   builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
                     if(snapshot.data!= null){
-                      return ScrollablePositionedList.builder(
-                        itemCount: snapshot.data?.docs.length as int,
+                      return ListView.builder(
+                        reverse: true,
+                        shrinkWrap: true,
+                        itemCount: snapshot.data?.docs.length as int ,
                         itemBuilder: (context, index) {
                           Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
                           return messages(size, map, widget.userMap, index, snapshot.data?.docs.length as int, context);
                         },
-                        itemScrollController: itemScrollController,
+                        controller: controller,
                       );
                     } else {
                       return Container();
@@ -312,63 +329,63 @@ class _ChatScreenState extends State<ChatScreen> {
                   },
                 ),
               ),
-            ),
-            Container(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                // padding: EdgeInsets.only(bottom: 10,top: 10),
-                height: size.height / 16,
-                width: double.infinity,
-                color: Colors.white70,
-                child: Row(
-                  children: <Widget>[
-                    IconButton(
-                        onPressed: () {
-                          getImage();
-                        },
-                        icon: Icon(Icons.image_outlined, color: Colors.blueAccent,),
-                    ),
-                    IconButton(
-                        onPressed: () {
-                          initLocationDoc();
-                        },
-                        icon: Icon(Icons.location_on, color: Colors.blueAccent,),
-                    ),
-                    // SizedBox(width: 15,),
-                    Expanded(
-                        child: Container(
-                          height: size.height / 20.8,
-                          child: TextField(
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.grey.shade300,
-                              // hintText: "Aa",
-                              // hintStyle: TextStyle(color: Colors.white38),
-                              // contentPadding: EdgeInsets.all(8.0),
-                              prefixIcon: Icon(Icons.abc),
-                              suffixIcon: IconButton(
-                                onPressed: () {  },
-                                icon: Icon(Icons.emoji_emotions,color: Colors.blueAccent,),
-                              ) ,
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25),
+              Container(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  // padding: EdgeInsets.only(bottom: 10,top: 10),
+                  height: size.height / 16,
+                  width: double.infinity,
+                  color: Colors.white70,
+                  child: Row(
+                    children: <Widget>[
+                      IconButton(
+                          onPressed: () {
+                            getImage();
+                          },
+                          icon: Icon(Icons.image_outlined, color: Colors.blueAccent,),
+                      ),
+                      IconButton(
+                          onPressed: () {
+                            initLocationDoc();
+                          },
+                          icon: Icon(Icons.location_on, color: Colors.blueAccent,),
+                      ),
+                      // SizedBox(width: 15,),
+                      Expanded(
+                          child: Container(
+                            height: size.height / 20.8,
+                            child: TextField(
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.grey.shade300,
+                                // hintText: "Aa",
+                                // hintStyle: TextStyle(color: Colors.white38),
+                                // contentPadding: EdgeInsets.all(8.0),
+                                prefixIcon: Icon(Icons.abc),
+                                suffixIcon: IconButton(
+                                  onPressed: () {  },
+                                  icon: Icon(Icons.emoji_emotions,color: Colors.blueAccent,),
+                                ) ,
+                                enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(25),
+                                ),
                               ),
+                              controller: _message,
                             ),
-                            controller: _message,
                           ),
-                        ),
-                    ),
-                    IconButton(
-                        onPressed: () {
-                          onSendMessage();
-                        },
-                        icon: Icon(Icons.send, color: Colors.blueAccent,),
-                    ),
-                  ],
+                      ),
+                      IconButton(
+                          onPressed: () {
+                            onSendMessage();
+                          },
+                          icon: Icon(Icons.send, color: Colors.blueAccent,),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -837,7 +854,7 @@ class _ChatScreenState extends State<ChatScreen> {
       'time' :  DateTime.now(),
       'messageId' : messageId,
     });
-
+    scrollToIndex();
     await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.userMap['uid']).update({
       'messageId' : messageId,
     });
@@ -868,7 +885,6 @@ class _ChatScreenState extends State<ChatScreen> {
       'status' : status,
       'datatype' : 'p2p',
     });
-    scrollToIndex();
   }
 
   String? userLat;

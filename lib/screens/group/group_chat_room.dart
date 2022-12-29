@@ -36,7 +36,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
   void initState() {
     getMemberList();
     getCurrentUserAvatar();
-    WidgetsBinding.instance.addPostFrameCallback((_) => scrollToIndex());
+    // WidgetsBinding.instance.addPostFrameCallback((_) => scrollToIndex());
     super.initState();
   }
 
@@ -88,7 +88,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         uploadImage();
       }
     });
-    scrollToIndex();
+    // scrollToIndex();
   }
   Future uploadImage() async {
 
@@ -128,11 +128,11 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
     }
   }
   final itemScrollController = ItemScrollController();
-  void scrollToIndex() async {
-    await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').get().then((value) {
-      itemScrollController.jumpTo(index: value.docs.length - 1);
-    });
-  }
+  // void scrollToIndex() async {
+  //   await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').get().then((value) {
+  //     itemScrollController.jumpTo(index: value.docs.length - 1);
+  //   });
+  // }
   late String lat;
   late String long;
 
@@ -192,10 +192,11 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                 color: Colors.white24,
               width: size.width,
               child: StreamBuilder<QuerySnapshot>(
-                stream: _firestore.collection('groups').doc(widget.groupChatId).collection('chats').orderBy('time',descending: false).snapshots(),
+                stream: _firestore.collection('groups').doc(widget.groupChatId).collection('chats').orderBy('time',descending: true).limit(10).snapshots(),
                 builder: (context, snapshot){
                   if(snapshot.hasData) {
                     return ScrollablePositionedList.builder(
+                      reverse: true,
                       itemCount: snapshot.data!.docs.length,
                       itemBuilder: (context, index){
                         Map<String, dynamic> chatMap = snapshot.data?.docs[index].data() as Map<String, dynamic>;
@@ -708,7 +709,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         'time' : DateTime.now(),
       });
     }
-    scrollToIndex();
+    // scrollToIndex();
   }
 
   String? userLat;
