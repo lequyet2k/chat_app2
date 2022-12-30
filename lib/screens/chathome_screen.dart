@@ -1,6 +1,7 @@
 // import 'dart:html';
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:my_porject/db/avatar_repository.dart';
 import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/screens/call_log_screen.dart';
 import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
@@ -64,6 +66,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       userProvider.refreshUser();
     });
     LogRepository.init(dbName: _auth.currentUser!.uid);
+    AvatarRepository.init(dbName: _auth.currentUser!.uid);
     super.initState();
   }
 
@@ -404,7 +407,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                           decoration: BoxDecoration(
                                               shape: BoxShape.circle,
                                               image: DecorationImage(
-                                                image: NetworkImage(
+                                                image: CachedNetworkImageProvider(
                                                   map['avatar'],
                                                 ),
                                                 fit: BoxFit.cover,

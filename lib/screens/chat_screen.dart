@@ -97,7 +97,6 @@ class _ChatScreenState extends State<ChatScreen> {
         'lastMessage' : message,
         'type' : "text",
       });
-      // scrollToIndex();
       await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['uid']).set({
         'lastMessage' : "Bạn: ${message}",
         'type' : "text",

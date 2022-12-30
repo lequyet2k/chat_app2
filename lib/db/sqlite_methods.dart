@@ -1,30 +1,24 @@
 import 'dart:io';
+import 'package:my_porject/models/avatar_model.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-
-import '../models/log_model.dart';
 
 class SqliteMethods {
   Database? _db;
 
   String databaseName = ' ' ;
 
-  String tableName = 'call_logs';
-
-  String id = 'log_id';
-  String callerName = 'caller_name';
-  String callerPic = 'caller_pic';
-  String receiverName = 'receiver_name';
-  String receiverPic = 'receiver_pic';
-  String callStatus = 'call_status';
-  String timeStamp = 'time_stamp';
+  String tableName = 'chatHistory';
+  String uid = 'uid';
+  String avatar = 'avatar';
+  String datatype = 'datatype';
 
   Future<Database?> get db async {
     if(_db != null) {
       return _db;
     }
-    print('db was null, now awaiting it');
+    print('db was null, now awaiting it.......');
     _db = await init();
     return _db;
   }
@@ -43,70 +37,14 @@ class SqliteMethods {
 
   _onCreate(Database db, int version) async {
     String createTableQuery =
-        "CREATE TABLE $tableName ($id INTEGER PRIMARY KEY, $callerName TEXT, $callerPic TEXT , $receiverName TEXT, $receiverPic TEXT, $callStatus TEXT, $timeStamp TEXT)";
-    
+        "CREATE TABLE $tableName ($uid TEXT PRIMARY KEY,  $avatar BLOB, $datatype TEXT";
+
     await db.execute(createTableQuery);
-    print('table created');
+    print('table created success');
   }
 
-  @override
-  addLogs(Log log) async {
+  void saveAvatar(Avatar avatar) async {
     var dbClient = await db;
-    print("The log has been added in sqlite db");
-    await dbClient?.insert(tableName, log.toMap(log));
-  }
-
-  deleteLogs(int logId) async {
-    var dbClient = await db;
-    return await dbClient?.delete(tableName, where : '$id = ?' , whereArgs: [logId + 1]);
-  }
-
-  updateLogs(Log log) async {
-    var dbClient = await db;
-    
-    await dbClient?.update(
-        tableName,
-        log.toMap(log),
-      where: '$id = ?',
-      whereArgs: [log.logId],
-    );
-  }
-
-  Future<List<Log>?> getLogs() async {
-    try{
-      var dbClient = await db;
-
-      // List<Map<String, Object?>>? maps = await dbClient?.rawQuery('SELECT * FROM $tableName');
-      List<Map<String, Object?>>? maps = await dbClient?.query(
-          tableName,
-        columns: [
-          id,
-          callerName,
-          callerPic,
-          receiverName,
-          receiverPic,
-          callStatus,
-          timeStamp,
-        ]
-      );
-      print(maps);
-      List<Log> logList = [];
-      
-      if(maps != null) {
-        for(Map map in maps) {
-          logList.add(Log.fromMap(map));
-        }
-      }
-
-      return logList;
-    }catch(e){
-      print(e);
-      return null;
-    }
-  }
-
-  close() async {
-    var dbClient = await db;
-    dbClient?.close();
+    await dbClient?.insert(tableName, avatar.toMap(avatar));
   }
 }

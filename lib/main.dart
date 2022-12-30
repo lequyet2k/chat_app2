@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/screens/auth_screen.dart';
@@ -14,6 +15,8 @@ void main() async{
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  FirebaseFirestore.instance.settings = const Settings(
+      persistenceEnabled: true);
   // FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080, sslEnabled: false);
   runApp(MyApp());
 }

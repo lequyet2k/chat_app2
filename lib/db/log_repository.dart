@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:my_porject/db/sqlite_methods.dart';
+import 'package:my_porject/db/sqlite_methods_call_log.dart';
 
 import '../models/log_model.dart';
 
@@ -7,7 +7,7 @@ class LogRepository {
   static var dbObject;
 
   static init({required String dbName}) {
-    dbObject =  SqliteMethods();
+    dbObject =  SqliteMethodsforCallLog();
     dbObject.openDb(dbName);
     dbObject.init();
   }
