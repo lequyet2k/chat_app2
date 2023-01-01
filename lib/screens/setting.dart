@@ -32,9 +32,25 @@ class _SettingState extends State<Setting> {
   bool isLoading = false;
 
   late Map<String, dynamic> userMap ;
+  String? str;
+  bool isSwitched = true;
 
-  bool isSwitched = false;
-  bool isSwitched2 = false;
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  // status() async {
+  //   await _firestore..collection('users').doc(_auth.currentUser?.uid).get().then((value) {
+  //     str = value.data()!['status'];
+  //   });
+  //   if(str == "Online") {
+  //     isSwitched = true;
+  //   } else{
+  //     isSwitched = false;
+  //   }
+  //
+  // }
 
   Future getImage() async {
     ImagePicker _picker = ImagePicker();
@@ -96,17 +112,52 @@ class _SettingState extends State<Setting> {
   }
 
   Future<void> logOuttt() async {
-    FirebaseFirestore _firestore = FirebaseFirestore.instance;
-    FirebaseAuth _auth = FirebaseAuth.instance;
+    await turnOffStatus();
+    logOut();
+    setState(() {
+      isLoading = false;
+    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Login()),
+    );
+  }
 
+  showTurnOffStatus() {
+    showDialog(
+        context: context,
+        builder: (context) =>  AlertDialog(
+          title: Text("Tắt trạng thái hoạt động?"),
+          content: Text("Are you sure to turn off? "),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () async {
+                turnOffStatus();
+                setState(() {
+                  isLoading = false;
+                });
+                Navigator.maybePop(context);
+              },
+              child: Text("Yes"),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.maybePop(context);
+              },
+              child: Text("No"),
+            ),
+          ],
+        )
+    );
+  }
+
+  turnOffStatus() async {
     setState(() {
       isLoading = true;
     });
-
     await _firestore.collection('users').doc(_auth.currentUser?.uid).update({
       "status" : 'Offline',
     });
-
     int? n;
     await FirebaseFirestore.instance.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value) => {
       n = value.docs.length
@@ -122,13 +173,51 @@ class _SettingState extends State<Setting> {
         }
       });
     }
-    logOut();
-    setState(() {
-      isLoading = false;
+  }
+
+  turnOnStatus() async {
+    await _firestore.collection('users').doc(_auth.currentUser?.uid).update({
+      "status" : 'Online',
     });
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Login()),
+    int? n;
+    await FirebaseFirestore.instance.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value) => {
+      n = value.docs.length
+    });
+    for(int i = 0 ; i < n! ; i++) {
+      String? uId;
+      await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value){
+        if(value.docs[i]['datatype'] == 'p2p' && value.docs[i]['uid'] != _auth.currentUser!.uid){
+          uId = value.docs[i]['uid'] ;
+          _firestore.collection('users').doc(uId).collection('chatHistory').doc(_auth.currentUser!.uid).update({
+            'status' : 'Online',
+          });
+        }
+      });
+    }
+  }
+
+  showTurnOnStatus() {
+    showDialog(
+        context: context,
+        builder: (context) =>  AlertDialog(
+          title: Text("Bật trạng thái hoạt động?"),
+          content: Text("Are you sure to turn on? "),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () async {
+                turnOnStatus();
+                Navigator.maybePop(context);
+              },
+              child: Text("Yes"),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.maybePop(context);
+              },
+              child: Text("No"),
+            ),
+          ],
+        )
     );
   }
 
@@ -336,6 +425,11 @@ class _SettingState extends State<Setting> {
                                       setState(() {
                                         isSwitched = value;
                                         print(isSwitched);
+                                        if(isSwitched == true) {
+                                          showTurnOnStatus();
+                                        }else {
+                                          showTurnOffStatus();
+                                        }
                                       });
                                     },
                                     activeTrackColor: Colors.green,

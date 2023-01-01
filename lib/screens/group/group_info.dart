@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/screens/group/add_members_group.dart';
 
+import '../../resources/methods.dart';
 import 'group_chat.dart';
 
 class GroupInfo extends StatefulWidget {
@@ -80,20 +81,23 @@ class _GroupInfoState extends State<GroupInfo> {
         await _firestore.collection('groups').doc(widget.groupId).collection('chats').add({
           "message" : "${widget.user.displayName} removed ${membersList[index]['name']}",
           "type": "notify",
-          "time" : DateTime.now(),
+          "time" : timeForMessage(DateTime.now().toString()),
+          'timeStamp' : DateTime.now(),
         });
         await _firestore.collection('users').doc(membersList[index]['uid']).collection('groups').doc(widget.groupId).delete();
         await _firestore.collection('users').doc(widget.user.uid).collection('chatHistory').doc(widget.groupId).update({
           'lastMessage' : "Bạn removed ${membersList[index]['name']}",
           'type' : "notify",
-          'time' : DateTime.now(),
+          'time' : timeForMessage(DateTime.now().toString()),
+          'timeStamp' : DateTime.now(),
         });
 
         for(int i = 1 ; i < membersList.length ; i++) {
           await _firestore.collection('users').doc(membersList[i]['uid']).collection('chatHistory').doc(widget.groupId).update({
             'lastMessage' : "${widget.user.displayName} removed ${membersList[index]['name']}",
             'type' : "notify",
-            'time' : DateTime.now(),
+            'time' : timeForMessage(DateTime.now().toString()),
+            'timeStamp' : DateTime.now(),
           });
         }
         membersList.removeAt(index);
@@ -124,13 +128,15 @@ class _GroupInfoState extends State<GroupInfo> {
       await _firestore.collection('groups').doc(widget.groupId).collection('chats').add({
         "message" : "${widget.user.displayName} has left the group",
         "type": "notify",
-        "time" : DateTime.now(),
+        "time" : timeForMessage(DateTime.now().toString()),
+        'timeStamp' : DateTime.now(),
       });
       for(int i = 0 ; i < membersList.length ; i++) {
         await _firestore.collection('users').doc(membersList[i]['uid']).collection('chatHistory').doc(widget.groupId).update({
           'lastMessage' : "${widget.user.displayName} has left the group",
           'type' : "notify",
-          'time' : DateTime.now(),
+          'time' : timeForMessage(DateTime.now().toString()),
+          'timeStamp' : DateTime.now(),
         });
       }
       for(int i = 0 ; i < membersList.length ; i++) {

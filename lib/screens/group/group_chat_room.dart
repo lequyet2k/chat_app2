@@ -1,9 +1,12 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:grouped_list/grouped_list.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_porject/screens/group/group_info.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -38,6 +41,13 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
     getCurrentUserAvatar();
     // WidgetsBinding.instance.addPostFrameCallback((_) => scrollToIndex());
     super.initState();
+    focusNode.addListener(() {
+      if(focusNode.hasFocus) {
+        setState(() {
+          showEmoji = false;
+        });
+      }
+    });
   }
 
   void getCurrentUserAvatar() async {
@@ -54,8 +64,9 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         "sendBy" : widget.user.displayName,
         "message" : _message.text,
         "type" : "text",
-        "time" : DateTime.now(),
+        "time" : timeForMessage(DateTime.now().toString()),
         'avatar' : avatarUrl,
+        'timeStamp' : DateTime.now(),
       };
 
       _message.clear();
@@ -65,7 +76,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         await _firestore.collection('users').doc(memberList[i]['uid']).collection('chatHistory').doc(widget.groupChatId).update({
           'lastMessage' : "${widget.user.displayName}: $message",
           'type' : "text",
-          'time' : DateTime.now(),
+          'time' : timeForMessage(DateTime.now().toString()),
+          'timeStamp' : DateTime.now(),
         });
       }
     }
@@ -100,8 +112,9 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       'sendBy' : widget.user.displayName,
       'message' : _message.text,
       'type' : "img",
-      'time' :  DateTime.now(),
+      'time' :  timeForMessage(DateTime.now().toString()),
       'avatar' : avatarUrl,
+      'timeStamp' : DateTime.now(),
     });
 
     var ref = FirebaseStorage.instance.ref().child('images').child("$fileName.jpg");
@@ -122,7 +135,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         await _firestore.collection('users').doc(memberList[i]['uid']).collection('chatHistory').doc(widget.groupChatId).update({
           'lastMessage' : "${widget.user.displayName} đã gửi một ảnh",
           'type' : "img",
-          'time' : DateTime.now(),
+          'time' : timeForMessage(DateTime.now().toString()),
+          'timeStamp' : DateTime.now(),
         });
       }
     }
@@ -135,6 +149,31 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
   // }
   late String lat;
   late String long;
+
+  int limit = 20;
+  Future<void> abc() async {
+    setState(() {
+      limit += 20;
+    });
+  }
+
+  FocusNode focusNode = FocusNode();
+
+  bool showEmoji = false;
+  Widget showEmojiPicker() {
+    return SizedBox(
+      height: 250,
+      child: EmojiPicker(
+        config: Config(
+          columns: 7,
+        ),
+        onEmojiSelected: (emoji, category) {
+          _message.text = _message.text + category.emoji;
+          print(emoji);
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,7 +196,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                 ),
                 const SizedBox(width: 2,),
                 const CircleAvatar(
-                  backgroundImage: NetworkImage('https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98'),
+                  backgroundImage: CachedNetworkImageProvider('https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98'),
                   maxRadius: 20,
                 ),
                 const SizedBox(width: 12,),
@@ -185,90 +224,120 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
           ),
         ),
       ),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: Container(
-                color: Colors.white24,
-              width: size.width,
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _firestore.collection('groups').doc(widget.groupChatId).collection('chats').orderBy('time',descending: true).limit(10).snapshots(),
-                builder: (context, snapshot){
-                  if(snapshot.hasData) {
-                    return ScrollablePositionedList.builder(
-                      reverse: true,
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (context, index){
-                        Map<String, dynamic> chatMap = snapshot.data?.docs[index].data() as Map<String, dynamic>;
-                        return messageTitle(size, chatMap, index, snapshot.data!.docs.length);
-                      },
-                      itemScrollController: itemScrollController,
-                    );
-                  } else {
-                    return Container();
-                  }
-                },
-              )
-            ),
-          ),
-          Container(
-            height: size.height / 16,
-            width: double.infinity,
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              // padding: EdgeInsets.only(bottom: 10,top: 10),
-              color: Colors.white70,
-              child: Row(
-                children: <Widget>[
-                  IconButton(
-                    onPressed: () {
-                      getImage();
-                    },
-                    icon: Icon(Icons.image_outlined, color: Colors.blueAccent,),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      checkUserisLocationed();
-                    },
-                    icon: Icon(Icons.location_on, color: Colors.blueAccent,),
-                  ),
-                  // SizedBox(width: 15,),
-                  Expanded(
-                    child: SizedBox(
-                      height: size.height / 20.8,
-                      child: TextField(
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.grey.shade300,
-                          // hintText: "Aa",
-                          // hintStyle: TextStyle(color: Colors.white30),
-                          prefixIcon: const Icon(Icons.abc),
-                          suffixIcon: IconButton(
-                            onPressed: () {
-
-                            },
-                            icon: const Icon(Icons.emoji_emotions,color: Colors.blueAccent,),
-                          ) ,
-                          // contentPadding: EdgeInsets.all(8.0),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25),
+      body: RefreshIndicator(
+        onRefresh: () {
+          return abc();
+        },
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              child: Container(
+                  color: Colors.white24,
+                width: size.width,
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: _firestore.collection('groups').doc(widget.groupChatId).collection('chats').orderBy('timeStamp',descending: false).limit(limit).snapshots(),
+                  builder: (context, snapshot){
+                    if(snapshot.hasData) {
+                      return GroupedListView<QueryDocumentSnapshot<Object?>, String>(
+                        elements: snapshot.data?.docs as List<QueryDocumentSnapshot<Object?>> ,
+                        shrinkWrap: true,
+                        groupBy: (element) => element['time'],
+                        groupSeparatorBuilder:  (String groupByValue) => Container(
+                          alignment: Alignment.center,
+                          height: 30,
+                          child: Text(
+                            "${groupByValue.substring(11,16)}, ${groupByValue.substring(0,10)}",
+                            style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontWeight: FontWeight.bold
+                            ),
                           ),
                         ),
-                        controller: _message,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      onSendMessage();
-                    },
-                    icon: Icon(Icons.send, color: Colors.blueAccent,),
-                  ),
-                ],
+                        // itemCount: snapshot.data?.docs.length as int ,
+                        indexedItemBuilder: (context, element, index) {
+                          // Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
+                          Map<String, dynamic> map = element.data() as Map<String, dynamic>;
+                          return messageTitle(size, map, index, snapshot.data!.docs.length);
+                        },
+                        // controller: itemScrollController,
+                      );
+
+                    } else {
+                      return Container();
+                    }
+                  },
+                )
               ),
             ),
-          )
-        ],
+            Column(
+              children: [
+                Container(
+                  height: size.height / 16,
+                  width: double.infinity,
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    // padding: EdgeInsets.only(bottom: 10,top: 10),
+                    color: Colors.white70,
+                    child: Row(
+                      children: <Widget>[
+                        IconButton(
+                          onPressed: () {
+                            getImage();
+                          },
+                          icon: Icon(Icons.image_outlined, color: Colors.blueAccent,),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            checkUserisLocationed();
+                          },
+                          icon: Icon(Icons.location_on, color: Colors.blueAccent,),
+                        ),
+                        // SizedBox(width: 15,),
+                        Expanded(
+                          child: SizedBox(
+                            height: size.height / 20.8,
+                            child: TextField(
+                              focusNode: focusNode,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.grey.shade300,
+                                // hintText: "Aa",
+                                // hintStyle: TextStyle(color: Colors.white30),
+                                prefixIcon: const Icon(Icons.abc),
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      focusNode.unfocus();
+                                      focusNode.canRequestFocus = false;
+                                      showEmoji = !showEmoji;
+                                    });
+                                  },
+                                  icon: const Icon(Icons.emoji_emotions,color: Colors.blueAccent,),
+                                ) ,
+                                // contentPadding: EdgeInsets.all(8.0),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                              ),
+                              controller: _message,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            onSendMessage();
+                          },
+                          icon: Icon(Icons.send, color: Colors.blueAccent,),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            showEmoji ? showEmojiPicker() : Container(),
+          ],
+        ),
       ),
     );
   }
@@ -479,7 +548,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                   width: chatMap['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
                   alignment: chatMap['sendBy'] == widget.user.displayName  ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
-                    width: size.width / 1.5,
+                    width: size.width / 2,
                     // constraints: BoxConstraints( maxWidth: size.width / 1.5),
                     padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                     margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
@@ -504,25 +573,27 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                               ),
                             ),
                             SizedBox(width: 10,),
-                            Column(
-                              children: [
-                                Text(
-                                  "Vi tri truc tiep",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white70,
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  Text(
+                                    "Vi tri truc tiep",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white70,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  // int.parse(map['timeSpend'].toString()) < 60 ?
-                                  "${chatMap['sendBy']} da bat dau chia se" ,
-                                  // : (map['timeSpend'] / 60).toString() + "p "+ (map['timeSpend'] % 60).toString() + "s",
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey.shade300,
+                                  Text(
+                                    // int.parse(map['timeSpend'].toString()) < 60 ?
+                                    "Da bat dau chia se" ,
+                                    // : (map['timeSpend'] / 60).toString() + "p "+ (map['timeSpend'] % 60).toString() + "s",
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey.shade300,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -692,10 +763,11 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       'sendBy' : widget.user.displayName,
       'message' : '${widget.user.displayName} đã gửi một vị trí trực tiếp',
       'type' : "location",
-      'time' :  DateTime.now(),
+      'time' :  timeForMessage(DateTime.now().toString()),
       'avatar' : avatarUrl,
       'messageId' : messageId,
       'uid' : _auth.currentUser!.uid,
+      'timeStamp' : DateTime.now(),
     });
 
     await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.groupChatId).update({
@@ -706,7 +778,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       await _firestore.collection('users').doc(memberList[i]['uid']).collection('chatHistory').doc(widget.groupChatId).update({
         'lastMessage' : "${widget.user.displayName} đã gửi một vị trí trực tiếp",
         'type' : "location",
-        'time' : DateTime.now(),
+        'time' : timeForMessage(DateTime.now().toString()),
+        'timeStamp' : DateTime.now(),
       });
     }
     // scrollToIndex();
@@ -854,7 +927,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
   }
   void editMessage(int index, int length, String message) async {
     String? str;
-    await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').orderBy('time').get().then((value) {
+    await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').orderBy('timeStamp').get().then((value) {
       str = value.docs[index].id;
     });
     if(str != null) {
@@ -866,7 +939,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         for(int i = 0; i < memberList.length ; i++ ){
           await _firestore.collection('users').doc(memberList[i]['uid']).collection('chatHistory').doc(widget.groupChatId).update({
             'lastMessage' : '${widget.user.displayName}: $message',
-            'time' : DateTime.now(),
+            'time' : timeForMessage(DateTime.now().toString()),
+            'timeStamp' : DateTime.now(),
           });
         }
       }
@@ -875,7 +949,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
 
   void removeMessage(int index, int length) async {
     String? str;
-    await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').orderBy('time').get().then((value) {
+    await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').orderBy('timeStamp').get().then((value) {
       str = value.docs[index].id;
     });
     if(str != null) {
@@ -887,7 +961,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         for(int i = 0; i < memberList.length; i++) {
           await _firestore.collection('users').doc(memberList[i]['uid']).collection('chatHistory').doc(widget.groupChatId).update({
             'lastMessage' : '${widget.user.displayName} đã xóa một tin nhắn',
-            'time' : DateTime.now(),
+            'time' : timeForMessage(DateTime.now().toString()),
+            'timeStamp' : DateTime.now(),
           });
         }
       }

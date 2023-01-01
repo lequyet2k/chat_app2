@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../../resources/methods.dart';
+
 class ChatBot extends StatefulWidget {
   User user;
   ChatBot({Key? key,required this.user});
@@ -67,7 +69,6 @@ class _ChatBotState extends State<ChatBot> {
                     ],
                   ),
                 ),
-                Icon(Icons.settings, color: Colors.black54,)
               ],
             ),
           ),
@@ -77,9 +78,9 @@ class _ChatBotState extends State<ChatBot> {
         children: <Widget>[
           Expanded(
             child: Container(
-              color: Colors.grey.shade500,
+              color: Colors.white,
               child: StreamBuilder<QuerySnapshot>(
-                stream: _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatvsBot').orderBy('time',descending: false).snapshots(),
+                stream: _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatvsBot').orderBy('timeStamp',descending: false).snapshots(),
                 builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
                   if(snapshot.data!= null){
                     return ScrollablePositionedList.builder(
@@ -100,36 +101,42 @@ class _ChatBotState extends State<ChatBot> {
           Container(
             alignment: Alignment.bottomCenter,
             child: Container(
-              padding: EdgeInsets.only(bottom: 13,top: 10),
+              // padding: EdgeInsets.only(bottom: 10,top: 10),
               height: size.height / 16,
               width: double.infinity,
-              color: Colors.black,
+              color: Colors.white70,
               child: Row(
                 children: <Widget>[
-                  SizedBox(width: 15,),
+                  SizedBox(width: 10,),
+                  // SizedBox(width: 15,),
                   Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey.shade700,
-                        hintText: "Aa",
-                        hintStyle: TextStyle(color: Colors.white30),
-                        contentPadding: EdgeInsets.all(8.0),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
+                    child: Container(
+                      height: size.height / 20.8,
+                      // decoration: BoxDecoration(
+                      //     color: Colors.grey.shade300,
+                      //     borderRadius: BorderRadius.circular(25),
+                      // ),
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.grey.shade300,
+                          // hintText: "Aa",
+                          // hintStyle: TextStyle(color: Colors.white38),
+                          // contentPadding: EdgeInsets.all(8.0),
+                          prefixIcon: Icon(Icons.abc),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
                         ),
+                        controller: _message,
                       ),
-                      controller: _message,
                     ),
                   ),
-                  Container(
-                    child: IconButton(
-                      onPressed: () {
-                        sendMessage(_message.text);
-                       _message.clear();
-                      },
-                      icon: Icon(Icons.send, color: Colors.blueAccent,),
-                    ),
+                  IconButton(
+                    onPressed: () {
+                      sendMessage();
+                    },
+                    icon: Icon(Icons.send, color: Colors.blueAccent,),
                   ),
                 ],
               ),
@@ -163,7 +170,7 @@ class _ChatBotState extends State<ChatBot> {
             margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              color: Colors.black,
+              color: Colors.blueAccent,
             ),
             child: Text(
               map['message'],
@@ -175,7 +182,7 @@ class _ChatBotState extends State<ChatBot> {
     );
   }
 
-  sendMessage(String text) async {
+  sendMessage() async {
     String message;
     message = _message.text;
     setState(() {
@@ -186,7 +193,8 @@ class _ChatBotState extends State<ChatBot> {
         'sendBy' : _auth.currentUser!.displayName,
         'message' : message,
         'type' : "text",
-        'time' :  DateTime.now(),
+        'time' :  timeForMessage(DateTime.now().toString()),
+        'timeStamp' : DateTime.now(),
       };
       await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatvsBot').add(messages);
 
@@ -203,7 +211,8 @@ class _ChatBotState extends State<ChatBot> {
           'sendBy' : 'bot',
           'message' : response.message!.text?.text![0],
           'type' : "text",
-          "time" : DateTime.now(),
+          "time" : timeForMessage(DateTime.now().toString()),
+          'timeStamp' : DateTime.now(),
         });
       };
     } else {

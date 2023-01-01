@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../models/log_model.dart';
+import '../../resources/methods.dart';
 
 
 class CallUtils {
@@ -31,7 +32,7 @@ class CallUtils {
       callStatus: "dialled",
       receiverName: to.name,
       receiverPic: to.avatar,
-      timeStamp: DateTime.now().toString(),
+      timeStamp: timeForMessage(DateTime.now().toString()),
     );
 
     bool callMade = await callMethods.makeCall(call: call);

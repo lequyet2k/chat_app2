@@ -49,7 +49,7 @@ class _SignUpScreen extends State<SignUp> {
         dialogType: DialogType.error,
         animType: AnimType.rightSlide,
         title: 'Register Failed',
-        desc: 'The email address is badly formatted',
+        desc: 'The email address or password is incorrect',
           btnCancelText: 'Sign Up Again',
           btnCancelIcon: Icons.arrow_back_ios,
           btnCancelOnPress: () {

@@ -9,7 +9,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:my_porject/db/avatar_repository.dart';
 import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/screens/call_log_screen.dart';
 import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
@@ -66,7 +65,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       userProvider.refreshUser();
     });
     LogRepository.init(dbName: _auth.currentUser!.uid);
-    AvatarRepository.init(dbName: _auth.currentUser!.uid);
     super.initState();
   }
 
@@ -245,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         Expanded(
           child: SingleChildScrollView(
             child: StreamBuilder(
-                stream: _firestore.collection('users').doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0").collection('chatHistory').orderBy('time',descending: true).snapshots(),
+                stream: _firestore.collection('users').doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0").collection('chatHistory').orderBy('timeStamp',descending: true).snapshots(),
                 builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
                   if(snapshot.data!= null){
                     return ListView.builder(

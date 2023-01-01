@@ -44,16 +44,21 @@ Future<void> openMap(String lat, String long) async {
       : throw 'Could not launch $googleUrl';
 }
 
-String formatDateString(String dateString) {
+// String formatDateString(String dateString) {
+//   DateTime dateTime = DateTime.parse(dateString);
+//   var formatter = DateFormat('dd/MM/yy');
+//   return formatter.format(dateTime);
+// }
+//
+// String convertHours(String dateString) {
+//   DateTime dateTime = DateTime.parse(dateString);
+//   var formatter = DateFormat('hh:mm');
+//   return formatter.format(dateTime);
+// }
+
+String timeForMessage(String dateString) {
   DateTime dateTime = DateTime.parse(dateString);
-  var formatter = DateFormat('dd/MM/yy');
+  var formatter = DateFormat('dd-MM-yyyy' + " " + 'hh:mm'  );
   return formatter.format(dateTime);
 }
-
-String convertHours(String dateString) {
-  DateTime dateTime = DateTime.parse(dateString);
-  var formatter = DateFormat('hh:mm');
-  return formatter.format(dateTime);
-}
-
 

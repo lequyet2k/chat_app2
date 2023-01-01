@@ -1,5 +1,6 @@
 import 'dart:io';
-import 'package:collection/collection.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:my_porject/resources/methods.dart';
@@ -42,6 +43,13 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    focusNode.addListener(() {
+      if(focusNode.hasFocus) {
+        setState(() {
+          showEmoji = false;
+        });
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_){
       if (controller.hasClients) {
         scrollToIndex();
@@ -88,7 +96,8 @@ class _ChatScreenState extends State<ChatScreen> {
         'sendBy' : _auth.currentUser!.displayName,
         'message' : message,
         'type' : "text",
-        'time' :  DateTime.now(),
+        'time' :  timeForMessage(DateTime.now().toString()),
+        'timeStamp' : DateTime.now(),
       };
       await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').add(messages);
       await _firestore.collection('chatroom').doc(widget.chatRoomId).set({
@@ -101,11 +110,12 @@ class _ChatScreenState extends State<ChatScreen> {
         'lastMessage' : "Bạn: ${message}",
         'type' : "text",
         'name' : widget.userMap['name'],
-        'time' : DateTime.now(),
+        'time' : timeForMessage(DateTime.now().toString()),
         'uid' : widget.userMap['uid'],
         'avatar' : widget.userMap['avatar'],
         'status' : widget.userMap['status'],
         'datatype' : 'p2p',
+        'timeStamp' : DateTime.now(),
       });
       String? currentUserAvatar;
       String? status;
@@ -117,11 +127,12 @@ class _ChatScreenState extends State<ChatScreen> {
         'lastMessage' : message,
         'type' : "text",
         'name' : widget.user.displayName,
-        'time' : DateTime.now(),
+        'time' : timeForMessage(DateTime.now().toString()),
         'uid' : _auth.currentUser!.uid,
         'avatar' : currentUserAvatar,
         'status' : status,
         'datatype' : 'p2p',
+        'timeStamp' : DateTime.now(),
       });
     } else {
       print("Enter some text");
@@ -151,7 +162,8 @@ class _ChatScreenState extends State<ChatScreen> {
       'sendBy' : widget.user.displayName,
       'message' : _message.text,
       'type' : "img",
-      'time' :  DateTime.now(),
+      'time' :  timeForMessage(DateTime.now().toString()),
+      'timeStamp' : DateTime.now(),
     });
 
     var ref = FirebaseStorage.instance.ref().child('images').child("$fileName.jpg");
@@ -179,11 +191,12 @@ class _ChatScreenState extends State<ChatScreen> {
         'lastMessage' : "Bạn đã gửi 1 ảnh",
         'type' : "img",
         'name' : widget.userMap['name'],
-        'time' : DateTime.now(),
+        'time' : timeForMessage(DateTime.now().toString()),
         'uid' : widget.userMap['uid'],
         'avatar' : widget.userMap['avatar'],
         'status' : widget.userMap['status'],
         'datatype' : 'p2p',
+        'timeStamp' : DateTime.now(),
       });
       String? currentUserAvatar;
       String? status;
@@ -195,11 +208,12 @@ class _ChatScreenState extends State<ChatScreen> {
         'lastMessage' : "${widget.user.displayName} đã gửi 1 ảnh",
         'type' : "img",
         'name' : widget.user.displayName,
-        'time' : DateTime.now(),
+        'time' : timeForMessage(DateTime.now().toString()),
         'uid' : _auth.currentUser!.uid,
         'avatar' : currentUserAvatar,
         'status' : status,
         'datatype' : 'p2p',
+        'timeStamp' : DateTime.now(),
       });
     }
   }
@@ -231,6 +245,25 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  FocusNode focusNode = FocusNode();
+
+  bool showEmoji = false;
+  Widget showEmojiPicker() {
+    return SizedBox(
+      height: 250,
+      child: EmojiPicker(
+        config: Config(
+          columns: 7,
+        ),
+        onEmojiSelected: (emoji, category) {
+          _message.text = _message.text + category.emoji;
+        },
+      ),
+    );
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -252,7 +285,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   SizedBox(width: 2,),
                   CircleAvatar(
-                    backgroundImage: NetworkImage(widget.userMap['avatar']),
+                    backgroundImage: CachedNetworkImageProvider(widget.userMap['avatar']),
                     maxRadius: 20,
                   ),
                   SizedBox(width: 12,),
@@ -302,23 +335,33 @@ class _ChatScreenState extends State<ChatScreen> {
           child: const CircularProgressIndicator(),
         ) : RefreshIndicator(
           onRefresh: () {
-            print(limit);
             return abc();
           },
           child: Column(
             children: <Widget>[
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
-                  stream: _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').orderBy('time',descending: true).limit(limit).snapshots(),
+                  stream: _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').orderBy('timeStamp',descending: false).snapshots(),
                   builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
                     if(snapshot.data!= null){
-                      return ListView.builder(
-                        reverse: true,
+                        return GroupedListView<QueryDocumentSnapshot<Object?>, String>(
+                        elements: snapshot.data?.docs as List<QueryDocumentSnapshot<Object?>> ,
                         shrinkWrap: true,
-                        itemCount: snapshot.data?.docs.length as int ,
-                        itemBuilder: (context, index) {
-                          Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
-                          return messages(size, map, widget.userMap, index, snapshot.data?.docs.length as int, context);
+                        groupBy: (element) => element['time'],
+                          groupSeparatorBuilder:  (String groupByValue) => Container(
+                            alignment: Alignment.center,
+                            height: 30,
+                            child: Text(
+                              "${groupByValue.substring(11,16)}, ${groupByValue.substring(0,10)}",
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontWeight: FontWeight.bold
+                              ),
+                            ),
+                          ),
+                        indexedItemBuilder: (context, element, index) {
+                          Map<String, dynamic> map = element.data() as Map<String, dynamic>;
+                          return messages(size, map, widget.userMap, index , snapshot.data?.docs.length as int, context);
                         },
                         controller: controller,
                       );
@@ -328,61 +371,72 @@ class _ChatScreenState extends State<ChatScreen> {
                   },
                 ),
               ),
-              Container(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  // padding: EdgeInsets.only(bottom: 10,top: 10),
-                  height: size.height / 16,
-                  width: double.infinity,
-                  color: Colors.white70,
-                  child: Row(
-                    children: <Widget>[
-                      IconButton(
-                          onPressed: () {
-                            getImage();
-                          },
-                          icon: Icon(Icons.image_outlined, color: Colors.blueAccent,),
-                      ),
-                      IconButton(
-                          onPressed: () {
-                            initLocationDoc();
-                          },
-                          icon: Icon(Icons.location_on, color: Colors.blueAccent,),
-                      ),
-                      // SizedBox(width: 15,),
-                      Expanded(
-                          child: Container(
-                            height: size.height / 20.8,
-                            child: TextField(
-                              decoration: InputDecoration(
-                                filled: true,
-                                fillColor: Colors.grey.shade300,
-                                // hintText: "Aa",
-                                // hintStyle: TextStyle(color: Colors.white38),
-                                // contentPadding: EdgeInsets.all(8.0),
-                                prefixIcon: Icon(Icons.abc),
-                                suffixIcon: IconButton(
-                                  onPressed: () {  },
-                                  icon: Icon(Icons.emoji_emotions,color: Colors.blueAccent,),
-                                ) ,
-                                enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(25),
+              Column(
+                children: [
+                  Container(
+                    child: Container(
+                      // padding: EdgeInsets.only(bottom: 10,top: 10),
+                      height: size.height / 16,
+                      width: double.infinity,
+                      color: Colors.white70,
+                      child: Row(
+                        children: <Widget>[
+                          IconButton(
+                              onPressed: () {
+                                getImage();
+                              },
+                              icon: Icon(Icons.image_outlined, color: Colors.blueAccent,),
+                          ),
+                          IconButton(
+                              onPressed: () {
+                                initLocationDoc();
+                              },
+                              icon: Icon(Icons.location_on, color: Colors.blueAccent,),
+                          ),
+                          // SizedBox(width: 15,),
+                          Expanded(
+                              child: Container(
+                                height: size.height / 20.8,
+                                child: TextField(
+                                  focusNode: focusNode,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.grey.shade300,
+                                    // hintText: "Aa",
+                                    // hintStyle: TextStyle(color: Colors.white38),
+                                    // contentPadding: EdgeInsets.all(8.0),
+                                    prefixIcon: Icon(Icons.abc),
+                                    suffixIcon: IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          focusNode.unfocus();
+                                          focusNode.canRequestFocus = false;
+                                          showEmoji = !showEmoji;
+                                        });
+                                      },
+                                      icon: Icon(Icons.emoji_emotions,color: Colors.blueAccent,),
+                                    ) ,
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(25),
+                                    ),
+                                  ),
+                                  controller: _message,
                                 ),
                               ),
-                              controller: _message,
-                            ),
                           ),
+                          IconButton(
+                              onPressed: () {
+                                onSendMessage();
+                              },
+                              icon: Icon(Icons.send, color: Colors.blueAccent,),
+                          ),
+                        ],
                       ),
-                      IconButton(
-                          onPressed: () {
-                            onSendMessage();
-                          },
-                          icon: Icon(Icons.send, color: Colors.blueAccent,),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              )
+                ],
+              ),
+              showEmoji ? showEmojiPicker() : Container(),
             ],
           ),
         ),
@@ -619,7 +673,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 width: map['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
                 alignment: map['sendBy'] == widget.user.displayName  ? Alignment.centerRight : Alignment.centerLeft,
                 child: Container(
-                  width: size.width / 1.5,
+                  width: size.width / 2,
                   // constraints: BoxConstraints( maxWidth: size.width / 1.5),
                   padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
@@ -644,25 +698,27 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                           ),
                           SizedBox(width: 10,),
-                          Column(
-                            children: [
-                              Text(
-                                "Vi tri truc tiep",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white70,
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Text(
+                                  "Vi tri truc tiep",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white70,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                // int.parse(map['timeSpend'].toString()) < 60 ?
-                                "${map['sendBy']} da bat dau chia se" ,
-                                // : (map['timeSpend'] / 60).toString() + "p "+ (map['timeSpend'] % 60).toString() + "s",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey.shade300,
+                                Text(
+                                  // int.parse(map['timeSpend'].toString()) < 60 ?
+                                  "Da bat dau chia se" ,
+                                  // : (map['timeSpend'] / 60).toString() + "p "+ (map['timeSpend'] % 60).toString() + "s",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey.shade300,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -850,8 +906,9 @@ class _ChatScreenState extends State<ChatScreen> {
       'sendBy' : widget.user.displayName,
       'message' : 'Bạn đã gửi một vị trí trực tiếp',
       'type' : "location",
-      'time' :  DateTime.now(),
+      'time' :  timeForMessage(DateTime.now().toString()),
       'messageId' : messageId,
+      'timeStamp' : DateTime.now(),
     });
     scrollToIndex();
     await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.userMap['uid']).update({
@@ -862,11 +919,12 @@ class _ChatScreenState extends State<ChatScreen> {
       'lastMessage' : "Bạn đã gửi một vị trí trực tiếp",
       'type' : "location",
       'name' : widget.userMap['name'],
-      'time' : DateTime.now(),
+      'time' : timeForMessage(DateTime.now().toString()),
       'uid' : widget.userMap['uid'],
       'avatar' : widget.userMap['avatar'],
       'status' : widget.userMap['status'],
       'datatype' : 'p2p',
+      'timeStamp' : DateTime.now(),
     });
     String? currentUserAvatar;
     String? status;
@@ -878,11 +936,12 @@ class _ChatScreenState extends State<ChatScreen> {
       'lastMessage' : "${widget.user.displayName} da gui mot vi tri truc tiep",
       'type' : "location",
       'name' : widget.user.displayName,
-      'time' : DateTime.now(),
+      'time' : timeForMessage(DateTime.now().toString()),
       'uid' : _auth.currentUser!.uid,
       'avatar' : currentUserAvatar,
       'status' : status,
       'datatype' : 'p2p',
+      'timeStamp' : DateTime.now(),
     });
   }
 
@@ -1029,7 +1088,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void editMessage(int index, int length, String message) async {
     String? str;
-    await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').orderBy('time').get().then((value) {
+    await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').orderBy('timeStamp').get().then((value) {
       str = value.docs[index].id;
     });
     if(str != null) {
@@ -1040,11 +1099,13 @@ class _ChatScreenState extends State<ChatScreen> {
       if(index == length - 1){
         await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['uid']).update({
           'lastMessage' : 'Bạn: $message',
-          'time' : DateTime.now(),
+          'time' : timeForMessage(DateTime.now().toString()),
+          'timeStamp' : DateTime.now(),
         });
         await _firestore.collection('users').doc(widget.userMap['uid']).collection('chatHistory').doc(_auth.currentUser!.uid).update({
           'lastMessage' : message,
-          'time' : DateTime.now(),
+          'time' : timeForMessage(DateTime.now().toString()),
+          'timeStamp' : DateTime.now(),
         });
       }
     }
@@ -1052,7 +1113,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void removeMessage(int index, int length) async {
     String? str;
-    await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').orderBy('time').get().then((value) {
+    await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').orderBy('timeStamp').get().then((value) {
       str = value.docs[index].id;
     });
     if(str != null) {
@@ -1063,11 +1124,13 @@ class _ChatScreenState extends State<ChatScreen> {
       if(index == length - 1){
         await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['uid']).update({
           'lastMessage' : 'Bạn đã xóa một tin nhắn',
-          'time' : DateTime.now(),
+          'time' : timeForMessage(DateTime.now().toString()),
+          'timeStamp' : DateTime.now(),
         });
         await _firestore.collection('users').doc(widget.userMap['uid']).collection('chatHistory').doc(_auth.currentUser!.uid).update({
           'lastMessage' : '${widget.user.displayName} đã xóa một tin nhắn',
-          'time' : DateTime.now(),
+          'time' : timeForMessage(DateTime.now().toString()),
+          'timeStamp' : DateTime.now(),
         });
       }
     }

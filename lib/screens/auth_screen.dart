@@ -54,7 +54,7 @@ Future<User?> logIn(String email, String password ) async {
       return user;
     }
   } catch(e) {
-    // print(e);
+    print(e);
     return null;
   }
 }

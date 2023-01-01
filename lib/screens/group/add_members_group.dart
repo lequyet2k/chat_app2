@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/screens/group/group_chat_room.dart';
 
+import '../../resources/methods.dart';
+
 class AddMemberInGroup extends StatefulWidget {
   User user;
 
@@ -50,7 +52,8 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
     await _firestore.collection('groups').doc(widget.groupId).collection('chats').add({
       "message" : "${widget.user.displayName} added ${map['name']}",
       "type": "notify",
-      "time" : DateTime.now(),
+      "time" : timeForMessage(DateTime.now().toString()),
+      'timeStamp' : DateTime.now(),
     });
 
     await _firestore.collection('users').doc(map['uid']).collection('groups').doc(widget.groupId).set({
@@ -63,17 +66,19 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
       'lastMessage' : "${widget.user.displayName} added ${map['name']}",
       'type' : "notify",
       'name' : widget.groupName,
-      'time' : DateTime.now(),
+      'time' : timeForMessage(DateTime.now().toString()),
       'uid' : widget.groupId,
       'avatar' : "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98",
       'status' : "Online",
       'datatype' : "group",
+      'timeStamp' : DateTime.now(),
     });
     for(int i = 0 ; i < membersList.length ; i++) {
       await _firestore.collection('users').doc(membersList[i]['uid']).collection('chatHistory').doc(widget.groupId).update({
         'lastMessage' : "${widget.user.displayName} added ${map['name']}",
         'type' : "notify",
-        'time' : DateTime.now(),
+        'time' : timeForMessage(DateTime.now().toString()),
+        'timeStamp' : DateTime.now(),
       });
     }
   }

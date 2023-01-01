@@ -52,7 +52,6 @@ dependencies:
   permission_handler: ^10.2.0
   geolocator: ^9.0.2
   url_launcher: ^6.1.7
-  firebase_messaging: ^14.1.4
   flutter_facebook_auth: ^5.0.6
   awesome_dialog: ^3.0.2
   internet_connection_checker: ^1.0.0+1
@@ -63,6 +62,8 @@ dependencies:
   grouped_list: ^5.1.2
   collection: ^1.16.0
   cached_network_image: ^3.2.3
+  emoji_picker_flutter: ^1.5.1
+  shared_preferences: ^2.0.15
 
 dev_dependencies:
   flutter_test:

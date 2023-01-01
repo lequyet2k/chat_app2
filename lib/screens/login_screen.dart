@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/screens/signup_screen.dart';
@@ -37,6 +38,26 @@ class LoginPage extends State<Login> {
     });
   }
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  showLoginDialog(bool bol) {
+    if(bol == false) {
+      return AwesomeDialog(
+          context: context,
+          dialogType: DialogType.error,
+          animType: AnimType.rightSlide,
+          title: 'Log In Failed',
+          desc: 'The email address is badly formatted',
+          btnCancelText: 'Log In Again',
+          btnCancelIcon: Icons.arrow_back_ios,
+          btnCancelOnPress: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => Login())
+            );
+          }
+      )..show();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -171,16 +192,15 @@ class LoginPage extends State<Login> {
                             Container(
                               height: 55,
                               width: 320,
-                              margin: const EdgeInsets.all(5.0),
+                              margin: const EdgeInsets.all(10.0),
                               child: TextFormField(
                                 decoration: InputDecoration(
-                                    prefixIcon: const Padding(
-                                      padding: EdgeInsetsDirectional.only(start: 12),
-                                      child: Icon(Icons.email),
-                                    ),
+                                    prefixIcon: Icon(Icons.email),
                                     hintText: "Email",
                                     border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(20))),
+                                        borderRadius: BorderRadius.circular(20)
+                                    )
+                                ),
                                 controller: _email,
                                 validator: (value) {
                                   if (value != null && value.isNotEmpty && value.length < 10 ) {
@@ -249,6 +269,7 @@ class LoginPage extends State<Login> {
                                     );
                                     print("Login Successful");
                                   } else {
+                                    showLoginDialog(false);
                                     print("Login Failed");
                                   }
                                 });

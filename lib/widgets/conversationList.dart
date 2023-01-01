@@ -23,19 +23,6 @@ class _ConversationListState extends State<ConversationList> {
 
   final DateFormat formatter = DateFormat('Hm');
 
-  String convertTime(Timestamp now) {
-    int timestamp = now.millisecondsSinceEpoch;
-    DateTime tsdate = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    String datetime = tsdate.year.toString().substring(2) + "/" + tsdate.month.toString() + "/" + tsdate.day.toString();
-    return datetime;
-  }
-  String convertHours(Timestamp now) {
-    int timestamp = now.millisecondsSinceEpoch;
-    DateTime tsdate = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    String datetime = tsdate.hour.toString() + ":" + tsdate.minute.toString();
-    return datetime;
-  }
-
   void conversation() async {
     FirebaseFirestore _firestore =  FirebaseFirestore.instance;
 
@@ -124,9 +111,9 @@ class _ConversationListState extends State<ConversationList> {
                                       color: Colors.grey.shade700,)
                                     )
                     ),
-                                  Text(" "),
+                                  SizedBox(width: 10,),
                                   Text(
-                                    convertHours(widget.chatHistory['time']),
+                                    widget.chatHistory['time'].toString().substring(11, 16),
                                     //widget.chatHistory['time'],
                                     style: TextStyle(
                                       fontSize:   12,
@@ -146,7 +133,7 @@ class _ConversationListState extends State<ConversationList> {
             Column(
               children: [
                 Text(
-                  convertTime(widget.chatHistory['time']),
+                  widget.chatHistory['time'].toString().substring(0, 10),
                   //widget.chatHistory['time'],
                   style: TextStyle(
                     fontSize:   12,

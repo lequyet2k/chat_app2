@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:my_porject/models/call_model.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../resources/methods.dart';
+
 class CallMethods {
 
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -30,7 +32,7 @@ class CallMethods {
       "type" : "videocall",
       "sendBy" : call.callerName,
       "message" : "Videocall",
-      "time" : DateTime.now(),
+      "time" : timeForMessage(DateTime.now().toString()),
       "messageId" : docName,
     });
 
@@ -40,14 +42,14 @@ class CallMethods {
       'lastMessage' : "Videocall",
       'type' : "videocall",
       'messageId' : docName,
-      'time' : DateTime.now(),
+      'time' : timeForMessage(DateTime.now().toString()),
     });
 
     await _firestore.collection('users').doc(call.callerId).collection('chatHistory').doc(call.receiverId).update({
       'lastMessage' : "Bạn đã gọi cho ${call.receiverName}",
       'type' : "videocall",
       'name' : call.receiverName,
-      'time' : DateTime.now(),
+      'time' : timeForMessage(DateTime.now().toString()),
       'uid' : call.receiverId,
       'avatar' : call.receiverPic,
     });
@@ -56,7 +58,7 @@ class CallMethods {
       'lastMessage' : "${call.callerName} đã gọi cho bạn",
       'type' : "videocall",
       'name' : call.callerName,
-      'time' : DateTime.now(),
+      'time' : timeForMessage(DateTime.now().toString()),
       'uid' : call.callerId,
       'avatar' : call.callerPic,
     });
@@ -80,14 +82,14 @@ class CallMethods {
   Future<bool> endCall({required Call call}) async {
     chatRooomId = chatRoomId(call.callerName as String, call.receiverName as String);
     String? messageId;
-    Timestamp? time;
+    String? time;
     await _firestore.collection('chatroom').doc(chatRooomId).get().then((value){
       messageId = value.data()!['messageId'] ;
       time = value.data()!['time'];
     });
-    await _firestore.collection('chatroom').doc(chatRooomId).collection('chats').doc(messageId).update({
-      'timeSpend' : DateTime.now().second - (time!.toDate().second),
-    });
+    // await _firestore.collection('chatroom').doc(chatRooomId).collection('chats').doc(messageId).update({
+    //   'timeSpend' : DateTime.now().second - (time!.toDate().second),
+    // });
     try{
       await callCollection.doc(call.callerId).delete();
       await callCollection.doc(call.receiverId).delete();

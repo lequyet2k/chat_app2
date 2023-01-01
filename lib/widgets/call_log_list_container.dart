@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/db/log_repository.dart';
 
@@ -54,9 +55,11 @@ class CallLogListContainer extends StatelessWidget {
           );
         }
         if(snapshot.hasData) {
-          List<dynamic> logList = snapshot.data;
+          List<dynamic> list = snapshot.data;
+          List<dynamic> logList = list.reversed.toList();
           if(logList.isNotEmpty) {
             return ListView.builder(
+              reverse: false,
               itemCount: logList.length,
                 itemBuilder: (context, index) {
                   Log _log = logList[index];
@@ -98,7 +101,7 @@ class CallLogListContainer extends StatelessWidget {
                       child: Row(
                         children: [
                           CircleAvatar(
-                            backgroundImage: hasDialled  ? NetworkImage(_log.receiverPic!) : NetworkImage(_log.callerPic!)  ,
+                            backgroundImage: hasDialled  ? CachedNetworkImageProvider(_log.receiverPic!) : CachedNetworkImageProvider(_log.callerPic!)  ,
                             maxRadius: 25,
                           ),
                           SizedBox(width: 12,),
@@ -118,14 +121,14 @@ class CallLogListContainer extends StatelessWidget {
                                     getIcon(_log.callStatus),
                                     SizedBox(width: 5,),
                                     Text(
-                                      convertHours(_log.timeStamp!),
+                                      _log.timeStamp!.substring(11,16),
                                       style: TextStyle(
                                         fontSize: 13,
                                       ),
                                     ),
                                     Text(" - "),
                                     Text(
-                                      formatDateString(_log.timeStamp!),
+                                      _log.timeStamp!.substring(0,10),
                                       style: TextStyle(
                                         fontSize: 13,
                                       ),
