@@ -5,9 +5,14 @@ import 'package:my_porject/db/log_repository.dart';
 import '../models/log_model.dart';
 import '../resources/methods.dart';
 
-class CallLogListContainer extends StatelessWidget {
+class CallLogListContainer extends StatefulWidget {
   const CallLogListContainer({Key? key}) : super(key: key);
 
+  @override
+  State<CallLogListContainer> createState() => _CallLogListContainerState();
+}
+
+class _CallLogListContainerState extends State<CallLogListContainer> {
   getIcon(String? callStatus) {
     Icon _icon;
     double _iconSize = 18;
@@ -57,30 +62,34 @@ class CallLogListContainer extends StatelessWidget {
               );
             }
             if(snapshot.hasData) {
-              List<dynamic> list = snapshot.data;
-              List<dynamic> logList = list.reversed.toList();
+              // List<dynamic> list = snapshot.data;
+              List<dynamic> logList = snapshot.data;
               if(logList.isNotEmpty) {
                 return ListView.builder(
                   padding: const EdgeInsets.all(0),
                   shrinkWrap: true,
-                  reverse: false,
-                  physics: NeverScrollableScrollPhysics(),
+                  // reverse: false,
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: logList.length,
-                    itemBuilder: (context, index) {
-                      Log _log = logList[index];
+                    itemBuilder: (context, i) {
+                      print(logList);
+                      Log _log = logList[i];
                       bool hasDialled = _log.callStatus == "dialled";
                       return GestureDetector(
                         onLongPress: () {
                           showDialog(
                               context: context,
                               builder: (context) =>  AlertDialog(
-                                title: Text("Delete this log?"),
-                                content: Text("Are you sure to delete this log?"),
+                                title: const Text("Delete this log?"),
+                                content: const Text("Are you sure to delete this log?"),
                                 actions: <Widget>[
                                   TextButton(
                                       onPressed: () async {
                                         Navigator.maybePop(context);
-                                        await LogRepository.deleteLogs(index);
+                                        await LogRepository.deleteLogs(i);
+                                        if (mounted) {
+                                          setState(() {});
+                                        }
                                       },
                                       child: Text("Yes"),
                                   ),

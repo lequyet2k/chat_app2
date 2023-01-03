@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/screens/group/group_chat_room.dart';
 import 'package:my_porject/screens/group/create_group/add_member.dart';
@@ -8,7 +9,8 @@ import 'package:my_porject/screens/group/create_group/add_member.dart';
 
 class GroupChatHomeScreen extends StatefulWidget {
   User user;
-  GroupChatHomeScreen({Key? key, required this.user}) : super(key: key);
+  bool isDeviceConnected;
+  GroupChatHomeScreen({Key? key, required this.user, required this.isDeviceConnected}) : super(key: key);
 
   @override
   State<GroupChatHomeScreen> createState() => _GroupChatHomeScreenState();
@@ -77,10 +79,14 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                 child: FloatingActionButton(
                   backgroundColor: Colors.black,
                   onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => AddMember(user: widget.user,))
-                    );
+                    if(widget.isDeviceConnected == false) {
+                      showDialogInternetCheck();
+                    } else {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => AddMember(user: widget.user, isDeviceConnected: widget.isDeviceConnected,))
+                      );
+                    }
                   },
                   child: Icon(Icons.create),
                   tooltip: "Create Group",
@@ -98,14 +104,14 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
       onTap: () {
         Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => GroupChatRoom(groupChatId: map['id'], groupName: map['name'], user: widget.user))
+            MaterialPageRoute(builder: (context) => GroupChatRoom(groupChatId: map['id'], groupName: map['name'], user: widget.user, isDeviceConnected: widget.isDeviceConnected,))
         );
       },
       child: Container(
         padding: EdgeInsets.only(left: 16, right: 16, top : 10, bottom: 10),
         child: Row(
           children: <Widget>[
-            CircleAvatar(
+            const CircleAvatar(
               backgroundImage: CachedNetworkImageProvider("https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98"),
               maxRadius: 30,
             ),
@@ -156,4 +162,36 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
       ),
     );
   }
+  showDialogInternetCheck() => showCupertinoDialog<String>(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: const Text(
+          'No Connection',
+          style: TextStyle(
+            letterSpacing: 0.5,
+          ),
+        ),
+        content: const Text(
+          'Please check your internet connectivity',
+          style: TextStyle(
+              letterSpacing: 0.5,
+              fontSize: 12
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+              onPressed: () async {
+                Navigator.pop(context, 'Cancel');
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                    letterSpacing: 0.5,
+                    fontSize: 15
+                ),
+              )
+          )
+        ],
+      )
+  );
 }

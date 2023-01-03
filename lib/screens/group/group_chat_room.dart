@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:image_picker/image_picker.dart';
@@ -18,9 +19,10 @@ import '../../resources/methods.dart';
 
 class GroupChatRoom extends StatefulWidget {
   User user;
+  bool isDeviceConnected;
   final String groupChatId,groupName;
 
-  GroupChatRoom({Key? key, required this.groupChatId, required this.groupName,required this.user, }) : super(key: key);
+  GroupChatRoom({Key? key, required this.groupChatId, required this.groupName,required this.user, required this.isDeviceConnected }) : super(key: key);
 
   @override
   State<GroupChatRoom> createState() => _GroupChatRoomState();
@@ -233,7 +235,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                   onPressed: () {
                     Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => GroupInfo(groupName: widget.groupName, groupId: widget.groupChatId, user: widget.user, memberListt: memberList))
+                        MaterialPageRoute(builder: (_) => GroupInfo(groupName: widget.groupName, groupId: widget.groupChatId, user: widget.user, memberListt: memberList, isDeviceConnected: widget.isDeviceConnected,))
                     );
                   },
                   icon: Icon(Icons.more_vert,color: Colors.blueAccent,),
@@ -307,7 +309,11 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                         ),
                         IconButton(
                           onPressed: () {
-                            checkUserisLocationed();
+                            if(widget.isDeviceConnected == false) {
+                              showDialogInternetCheck();
+                            } else {
+                              checkUserisLocationed();
+                            }
                           },
                           icon: Icon(Icons.location_on, color: Colors.blueAccent,),
                         ),
@@ -990,4 +996,37 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       }
     }
   }
+
+  showDialogInternetCheck() => showCupertinoDialog<String>(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: const Text(
+          'No Connection',
+          style: TextStyle(
+            letterSpacing: 0.5,
+          ),
+        ),
+        content: const Text(
+          'Please check your internet connectivity',
+          style: TextStyle(
+              letterSpacing: 0.5,
+              fontSize: 12
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+              onPressed: () async {
+                Navigator.pop(context, 'Cancel');
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                    letterSpacing: 0.5,
+                    fontSize: 15
+                ),
+              )
+          )
+        ],
+      )
+  );
 }

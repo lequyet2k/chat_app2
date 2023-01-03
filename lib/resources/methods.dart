@@ -58,7 +58,7 @@ Future<void> openMap(String lat, String long) async {
 
 String timeForMessage(String dateString) {
   DateTime dateTime = DateTime.parse(dateString);
-  var formatter = DateFormat('dd-MM-yyyy' + " " + 'hh:mm'  );
+  var formatter = DateFormat('dd-MM-yyyy' + " " + 'hh:mm');
   return formatter.format(dateTime);
 }
 

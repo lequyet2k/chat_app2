@@ -8,8 +8,9 @@ import '../../../resources/methods.dart';
 
 class CreateGroup extends StatefulWidget {
   User user;
+  bool isDeviceConnected;
   final List<Map<String, dynamic>> memberList ;
-  CreateGroup({Key? key, required this.memberList, required this.user}) : super(key: key);
+  CreateGroup({Key? key, required this.memberList, required this.user, required this.isDeviceConnected}) : super(key: key);
 
   @override
   State<CreateGroup> createState() => _CreateGroupState();
@@ -24,7 +25,6 @@ class _CreateGroupState extends State<CreateGroup> {
 
   @override
   void setState(VoidCallback fn) {
-    // TODO: implement setState
     super.setState(fn);
   }
   List<String> usersName = [];
@@ -83,7 +83,7 @@ class _CreateGroupState extends State<CreateGroup> {
     }
 
     Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => GroupChatRoom(groupChatId: groupId, groupName: groupName, user: widget.user)),
+        MaterialPageRoute(builder: (context) => GroupChatRoom(groupChatId: groupId, groupName: groupName, user: widget.user, isDeviceConnected: widget.isDeviceConnected,)),
             (route) => false);
   }
 

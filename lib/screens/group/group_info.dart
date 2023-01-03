@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/screens/group/add_members_group.dart';
@@ -12,9 +13,10 @@ class GroupInfo extends StatefulWidget {
 
   User user;
   List memberListt;
+  bool isDeviceConnected;
   final String groupName, groupId;
 
-  GroupInfo({Key? key, required this.groupName, required this.groupId,required this.user, required this.memberListt}) : super(key: key);
+  GroupInfo({Key? key, required this.groupName, required this.groupId,required this.user, required this.memberListt, required this.isDeviceConnected}) : super(key: key);
 
   @override
   State<GroupInfo> createState() => _GroupInfoState();
@@ -193,16 +195,16 @@ class _GroupInfoState extends State<GroupInfo> {
                     Container(
                       height: size.height / 5 ,
                       width: size.width / 5 ,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.grey,
                       ),
-                      child: CircleAvatar(
+                      child: const CircleAvatar(
                         backgroundImage: CachedNetworkImageProvider("https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98"),
                         maxRadius: 30,
                       )
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 20 ,
                     ),
                     Container(
@@ -219,8 +221,8 @@ class _GroupInfoState extends State<GroupInfo> {
                   ],
                 ),
               ),
-              SizedBox(height: 10,),
-              Container(
+              const SizedBox(height: 10,),
+              SizedBox(
                 width: size.width / 1.1,
                 child: Text(
                   " ${membersList.length} Members",
@@ -230,13 +232,17 @@ class _GroupInfoState extends State<GroupInfo> {
                   ),
                 ),
               ),
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
               ListTile(
                 onTap: () {
-                  Navigator.push(
+                  if(widget.isDeviceConnected == false) {
+                    showDialogInternetCheck();
+                  } else {
+                    Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => AddMemberInGroup(groupName: widget.groupName, groupId: widget.groupId, membersList: membersList,user: widget.user,)),
-                  );
+                    );
+                  }
                 },
                 leading: Icon(
                   Icons.add,
@@ -257,10 +263,14 @@ class _GroupInfoState extends State<GroupInfo> {
                     itemBuilder: (context, index) {
                       return ListTile(
                         onTap: () {
-                          showRemoveDialog(index);
+                          if(widget.isDeviceConnected == false) {
+                            showDialogInternetCheck();
+                          }else {
+                            showRemoveDialog(index);
+                          }
                         },
                         leading: CircleAvatar(
-                          backgroundImage: NetworkImage(membersList[index]['avatar']),
+                          backgroundImage: CachedNetworkImageProvider(membersList[index]['avatar']),
                           maxRadius: 20,
                         ),
                         title: Text(
@@ -276,12 +286,16 @@ class _GroupInfoState extends State<GroupInfo> {
                     },
                   )
               ),
-              SizedBox(height: 5,),
+              const SizedBox(height: 5,),
               ListTile(
                 onTap: () {
-                  onLeaveGroup();
+                  if(widget.isDeviceConnected == false) {
+                    showDialogInternetCheck();
+                  } else {
+                    onLeaveGroup();
+                  }
                 },
-                leading: Icon(
+                leading: const Icon(
                   Icons.logout,
                   color: Colors.redAccent,
                 ),
@@ -300,4 +314,38 @@ class _GroupInfoState extends State<GroupInfo> {
       ),
     );
   }
+
+
+  showDialogInternetCheck() => showCupertinoDialog<String>(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: const Text(
+          'No Connection',
+          style: TextStyle(
+            letterSpacing: 0.5,
+          ),
+        ),
+        content: const Text(
+          'Please check your internet connectivity',
+          style: TextStyle(
+              letterSpacing: 0.5,
+              fontSize: 12
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+              onPressed: () async {
+                Navigator.pop(context, 'Cancel');
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                    letterSpacing: 0.5,
+                    fontSize: 15
+                ),
+              )
+          )
+        ],
+      )
+  );
 }

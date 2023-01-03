@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:my_porject/resources/methods.dart';
@@ -20,9 +22,11 @@ class ChatScreen extends StatefulWidget {
 
   late String chatRoomId ;
 
+  bool isDeviceConnected;
+
   User user;
 
-  ChatScreen({key, required this.chatRoomId, required this.userMap, required this.user});
+  ChatScreen({key, required this.chatRoomId, required this.userMap, required this.user, required  this.isDeviceConnected,});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -42,7 +46,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void initState() {
-    super.initState();
     focusNode.addListener(() {
       if(focusNode.hasFocus) {
         setState(() {
@@ -58,6 +61,7 @@ class _ChatScreenState extends State<ChatScreen> {
       scrollToIndex();
     });
     getUserInfo();
+    super.initState();
   }
 
   @override
@@ -72,11 +76,43 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-
   late Userr receiver;
   late Userr sender;
   late String lat;
   late String long;
+
+  showDialogInternetCheck() => showCupertinoDialog<String>(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: const Text(
+          'No Connection',
+          style: TextStyle(
+            letterSpacing: 0.5,
+          ),
+        ),
+        content: const Text(
+          'Please check your internet connectivity',
+          style: TextStyle(
+              letterSpacing: 0.5,
+              fontSize: 12
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+              onPressed: () async {
+                Navigator.pop(context, 'Cancel');
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                    letterSpacing: 0.5,
+                    fontSize: 15
+                ),
+              )
+          )
+        ],
+      )
+  );
 
   void getUserInfo() async {
 
@@ -281,7 +317,6 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
 
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -334,12 +369,18 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                   ),
                   IconButton(
-                      onPressed: () async =>  CallUtils.dial(
-                        from: sender,
-                        to: receiver,
-                        context: context,
-                      ),
-                      icon: Icon(Icons.video_call,color: Colors.blueAccent,),
+                      onPressed: () async {
+                        if(widget.isDeviceConnected == false) {
+                          showDialogInternetCheck();
+                        } else {
+                          await CallUtils.dial(
+                            from: sender,
+                            to: receiver,
+                            context: context,
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.video_call,color: Colors.blueAccent,),
                   ),
                 ],
               ),
@@ -357,6 +398,20 @@ class _ChatScreenState extends State<ChatScreen> {
           },
           child: Column(
             children: <Widget>[
+              widget.isDeviceConnected == false
+              ? Container(
+                alignment: Alignment.center,
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height / 30,
+                // color: Colors.red,
+                child: const Text(
+                  'No Internet Connection',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ) : Container(),
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').orderBy('timeStamp',descending: false).snapshots(),
@@ -407,7 +462,11 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                           IconButton(
                               onPressed: () {
-                                initLocationDoc();
+                                if(widget.isDeviceConnected == false) {
+                                  showDialogInternetCheck();
+                                } else {
+                                  initLocationDoc();
+                                }
                               },
                               icon: Icon(Icons.location_on, color: Colors.blueAccent,),
                           ),

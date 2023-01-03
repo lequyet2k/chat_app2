@@ -18,10 +18,12 @@ void main() async{
   FirebaseFirestore.instance.settings = const Settings(
       persistenceEnabled: true);
   // FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080, sslEnabled: false);
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class  MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(

@@ -11,7 +11,8 @@ import 'package:my_porject/screens/group/group_chat_room.dart';
 class ConversationList extends StatefulWidget {
   User user;
   Map<String, dynamic> chatHistory ;
-  ConversationList({key, required this.chatHistory,required this.user});
+  bool isDeviceConnected;
+  ConversationList({key, required this.chatHistory,required this.user, required this.isDeviceConnected});
 
   @override
   _ConversationListState createState() => _ConversationListState();
@@ -37,7 +38,7 @@ class _ConversationListState extends State<ConversationList> {
       Navigator.push(
           context,
           MaterialPageRoute(builder: (context){
-            return ChatScreen(chatRoomId: roomId, userMap: userMap, user: widget.user,);
+            return ChatScreen(chatRoomId: roomId, userMap: userMap, user: widget.user,isDeviceConnected : widget.isDeviceConnected);
           })
       );
     }
@@ -48,7 +49,7 @@ class _ConversationListState extends State<ConversationList> {
       Navigator.push(
           context,
           MaterialPageRoute(builder: (context){
-            return GroupChatRoom(groupChatId: widget.chatHistory['uid'], groupName: widget.chatHistory['name'], user: widget.user,);
+            return GroupChatRoom(groupChatId: widget.chatHistory['uid'], groupName: widget.chatHistory['name'], user: widget.user, isDeviceConnected: widget.isDeviceConnected,);
           })
       );
     }

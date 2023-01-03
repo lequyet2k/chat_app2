@@ -41,8 +41,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   var isDeviceConnected = true;
   bool isAlertSet = false;
 
-  getConnectivity() =>
-      subscription = Connectivity().onConnectivityChanged.listen(
+  getConnectivity() async {
+    return subscription = Connectivity().onConnectivityChanged.listen(
           (ConnectivityResult result) async {
             isDeviceConnected = await InternetConnectionChecker().hasConnection;
             if(!isDeviceConnected && isAlertSet == false) {
@@ -53,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             }
           }
       );
+  }
 
   @override
   void initState() {
@@ -97,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 setState(() {
                   isAlertSet = false;
                 });
-                // isDeviceConnected = await InternetConnectionChecker().hasConnection;
+                isDeviceConnected = await InternetConnectionChecker().hasConnection;
               },
               child: const Text(
                   'OK',
@@ -153,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     } else if(index == 2) {
       return const CallLogScreen();
     } else if(index == 1){
-      return GroupChatHomeScreen(user: widget.user,);
+      return GroupChatHomeScreen(user: widget.user, isDeviceConnected: isDeviceConnected,);
     } else {
       return Container();
     }
@@ -164,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     if(index == 0 || index == 1 || index == 2){
       return searchAndStatusBar();
     } else {
-      return Setting(user: widget.user);
+      return Setting(user: widget.user, isDeviceConnected: isDeviceConnected,);
     }
   }
 
@@ -182,7 +183,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void onSearch() async {
     showSearch(
       context: context,
-      delegate: CustomSearch(user: widget.user),
+      delegate: CustomSearch(user: widget.user,isDeviceConnected : isDeviceConnected),
     );
     _search.clear();
   }
@@ -250,11 +251,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     return ListView.builder(
                       itemCount: snapshot.data?.docs.length,
                       shrinkWrap: true,
-                      padding: EdgeInsets.only(top: 5),
-                      physics: NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.only(top: 5),
+                      physics: const NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
                         Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
-                        return ConversationList(chatHistory: map,user: widget.user);
+                        return ConversationList(chatHistory: map,user: widget.user, isDeviceConnected: isDeviceConnected, );
                       },
                     );
                   } else {
@@ -336,7 +337,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
             ),
             controller: _search,
-            onTap: onSearch,
+            onTap: () {
+              if(isDeviceConnected == false) {
+                showDialogInternetCheck();
+              } else {
+                onSearch();
+              }
+            },
           ),
         ),
         const SizedBox(height: 7 ,),
@@ -387,7 +394,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context){
-                                  return ChatScreen(chatRoomId: roomId, userMap: map, user: widget.user,);
+                                  return ChatScreen(chatRoomId: roomId, userMap: map, user: widget.user, isDeviceConnected: isDeviceConnected,);
                                 })
                             );
                           },

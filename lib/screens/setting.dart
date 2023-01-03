@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_porject/screens/auth_screen.dart';
@@ -14,7 +15,8 @@ import 'package:uuid/uuid.dart';
 class Setting extends StatefulWidget {
 
   User user;
-  Setting({key,required this.user});
+  bool isDeviceConnected;
+  Setting({key,required this.user, required this.isDeviceConnected});
 
   @override
   State<Setting> createState() => _SettingState();
@@ -246,7 +248,11 @@ class _SettingState extends State<Setting> {
                       SizedBox(height: 10,),
                       GestureDetector(
                         onTap: (){
-                          getImage();
+                          if(widget.isDeviceConnected == false) {
+                            showDialogInternetCheck();
+                          } else{
+                            getImage();
+                          }
                         },
                         child: Container(
                           height: 100,
@@ -443,7 +449,11 @@ class _SettingState extends State<Setting> {
                       const SizedBox(height: 30,),
                       GestureDetector(
                         onTap: () {
-                          logOuttt();
+                          if(widget.isDeviceConnected == false) {
+                            showDialogInternetCheck();
+                          } else{
+                            logOuttt();
+                          }
                         },
                         child: Container(
                           margin: EdgeInsets.only(left: 20,right: 20),
@@ -483,4 +493,36 @@ class _SettingState extends State<Setting> {
       ),
     );
   }
+  showDialogInternetCheck() => showCupertinoDialog<String>(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: const Text(
+          'No Connection',
+          style: TextStyle(
+            letterSpacing: 0.5,
+          ),
+        ),
+        content: const Text(
+          'Please check your internet connectivity',
+          style: TextStyle(
+              letterSpacing: 0.5,
+              fontSize: 12
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+              onPressed: () async {
+                Navigator.pop(context, 'Cancel');
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                    letterSpacing: 0.5,
+                    fontSize: 15
+                ),
+              )
+          )
+        ],
+      )
+  );
 }

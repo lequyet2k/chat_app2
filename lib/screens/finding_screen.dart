@@ -7,7 +7,8 @@ import 'package:my_porject/resources/methods.dart';
 class CustomSearch extends SearchDelegate {
 
   User user;
-  CustomSearch({required this.user});
+  bool isDeviceConnected;
+  CustomSearch({required this.user, required this.isDeviceConnected});
 
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -58,7 +59,7 @@ class CustomSearch extends SearchDelegate {
                       String roomId = ChatRoomId().chatRoomId(user.displayName,map['name']);
                       Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => ChatScreen(chatRoomId: roomId, userMap: map,user:  user,))
+                          MaterialPageRoute(builder: (context) => ChatScreen(chatRoomId: roomId, userMap: map,user:  user, isDeviceConnected: isDeviceConnected,))
                       );
                     },
                     title: Text(
@@ -121,7 +122,7 @@ class CustomSearch extends SearchDelegate {
                       String roomId = ChatRoomId().chatRoomId(_auth.currentUser!.displayName,map['name']);
                       Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => ChatScreen(chatRoomId: roomId, userMap: map,user:  user,))
+                          MaterialPageRoute(builder: (context) => ChatScreen(chatRoomId: roomId, userMap: map,user:  user, isDeviceConnected: isDeviceConnected,))
                       );
                     },
                   );

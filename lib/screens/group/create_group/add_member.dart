@@ -7,7 +7,8 @@ import 'package:my_porject/screens/group/create_group/create_group.dart';
 
 class AddMember extends StatefulWidget {
   User user;
-  AddMember({Key? key, required this.user}) : super(key: key);
+  bool isDeviceConnected;
+  AddMember({Key? key, required this.user, required this.isDeviceConnected}) : super(key: key);
 
   @override
   State<AddMember> createState() => _AddMemberState();
@@ -267,7 +268,7 @@ class _AddMemberState extends State<AddMember> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CreateGroup(memberList: memberList,user: widget.user,)),
+            MaterialPageRoute(builder: (context) => CreateGroup(memberList: memberList,user: widget.user, isDeviceConnected: widget.isDeviceConnected,)),
           );
         },
       ) : SizedBox(),
