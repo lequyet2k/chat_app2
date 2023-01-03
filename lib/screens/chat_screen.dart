@@ -50,6 +50,7 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       }
     });
+    updateIsReadMessage();
     WidgetsBinding.instance.addPostFrameCallback((_){
       if (controller.hasClients) {
         scrollToIndex();
@@ -58,6 +59,19 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     getUserInfo();
   }
+
+  @override
+  void dispose() {
+    updateIsReadMessage();
+    super.dispose();
+  }
+
+  updateIsReadMessage() async{
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['uid']).update({
+      'isRead' : true,
+    });
+  }
+
 
   late Userr receiver;
   late Userr sender;
@@ -116,6 +130,7 @@ class _ChatScreenState extends State<ChatScreen> {
         'status' : widget.userMap['status'],
         'datatype' : 'p2p',
         'timeStamp' : DateTime.now(),
+        'isRead' : true,
       });
       String? currentUserAvatar;
       String? status;
@@ -133,6 +148,7 @@ class _ChatScreenState extends State<ChatScreen> {
         'status' : status,
         'datatype' : 'p2p',
         'timeStamp' : DateTime.now(),
+        'isRead' : false,
       });
     } else {
       print("Enter some text");
@@ -197,6 +213,7 @@ class _ChatScreenState extends State<ChatScreen> {
         'status' : widget.userMap['status'],
         'datatype' : 'p2p',
         'timeStamp' : DateTime.now(),
+        'isRead' : true,
       });
       String? currentUserAvatar;
       String? status;
@@ -214,6 +231,7 @@ class _ChatScreenState extends State<ChatScreen> {
         'status' : status,
         'datatype' : 'p2p',
         'timeStamp' : DateTime.now(),
+        'isRead' : false,
       });
     }
   }
@@ -278,10 +296,10 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Row(
                 children: <Widget>[
                   IconButton(
-                      onPressed: () {
+                      onPressed: () async {
                         Navigator.pop(context);
                       },
-                      icon: Icon(Icons.arrow_back_ios, color: Colors.blueAccent,),
+                      icon: const Icon(Icons.arrow_back_ios, color: Colors.blueAccent,),
                   ),
                   SizedBox(width: 2,),
                   CircleAvatar(
@@ -536,7 +554,7 @@ class _ChatScreenState extends State<ChatScreen> {
               height: size.width / 13 ,
               width: size.width / 13 ,
               child: CircleAvatar(
-                backgroundImage: NetworkImage(userMap['avatar']),
+                backgroundImage: CachedNetworkImageProvider(userMap['avatar']),
                 maxRadius: 30,
               ),
             ): Container(
@@ -565,7 +583,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     alignment: map['message'] != "" ? null : Alignment.center,
-                    child: map['message'] != ""? ClipRRect(borderRadius: BorderRadius.circular(18.0),child: Image.network(map['message'], fit: BoxFit.cover,)) : CircularProgressIndicator(),
+                    child: map['message'] != ""? ClipRRect(borderRadius: BorderRadius.circular(18.0),child: Image.network(map['message'], fit: BoxFit.cover,)) : const CircularProgressIndicator(),
                   ),
                 ),
               ),
@@ -701,7 +719,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           Expanded(
                             child: Column(
                               children: [
-                                Text(
+                                const Text(
                                   "Vi tri truc tiep",
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
@@ -793,20 +811,20 @@ class _ChatScreenState extends State<ChatScreen> {
                       Row(
                         children: [
                           Container(
-                            padding: EdgeInsets.all(4.0),
+                            padding: const EdgeInsets.all(4.0),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(100),
                               color: Colors.blueAccent,
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.location_on_outlined,
                               color: Colors.white70,
                               size: 18,
                             ),
                           ),
-                          SizedBox(width: 10,),
+                          const SizedBox(width: 10,),
                           Container(
-                            child: Text(
+                            child: const Text(
                                 "Chia sẻ vị trí đã kết thúc",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -925,6 +943,7 @@ class _ChatScreenState extends State<ChatScreen> {
       'status' : widget.userMap['status'],
       'datatype' : 'p2p',
       'timeStamp' : DateTime.now(),
+      'isRead' : true,
     });
     String? currentUserAvatar;
     String? status;
@@ -942,6 +961,7 @@ class _ChatScreenState extends State<ChatScreen> {
       'status' : status,
       'datatype' : 'p2p',
       'timeStamp' : DateTime.now(),
+      'isRead' : false,
     });
   }
 
@@ -1020,7 +1040,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: Container(
                       alignment: Alignment.center,
                       width: MediaQuery.of(context).size.width,
-                      child: Text(
+                      child: const Text(
                           "Remove message",
                         style: TextStyle(
                           color: Colors.red,
@@ -1038,7 +1058,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       showEditForm(index, length, message);
                     },
                     child: Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                           border: Border(
                               top: BorderSide(
                                   color: Colors.black26,

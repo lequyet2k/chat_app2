@@ -38,7 +38,7 @@ class CustomSearch extends SearchDelegate {
   Widget buildResults(BuildContext context) {
     return SingleChildScrollView(
       child: StreamBuilder<QuerySnapshot>(
-        stream: _firestore.collection('users').snapshots(),
+        stream: _firestore.collection('users').where('uid', isNotEqualTo: _auth.currentUser!.uid).snapshots(),
         builder: (context, snapshots){
           return (snapshots.connectionState == ConnectionState.waiting)
               ? Center(
@@ -88,7 +88,7 @@ class CustomSearch extends SearchDelegate {
   Widget buildSuggestions(BuildContext context) {
     return SingleChildScrollView(
       child: StreamBuilder<QuerySnapshot>(
-        stream: _firestore.collection('users').snapshots(),
+        stream: _firestore.collection('users').where('uid' , isNotEqualTo: _auth.currentUser!.uid).snapshots(),
         builder: (context, snapshots){
           return (snapshots.connectionState == ConnectionState.waiting)
               ? Center(

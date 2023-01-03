@@ -34,6 +34,7 @@ class CallMethods {
       "message" : "Videocall",
       "time" : timeForMessage(DateTime.now().toString()),
       "messageId" : docName,
+      'timeStamp' : DateTime.now(),
     });
 
     await _firestore.collection('chatroom').doc(chatRooomId).set({
@@ -43,6 +44,7 @@ class CallMethods {
       'type' : "videocall",
       'messageId' : docName,
       'time' : timeForMessage(DateTime.now().toString()),
+      'timeStamp' : DateTime.now(),
     });
 
     await _firestore.collection('users').doc(call.callerId).collection('chatHistory').doc(call.receiverId).update({
@@ -52,6 +54,8 @@ class CallMethods {
       'time' : timeForMessage(DateTime.now().toString()),
       'uid' : call.receiverId,
       'avatar' : call.receiverPic,
+      'timeStamp' : DateTime.now(),
+      'isRead' : true,
     });
 
     await _firestore.collection('users').doc(call.receiverId).collection('chatHistory').doc(call.callerId).update({
@@ -61,6 +65,8 @@ class CallMethods {
       'time' : timeForMessage(DateTime.now().toString()),
       'uid' : call.callerId,
       'avatar' : call.callerPic,
+      'timeStamp' : DateTime.now(),
+      'isRead' : false,
     });
 
     try {

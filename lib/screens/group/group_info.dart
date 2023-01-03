@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/screens/group/add_members_group.dart';
 
 import '../../resources/methods.dart';
@@ -90,6 +92,7 @@ class _GroupInfoState extends State<GroupInfo> {
           'type' : "notify",
           'time' : timeForMessage(DateTime.now().toString()),
           'timeStamp' : DateTime.now(),
+          'isRead' : true,
         });
 
         for(int i = 1 ; i < membersList.length ; i++) {
@@ -98,8 +101,10 @@ class _GroupInfoState extends State<GroupInfo> {
             'type' : "notify",
             'time' : timeForMessage(DateTime.now().toString()),
             'timeStamp' : DateTime.now(),
+            'isRead' : false,
           });
         }
+        await _firestore.collection('users').doc(membersList[index]['uid']).collection('chatHistory').doc(widget.groupId).delete();
         membersList.removeAt(index);
 
         await _firestore.collection('groups').doc(widget.groupId).update({
@@ -137,6 +142,7 @@ class _GroupInfoState extends State<GroupInfo> {
           'type' : "notify",
           'time' : timeForMessage(DateTime.now().toString()),
           'timeStamp' : DateTime.now(),
+          'isRead' : false,
         });
       }
       for(int i = 0 ; i < membersList.length ; i++) {
@@ -152,7 +158,7 @@ class _GroupInfoState extends State<GroupInfo> {
       await _firestore.collection('users').doc(uid).collection('chatHistory').doc(widget.groupId).delete();
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => GroupChatHomeScreen(user: widget.user,)),
+        MaterialPageRoute(builder: (context) => HomeScreen(user: widget.user,)),
       );
     }else {
       print("Cant leave group!");
@@ -192,7 +198,7 @@ class _GroupInfoState extends State<GroupInfo> {
                         color: Colors.grey,
                       ),
                       child: CircleAvatar(
-                        backgroundImage: NetworkImage("https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98"),
+                        backgroundImage: CachedNetworkImageProvider("https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98"),
                         maxRadius: 30,
                       )
                     ),

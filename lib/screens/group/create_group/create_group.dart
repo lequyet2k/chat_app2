@@ -75,6 +75,7 @@ class _CreateGroupState extends State<CreateGroup> {
         'status' : "Online",
         'datatype' : "group",
         'timeStamp' : DateTime.now(),
+        'isRead' : false,
       });
       await _firestore.collection('users').doc(widget.memberList[i]['uid']).collection('location').doc(groupId).set({
         'isLocationed' : false,

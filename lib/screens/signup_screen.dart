@@ -242,7 +242,6 @@ class _SignUpScreen extends State<SignUp> {
                         child: Column(
                           children: [
                             Container(
-                              height: 55,
                               width: 320,
                               margin: const EdgeInsets.only(bottom: 5),
                               child: TextFormField(
@@ -264,7 +263,6 @@ class _SignUpScreen extends State<SignUp> {
                               ),
                             ),
                             Container(
-                              height: 55,
                               width: 320,
                               margin: const EdgeInsets.all(5.0),
                               child: TextFormField(
@@ -277,18 +275,17 @@ class _SignUpScreen extends State<SignUp> {
                                     border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(20))),
                                 controller: email,
-                                // validator: (value) {
-                                //   if (value == null || value.isEmpty) {
-                                //     return "Không được để trống!";
-                                //   } else if(value != null && (value.length < 10 || value.length > 12)){
-                                //     return "Email không hợp lệ";
-                                //   }
-                                //   return null;
-                                // },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Không được để trống!";
+                                  } else if(value != null && (value.length < 10 || value.length > 12)){
+                                    return "Email không hợp lệ";
+                                  }
+                                  return null;
+                                },
                               ),
                             ),
                             Container(
-                              height: 55,
                               width: 320,
                               margin: const EdgeInsets.all(5.0),
                               child: TextFormField(
@@ -309,20 +306,19 @@ class _SignUpScreen extends State<SignUp> {
                                       ),
                                     )),
                                 controller: password,
-                                // validator: (value) {
-                                //   if (value == null || value.isEmpty) {
-                                //     return "Không được để trống!";
-                                //   } else if(value != null && value.length < 6){
-                                //     return "Mật khẩu phải dài hơn 6 ký tự";
-                                //   } else {
-                                //     return validatePassword(value);
-                                //   }
-                                //   return null;
-                                // },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Không được để trống!";
+                                  } else if(value != null && value.length < 6){
+                                    return "Mật khẩu phải dài hơn 6 ký tự";
+                                  } else {
+                                    return validatePassword(value);
+                                  }
+                                  return null;
+                                },
                               ),
                             ),
                             Container(
-                              height: 55,
                               width: 320,
                               margin: const EdgeInsets.all(5.0),
                               child: TextFormField(

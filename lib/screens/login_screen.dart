@@ -4,7 +4,6 @@ import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:my_porject/screens/chat_screen.dart';
 import 'package:my_porject/screens/auth_screen.dart';
 import 'package:my_porject/components/upside.dart';
 import 'package:provider/provider.dart';
@@ -190,7 +189,6 @@ class LoginPage extends State<Login> {
                         child: Column(
                           children: [
                             Container(
-                              height: 55,
                               width: 320,
                               margin: const EdgeInsets.all(10.0),
                               child: TextFormField(
@@ -214,7 +212,6 @@ class LoginPage extends State<Login> {
                             ),
                             SizedBox(height: 5,),
                             Container(
-                              height: 55,
                               width: 320,
                               margin: const EdgeInsets.all(5.0),
                               child: TextFormField(

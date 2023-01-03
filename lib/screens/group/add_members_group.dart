@@ -72,6 +72,10 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
       'status' : "Online",
       'datatype' : "group",
       'timeStamp' : DateTime.now(),
+      'isRead' : false,
+    });
+    await _firestore.collection('users').doc(map['uid']).collection('location').doc(widget.groupId).set({
+      'isLocationed' : false,
     });
     for(int i = 0 ; i < membersList.length ; i++) {
       await _firestore.collection('users').doc(membersList[i]['uid']).collection('chatHistory').doc(widget.groupId).update({
@@ -79,6 +83,7 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
         'type' : "notify",
         'time' : timeForMessage(DateTime.now().toString()),
         'timeStamp' : DateTime.now(),
+        'isRead' : false,
       });
     }
   }
@@ -159,10 +164,11 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
   }
 
   Widget onResultTap(String query) {
+    FirebaseAuth _auth = FirebaseAuth.instance;
     return Expanded(
       child: SingleChildScrollView(
         child: StreamBuilder<QuerySnapshot>(
-            stream: _firestore.collection('users').snapshots(),
+            stream: _firestore.collection('users').where('uid' , isNotEqualTo: _auth.currentUser!.uid).snapshots(),
             builder: (context, snapshots){
               return (snapshots.connectionState == ConnectionState.waiting)
                   ? Center(
@@ -186,10 +192,11 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
                           setState(() {
                             isLoading = false;
                           });
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => GroupChatRoom(groupChatId: widget.groupId, groupName: widget.groupName, user: widget.user))
-                          );
+                          Navigator.pop(context);
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(builder: (_) => GroupChatRoom(groupChatId: widget.groupId, groupName: widget.groupName, user: widget.user))
+                          // );
                         },
                         title: Text(
                           map['name'],

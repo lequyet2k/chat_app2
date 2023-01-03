@@ -14,7 +14,6 @@ import 'package:uuid/uuid.dart';
 class Setting extends StatefulWidget {
 
   User user;
-
   Setting({key,required this.user});
 
   @override
@@ -32,8 +31,6 @@ class _SettingState extends State<Setting> {
   bool isLoading = false;
 
   late Map<String, dynamic> userMap ;
-  String? str;
-  bool isSwitched = true;
 
   @override
   void initState() {
@@ -41,15 +38,9 @@ class _SettingState extends State<Setting> {
   }
 
   // status() async {
-  //   await _firestore..collection('users').doc(_auth.currentUser?.uid).get().then((value) {
-  //     str = value.data()!['status'];
+  //   await _firestore.collection('users').doc(_auth.currentUser?.uid).get().then((value) {
+  //     isSwitched = value.data()!['isStatusLocked'];
   //   });
-  //   if(str == "Online") {
-  //     isSwitched = true;
-  //   } else{
-  //     isSwitched = false;
-  //   }
-  //
   // }
 
   Future getImage() async {
@@ -156,7 +147,7 @@ class _SettingState extends State<Setting> {
       isLoading = true;
     });
     await _firestore.collection('users').doc(_auth.currentUser?.uid).update({
-      "status" : 'Offline',
+      "isStatusLocked" : true,
     });
     int? n;
     await FirebaseFirestore.instance.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value) => {
@@ -177,7 +168,7 @@ class _SettingState extends State<Setting> {
 
   turnOnStatus() async {
     await _firestore.collection('users').doc(_auth.currentUser?.uid).update({
-      "status" : 'Online',
+      "isStatusLocked" : false,
     });
     int? n;
     await FirebaseFirestore.instance.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value) => {
@@ -282,17 +273,17 @@ class _SettingState extends State<Setting> {
                                   width: 25,
                                   height: 25,
                                   decoration: BoxDecoration(
-                                    color: Colors.black87,
+                                    color: Colors.grey.shade500,
                                       shape: BoxShape.circle,
                                       border: Border.all(
-                                        color: Colors.black87,
+                                        color: Colors.grey.shade500,
                                         width: 2,
                                       )
                                   ),
-                                  child: Icon(
-                                    Icons.camera_alt_outlined,
-                                    color: Colors.white,
-                                    size: 13.5,
+                                  child: const Icon(
+                                    Icons.camera_alt,
+                                    color: Colors.black87,
+                                    size: 16,
                                   ),
                                 ),
                               )
@@ -412,30 +403,14 @@ class _SettingState extends State<Setting> {
                                     ),
                                   ),
                                   Spacer(),
-                                  // Text(
-                                  //   map['status'],
-                                  //   style: TextStyle(
-                                  //       fontWeight: FontWeight.bold,
-                                  //       fontSize: 14
-                                  //   ),
-                                  // ),
-                                  Switch(
-                                    value: isSwitched,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        isSwitched = value;
-                                        print(isSwitched);
-                                        if(isSwitched == true) {
-                                          showTurnOnStatus();
-                                        }else {
-                                          showTurnOffStatus();
-                                        }
-                                      });
-                                    },
-                                    activeTrackColor: Colors.green,
-                                    activeColor: Colors.white70,
+                                  Text(
+                                    map['status'],
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14
+                                    ),
                                   ),
-                                  const SizedBox(width: 10,),
+                                  const SizedBox(width: 20,),
                                 ],
                               ),
                             ),

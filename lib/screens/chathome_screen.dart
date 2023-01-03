@@ -70,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    subscription.cancel();
+    // subscription.cancel();
     super.dispose();
   }
 
@@ -110,7 +110,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ],
       )
   );
-
 
   void setStatus(String status) async {
     await _firestore.collection('users').doc(_auth.currentUser?.uid).update({
@@ -152,13 +151,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     if(index == 0) {
       return listChat(widget.user);
     } else if(index == 2) {
-      return GroupChatHomeScreen(user: widget.user,);
-    } else if(index == 1){
       return const CallLogScreen();
+    } else if(index == 1){
+      return GroupChatHomeScreen(user: widget.user,);
     } else {
       return Container();
     }
   }
+
 
   Widget appBar(int index) {
     if(index == 0 || index == 1 || index == 2){
@@ -167,6 +167,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       return Setting(user: widget.user);
     }
   }
+
 
   void _onItemTapped(int index){
     setState(() {
@@ -205,12 +206,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 label: "Message",
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.phone),
-                label: "Calls",
+                icon: Icon(Icons.group),
+                label: "Group",
               ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.group),
-                label: "Group",
+                  icon: Icon(Icons.call),
+                label: "Calls",
               ),
               BottomNavigationBarItem(
                   icon: Icon(Icons.settings),

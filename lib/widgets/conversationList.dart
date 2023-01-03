@@ -83,16 +83,36 @@ class _ConversationListState extends State<ConversationList> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               // Text(widget.chatHistory['name'] == null ?  "UserName" : widget.chatHistory['name'],style: TextStyle(fontSize: 16),),
-                              widget.chatHistory['name'].toString().length >= 25
-                                  ? Text(
-                                  '${widget.chatHistory['name'].toString().substring(0, 25)}...',
-                                  style: TextStyle(
+                              Row(
+                                children: [
+                                  widget.chatHistory['name'].toString().length >= 25
+                                      ? Text(
+                                      '${widget.chatHistory['name'].toString().substring(0, 25)}...',
+                                      style: TextStyle(
+                                        fontWeight: widget.chatHistory['isRead'] == false ? FontWeight.bold : FontWeight.normal,
+                                        fontSize: 16,
+                                      )
+                                  )
+                                      : Text(widget.chatHistory['name'], style: TextStyle(
+                                    fontWeight: widget.chatHistory['isRead'] == false ? FontWeight.bold : FontWeight.normal,
                                     fontSize: 16,
-                                    )
-                              )
-                                  : Text(widget.chatHistory['name'], style: TextStyle(
-                                fontSize: 16,
-                              )
+                                  )
+                                  ),
+                                  SizedBox(width: 10,),
+                                  widget.chatHistory['isRead'] == false ?
+                                  Container(
+                                    width: 10,
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                        color: Colors.blueAccent,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.blueAccent,
+                                          width: 3,
+                                        )
+                                    ),
+                                  ) : Container(),
+                                ],
                               ),
                               SizedBox(height: 6,),
                               Row(
@@ -104,10 +124,12 @@ class _ConversationListState extends State<ConversationList> {
                                       '${widget.chatHistory['lastMessage'].toString().substring(0, 21)}...',
                                         style: TextStyle(
                                           fontSize: 13,
+                                          fontWeight: widget.chatHistory['isRead'] == false ? FontWeight.bold : FontWeight.normal,
                                           color: Colors.grey.shade700,)
                                     )
                                         : Text(widget.chatHistory['lastMessage'], style: TextStyle(
                                       fontSize: 13,
+                                      fontWeight: widget.chatHistory['isRead'] == false ? FontWeight.bold : FontWeight.normal,
                                       color: Colors.grey.shade700,)
                                     )
                     ),

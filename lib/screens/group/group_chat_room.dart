@@ -8,6 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/screens/group/group_info.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:uuid/uuid.dart';
@@ -39,6 +40,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
   void initState() {
     getMemberList();
     getCurrentUserAvatar();
+    updateIsReadMessage();
     // WidgetsBinding.instance.addPostFrameCallback((_) => scrollToIndex());
     super.initState();
     focusNode.addListener(() {
@@ -47,6 +49,18 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
           showEmoji = false;
         });
       }
+    });
+  }
+
+  @override
+  void dispose() {
+    updateIsReadMessage();
+    super.dispose();
+  }
+
+  updateIsReadMessage() async{
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.groupChatId).update({
+      'isRead' : true,
     });
   }
 
@@ -78,6 +92,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
           'type' : "text",
           'time' : timeForMessage(DateTime.now().toString()),
           'timeStamp' : DateTime.now(),
+          'isRead' : false,
         });
       }
     }
@@ -137,6 +152,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
           'type' : "img",
           'time' : timeForMessage(DateTime.now().toString()),
           'timeStamp' : DateTime.now(),
+          'isRead' : false,
         });
       }
     }
@@ -190,7 +206,10 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               children: <Widget>[
                 IconButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => HomeScreen(user: widget.user) )
+                    );
                   },
                   icon: Icon(Icons.arrow_back_ios, color: Colors.blueAccent,),
                 ),
@@ -780,6 +799,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         'type' : "location",
         'time' : timeForMessage(DateTime.now().toString()),
         'timeStamp' : DateTime.now(),
+        'isRead' : false,
       });
     }
     // scrollToIndex();
@@ -941,6 +961,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
             'lastMessage' : '${widget.user.displayName}: $message',
             'time' : timeForMessage(DateTime.now().toString()),
             'timeStamp' : DateTime.now(),
+            'isRead' : false,
           });
         }
       }
@@ -963,6 +984,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
             'lastMessage' : '${widget.user.displayName} đã xóa một tin nhắn',
             'time' : timeForMessage(DateTime.now().toString()),
             'timeStamp' : DateTime.now(),
+            'isRead' : false,
           });
         }
       }
