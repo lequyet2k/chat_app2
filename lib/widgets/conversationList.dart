@@ -66,7 +66,7 @@ class _ConversationListState extends State<ConversationList> {
         }
       },
       child: Container(
-        padding: EdgeInsets.only(left: 16, right: 16, top :10, bottom: 10),
+        padding: EdgeInsets.only(left: 16, top :10, bottom: 10),
         child: Row(
           children: <Widget>[
             Expanded(
@@ -143,6 +143,15 @@ class _ConversationListState extends State<ConversationList> {
                                       //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal,
                                     ),
                                   ),
+                                  Text(" - "),
+                                  Text(
+                                    widget.chatHistory['time'].toString().substring(0, 10),
+                                    //widget.chatHistory['time'],
+                                    style: TextStyle(
+                                      fontSize:   12,
+                                      //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],
@@ -153,18 +162,6 @@ class _ConversationListState extends State<ConversationList> {
                 ),
             ),
             SizedBox(width: 10,),
-            Column(
-              children: [
-                Text(
-                  widget.chatHistory['time'].toString().substring(0, 10),
-                  //widget.chatHistory['time'],
-                  style: TextStyle(
-                    fontSize:   12,
-                    //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal,
-                  ),
-                ),
-              ],
-            ),
           ],
         ),
       ),

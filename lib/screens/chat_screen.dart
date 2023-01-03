@@ -653,18 +653,17 @@ class _ChatScreenState extends State<ChatScreen> {
         return Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            SizedBox(width: 2,),
+            const SizedBox(width: 2,),
             map['sendBy'] != widget.user.displayName ?
             Container(
-              margin: EdgeInsets.only(bottom: 5),
+              margin: const EdgeInsets.only(bottom: 5),
               height: size.width / 13 ,
               width: size.width / 13 ,
               child: CircleAvatar(
-                backgroundImage: NetworkImage(userMap['avatar']),
+                backgroundImage: CachedNetworkImageProvider(userMap['avatar']),
                 maxRadius: 30,
               ),
-            ): Container(
-            ),
+            ): Container(),
             GestureDetector(
               onLongPress: (){
                 if(map['sendBy'] == widget.user.displayName){
@@ -675,10 +674,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 width: map['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
                 alignment: map['sendBy'] == widget.user.displayName  ? Alignment.centerRight : Alignment.centerLeft,
                 child: Container(
-                  width: size.width / 3,
+                  width: size.width / 2.8,
                   // constraints: BoxConstraints( maxWidth: size.width / 1.5),
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
                     color: Colors.grey.shade700,
@@ -686,17 +685,17 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: Row(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(4.0),
+                        padding: const EdgeInsets.all(4.0),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(100),
                           color: Colors.grey,
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.call_sharp,
                           color: Colors.white70,
                         ),
                       ),
-                      SizedBox(width: 5,),
+                      const SizedBox(width: 5,),
                       Column(
                         children: [
                           Text(
@@ -706,15 +705,15 @@ class _ChatScreenState extends State<ChatScreen> {
                               color: Colors.white70,
                             ),
                           ),
-                          Text(
-                            // int.parse(map['timeSpend'].toString()) < 60 ?
-                            map['timeSpend'].toString() + "s" ,
-                            // : (map['timeSpend'] / 60).toString() + "p "+ (map['timeSpend'] % 60).toString() + "s",
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey.shade300,
-                            ),
-                          ),
+                          // Text(
+                          //   // int.parse(map['timeSpend'].toString()) < 60 ?
+                          //   map['timeSpend'].toString() + "s" ,
+                          //   // : (map['timeSpend'] / 60).toString() + "p "+ (map['timeSpend'] % 60).toString() + "s",
+                          //   style: TextStyle(
+                          //     fontSize: 13,
+                          //     color: Colors.grey.shade300,
+                          //   ),
+                          // ),
                         ],
                       ),
                     ],
@@ -735,7 +734,7 @@ class _ChatScreenState extends State<ChatScreen> {
               height: size.width / 13 ,
               width: size.width / 13 ,
               child: CircleAvatar(
-                backgroundImage: NetworkImage(userMap['avatar']),
+                backgroundImage: CachedNetworkImageProvider(userMap['avatar']),
                 maxRadius: 30,
               ),
             ): Container(
@@ -752,8 +751,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: Container(
                   width: size.width / 2,
                   // constraints: BoxConstraints( maxWidth: size.width / 1.5),
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
                     color: Colors.grey.shade800,
@@ -763,23 +762,23 @@ class _ChatScreenState extends State<ChatScreen> {
                       Row(
                         children: [
                           Container(
-                            padding: EdgeInsets.all(4.0),
+                            padding: const EdgeInsets.all(4.0),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(100),
                               color: Colors.blueAccent,
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.location_on_outlined,
                               color: Colors.white70,
                               size: 18,
                             ),
                           ),
-                          SizedBox(width: 10,),
+                          const SizedBox(width: 0,),
                           Expanded(
                             child: Column(
                               children: [
                                 const Text(
-                                  "Vi tri truc tiep",
+                                  "Vị trí trực tiếp",
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white70,
@@ -787,7 +786,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ),
                                 Text(
                                   // int.parse(map['timeSpend'].toString()) < 60 ?
-                                  "Da bat dau chia se" ,
+                                  "Đã bắt đầu chia sẻ" ,
                                   // : (map['timeSpend'] / 60).toString() + "p "+ (map['timeSpend'] % 60).toString() + "s",
                                   style: TextStyle(
                                     fontSize: 13,
@@ -799,7 +798,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 10,),
+                      const SizedBox(height: 10,),
                       GestureDetector(
                         onTap: (){
                           if(map['sendBy'] == widget.user.displayName){
@@ -835,10 +834,10 @@ class _ChatScreenState extends State<ChatScreen> {
         return Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            SizedBox(width: 2,),
+            const SizedBox(width: 2,),
             map['sendBy'] != widget.user.displayName ?
             Container(
-              margin: EdgeInsets.only(bottom: 5),
+              margin: const EdgeInsets.only(bottom: 5),
               height: size.width / 13 ,
               width: size.width / 13 ,
               child: CircleAvatar(
@@ -859,8 +858,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: Container(
                   width: size.width / 1.8,
                   // constraints: BoxConstraints( maxWidth: size.width / 1.5),
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
                     color: Colors.grey.shade700,
@@ -882,13 +881,11 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                           ),
                           const SizedBox(width: 10,),
-                          Container(
-                            child: const Text(
-                                "Chia sẻ vị trí đã kết thúc",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white70,
-                              ),
+                          const Text(
+                              "Chia sẻ vị trí đã kết thúc",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white70,
                             ),
                           ),
                         ],
