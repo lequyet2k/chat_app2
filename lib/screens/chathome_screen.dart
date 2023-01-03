@@ -322,6 +322,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         Container(
           padding: EdgeInsets.only(top: 16, right: 16, left: 16),
           child: TextField(
+            autofocus: false,
             decoration: InputDecoration(
               hintText: "Search..",
               hintStyle: TextStyle(color: Colors.grey.shade600),

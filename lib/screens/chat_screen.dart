@@ -54,18 +54,21 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     });
     updateIsReadMessage();
-    WidgetsBinding.instance.addPostFrameCallback((_){
-      if (controller.hasClients) {
-        scrollToIndex();
-      }
-      scrollToIndex();
-    });
+    controller = ScrollController();
+    // WidgetsBinding.instance.addPostFrameCallback((_){
+    //   if (controller.hasClients) {
+    //     scrollToIndex();
+    //   }
+    //   scrollToIndex();
+    // });
+    scrollToIndex();
     getUserInfo();
     super.initState();
   }
 
   @override
   void dispose() {
+    controller.dispose();
     updateIsReadMessage();
     super.dispose();
   }
@@ -238,7 +241,6 @@ class _ChatScreenState extends State<ChatScreen> {
         'type' : "img",
         'uid' : widget.userMap['uid'],
       });
-      scrollToIndex();
       await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['uid']).set({
         'lastMessage' : "Bạn đã gửi 1 ảnh",
         'type' : "img",
@@ -271,12 +273,14 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     }
   }
-  final ScrollController controller = ScrollController();
+  late ScrollController controller;
   late int index;
   void scrollToIndex() async {
+    final bottomOffset = controller.position.maxScrollExtent;
     controller.animateTo(
-      controller.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 200), curve: Curves.easeOut,
+      bottomOffset,
+      duration: const Duration(milliseconds: 1000),
+      curve: Curves.easeInOut,
     );
   }
   
@@ -987,7 +991,6 @@ class _ChatScreenState extends State<ChatScreen> {
       'messageId' : messageId,
       'timeStamp' : DateTime.now(),
     });
-    scrollToIndex();
     await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.userMap['uid']).update({
       'messageId' : messageId,
     });
