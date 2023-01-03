@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:grouped_list/grouped_list.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:my_porject/resources/methods.dart';
 import 'package:my_porject/screens/callscreen/call_utils.dart';
 import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
@@ -46,6 +48,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void initState() {
+    getConnectivity();
     focusNode.addListener(() {
       if(focusNode.hasFocus) {
         setState(() {
@@ -77,6 +80,21 @@ class _ChatScreenState extends State<ChatScreen> {
     await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['uid']).update({
       'isRead' : true,
     });
+  }
+
+  late StreamSubscription subscription;
+
+  getConnectivity() async {
+    return subscription = Connectivity().onConnectivityChanged.listen(
+            (ConnectivityResult result) async {
+          widget.isDeviceConnected = await InternetConnectionChecker().hasConnection;
+          if(mounted){
+            setState(() {
+
+            });
+          }
+        }
+    );
   }
 
   late Userr receiver;
@@ -160,7 +178,7 @@ class _ChatScreenState extends State<ChatScreen> {
         'type' : "text",
       });
       await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['uid']).set({
-        'lastMessage' : "Bạn: ${message}",
+        'lastMessage' : "Bạn: $message",
         'type' : "text",
         'name' : widget.userMap['name'],
         'time' : timeForMessage(DateTime.now().toString()),
@@ -209,7 +227,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future uploadImage() async {
 
-    String fileName =   Uuid().v1();
+    String fileName =   const Uuid().v1();
 
     int status = 1 ;
 
@@ -310,7 +328,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return SizedBox(
       height: 250,
       child: EmojiPicker(
-        config: Config(
+        config: const Config(
           columns: 7,
         ),
         onEmojiSelected: (emoji, category) {
@@ -331,7 +349,7 @@ class _ChatScreenState extends State<ChatScreen> {
           backgroundColor: Colors.white,
           flexibleSpace: SafeArea(
             child: Container(
-              padding: EdgeInsets.only(right: 10),
+              padding: const EdgeInsets.only(right: 10),
               child: Row(
                 children: <Widget>[
                   IconButton(
@@ -340,12 +358,12 @@ class _ChatScreenState extends State<ChatScreen> {
                       },
                       icon: const Icon(Icons.arrow_back_ios, color: Colors.blueAccent,),
                   ),
-                  SizedBox(width: 2,),
+                  const SizedBox(width: 2,),
                   CircleAvatar(
                     backgroundImage: CachedNetworkImageProvider(widget.userMap['avatar']),
                     maxRadius: 20,
                   ),
-                  SizedBox(width: 12,),
+                  const SizedBox(width: 12,),
                   Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -353,9 +371,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         children: <Widget>[
                           Text(
                               widget.userMap['name'],
-                            style: TextStyle(fontSize: 16,fontWeight: FontWeight.w600),
+                            style: const TextStyle(fontSize: 16,fontWeight: FontWeight.w600),
                           ),
-                          SizedBox(height: 6,),
+                          const SizedBox(height: 6,),
                           StreamBuilder<DocumentSnapshot>(
                             stream: _firestore.collection("users").doc(widget.userMap['uid']).snapshots(),
                             builder: (context, snapshot) {
@@ -365,7 +383,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   style: TextStyle(color: Colors.grey.shade600, fontSize: 13,),
                                 );
                               } else {
-                                return Text('null');
+                                return const Text('null');
                               }
                             },
                           )
@@ -451,68 +469,63 @@ class _ChatScreenState extends State<ChatScreen> {
               Column(
                 children: [
                   Container(
-                    child: Container(
-                      // padding: EdgeInsets.only(bottom: 10,top: 10),
-                      height: size.height / 16,
-                      width: double.infinity,
-                      color: Colors.white70,
-                      child: Row(
-                        children: <Widget>[
-                          IconButton(
-                              onPressed: () {
-                                getImage();
-                              },
-                              icon: Icon(Icons.image_outlined, color: Colors.blueAccent,),
-                          ),
-                          IconButton(
-                              onPressed: () {
-                                if(widget.isDeviceConnected == false) {
-                                  showDialogInternetCheck();
-                                } else {
-                                  initLocationDoc();
-                                }
-                              },
-                              icon: Icon(Icons.location_on, color: Colors.blueAccent,),
-                          ),
-                          // SizedBox(width: 15,),
-                          Expanded(
-                              child: Container(
-                                height: size.height / 20.8,
-                                child: TextField(
-                                  focusNode: focusNode,
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.grey.shade300,
-                                    // hintText: "Aa",
-                                    // hintStyle: TextStyle(color: Colors.white38),
-                                    // contentPadding: EdgeInsets.all(8.0),
-                                    prefixIcon: Icon(Icons.abc),
-                                    suffixIcon: IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          focusNode.unfocus();
-                                          focusNode.canRequestFocus = false;
-                                          showEmoji = !showEmoji;
-                                        });
-                                      },
-                                      icon: Icon(Icons.emoji_emotions,color: Colors.blueAccent,),
-                                    ) ,
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(25),
-                                    ),
-                                  ),
-                                  controller: _message,
+                    padding: const EdgeInsets.only(top: 5,bottom: 10),
+                    height: size.height / 15,
+                    width: double.infinity,
+                    color: Colors.white,
+                    child: Row(
+                      children: <Widget>[
+                        IconButton(
+                            onPressed: () {
+                              getImage();
+                            },
+                            icon: const Icon(Icons.image_outlined, color: Colors.blueAccent,size: 27,),
+                        ),
+                        IconButton(
+                            onPressed: () {
+                              if(widget.isDeviceConnected == false) {
+                                showDialogInternetCheck();
+                              } else {
+                                initLocationDoc();
+                              }
+                            },
+                            icon: const Icon(Icons.location_on, color: Colors.blueAccent,size: 27,),
+                        ),
+                        // SizedBox(width: 15,),
+                        Expanded(
+                            child: TextField(
+                              focusNode: focusNode,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.grey.shade300,
+                                // hintText: "Aa",
+                                // hintStyle: TextStyle(color: Colors.white38),
+                                // contentPadding: EdgeInsets.all(8.0),
+                                prefixIcon: const Icon(Icons.abc,size: 30,),
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      focusNode.unfocus();
+                                      focusNode.canRequestFocus = false;
+                                      showEmoji = !showEmoji;
+                                    });
+                                  },
+                                  icon: const Icon(Icons.emoji_emotions,color: Colors.blueAccent,size: 23,),
+                                ) ,
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(25),
                                 ),
                               ),
-                          ),
-                          IconButton(
-                              onPressed: () {
-                                onSendMessage();
-                              },
-                              icon: Icon(Icons.send, color: Colors.blueAccent,),
-                          ),
-                        ],
-                      ),
+                              controller: _message,
+                            ),
+                        ),
+                        IconButton(
+                            onPressed: () {
+                              onSendMessage();
+                            },
+                            icon: const Icon(Icons.send, color: Colors.blueAccent, size: 30,),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -528,9 +541,9 @@ class _ChatScreenState extends State<ChatScreen> {
     if(map['status'] == 'removed') {
       return Row(
         children: [
-          SizedBox(width: 2,),
+          const SizedBox(width: 2,),
           map['sendBy'] != widget.user.displayName ?
-          Container(
+          SizedBox(
             height: size.width / 13 ,
             width: size.width / 13 ,
             child: CircleAvatar(
@@ -546,8 +559,8 @@ class _ChatScreenState extends State<ChatScreen> {
               alignment: map['sendBy'] == widget.user.displayName ? Alignment.centerRight : Alignment.centerLeft,
               child: Container(
                 constraints: BoxConstraints( maxWidth: size.width / 1.5),
-                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
                   color: Colors.grey.shade200,
@@ -569,9 +582,9 @@ class _ChatScreenState extends State<ChatScreen> {
       if(map['type'] == "text") {
         return Row(
           children: [
-            SizedBox(width: 2,),
+            const SizedBox(width: 2,),
             map['sendBy'] != widget.user.displayName ?
-            Container(
+            SizedBox(
               height: size.width / 13 ,
               width: size.width / 13 ,
               child: CircleAvatar(
@@ -591,15 +604,15 @@ class _ChatScreenState extends State<ChatScreen> {
                 alignment: map['sendBy'] == widget.user.displayName ? Alignment.centerRight : Alignment.centerLeft,
                 child: Container(
                   constraints: BoxConstraints( maxWidth: size.width / 1.5),
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
                     color: Colors.blueAccent,
                   ),
                   child: Text(
                     map['message'],
-                    style: TextStyle(color: Colors.white,fontSize: 17),
+                    style: const TextStyle(color: Colors.white,fontSize: 17),
                   ),
                 ),
               ),
@@ -613,7 +626,7 @@ class _ChatScreenState extends State<ChatScreen> {
             const SizedBox(width: 2,),
             map['sendBy'] != widget.user.displayName ?
             Container(
-              margin: EdgeInsets.only(bottom: 8),
+              margin: const EdgeInsets.only(bottom: 8),
               height: size.width / 13 ,
               width: size.width / 13 ,
               child: CircleAvatar(
@@ -631,7 +644,7 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Container(
                 height: size.height / 2.5,
                 width: map['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
-                padding: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
+                padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 10),
                 alignment: map['sendBy'] == widget.user.displayName
                     ? Alignment.centerRight
                     : Alignment.centerLeft,
@@ -644,9 +657,10 @@ class _ChatScreenState extends State<ChatScreen> {
                     width: size.width / 2,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
+                      color: Colors.grey.shade300  ,
                     ),
-                    alignment: map['message'] != "" ? null : Alignment.center,
-                    child: map['message'] != ""? ClipRRect(borderRadius: BorderRadius.circular(18.0),child: Image.network(map['message'], fit: BoxFit.cover,)) : const CircularProgressIndicator(),
+                    alignment: map['message'] != "" && widget.isDeviceConnected == true ? null : Alignment.center,
+                    child: map['message'] != "" && widget.isDeviceConnected == true ? ClipRRect(borderRadius: BorderRadius.circular(18.0),child: Image.network(map['message'] , fit: BoxFit.cover,)) : const CircularProgressIndicator(),
                   ),
                 ),
               ),
@@ -701,7 +715,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       const SizedBox(width: 5,),
                       Column(
-                        children: [
+                        children: const [
                           Text(
                             "Video Call",
                             style: TextStyle(
@@ -731,10 +745,10 @@ class _ChatScreenState extends State<ChatScreen> {
         return Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            SizedBox(width: 2,),
+            const SizedBox(width: 2,),
             map['sendBy'] != widget.user.displayName ?
             Container(
-              margin: EdgeInsets.only(bottom: 5),
+              margin: const EdgeInsets.only(bottom: 5),
               height: size.width / 13 ,
               width: size.width / 13 ,
               child: CircleAvatar(
@@ -821,7 +835,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                           child: Container(
                             alignment: Alignment.center,
-                            child: Text(
+                            child: const Text(
                                 "Xem vi tri"
                             ),
                           ),
@@ -929,7 +943,6 @@ class _ChatScreenState extends State<ChatScreen> {
       if(isLocationed == true) {
         return showTurnOffLocation();
       } else {
-        print("alaolaoloasdasasfasfas");
         return showTurnOnLocation();
       }
     }
@@ -952,7 +965,7 @@ class _ChatScreenState extends State<ChatScreen> {
               height: 70,
               alignment: Alignment.center,
               width: MediaQuery.of(context).size.width,
-              child: Text(
+              child: const Text(
                 "Share your location",
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
@@ -979,7 +992,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void sendLocation() async {
-    String messageId = Uuid().v1();
+    String messageId = const Uuid().v1();
     await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').doc(messageId).set({
       'sendBy' : widget.user.displayName,
       'message' : 'Bạn đã gửi một vị trí trực tiếp',
@@ -1051,7 +1064,7 @@ class _ChatScreenState extends State<ChatScreen> {
               height: 70,
               alignment: Alignment.center,
               width: MediaQuery.of(context).size.width,
-              child: Text(
+              child: const Text(
                 "Turn off locationed",
                 style: TextStyle(
                   color: Colors.redAccent,
@@ -1127,7 +1140,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       alignment: Alignment.center,
                       width: MediaQuery.of(context).size.width,
-                      child: Text(
+                      child: const Text(
                         "Edit message",
                         style: TextStyle(
                           fontWeight: FontWeight.w500,

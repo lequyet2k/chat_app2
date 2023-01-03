@@ -45,19 +45,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     return subscription = Connectivity().onConnectivityChanged.listen(
           (ConnectivityResult result) async {
             isDeviceConnected = await InternetConnectionChecker().hasConnection;
+            setState(() {});
             if(!isDeviceConnected && isAlertSet == false) {
               showDialogInternetCheck();
               setState(() {
                 isAlertSet = true;
               });
             }
+
           }
       );
   }
 
   @override
   void initState() {
-    getConnectivity();
     WidgetsBinding.instance.addObserver(this);
     setStatus("Online");
     changeStatus("Online");
@@ -67,6 +68,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     });
     LogRepository.init(dbName: _auth.currentUser!.uid);
     super.initState();
+    getConnectivity();
   }
 
   @override
@@ -198,8 +200,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           bottomNavigationBar: BottomNavigationBar(
             selectedItemColor: Colors.blueAccent,
             unselectedItemColor: Colors.grey.shade600,
-            selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
-            unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
+            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
+            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
             type: BottomNavigationBarType.fixed,
             items: const <BottomNavigationBarItem>[
               BottomNavigationBarItem(
@@ -231,8 +233,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          margin: EdgeInsets.only(top: 15,left: 15),
-          child: Text(
+          margin: const EdgeInsets.only(top: 15,left: 15),
+          child: const Text(
             'Recent Chats',
             style: TextStyle(
               color: Colors.black54,
@@ -306,11 +308,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             fit: BoxFit.cover,
                           ),
                         ),
-                        Text(
+                        const Text(
                           "ChatBot",
                           style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(width : 5),
+                        const SizedBox(width : 5),
                       ],
                     ),
                   ),
@@ -320,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
         ),
         Container(
-          padding: EdgeInsets.only(top: 16, right: 16, left: 16),
+          padding: const EdgeInsets.only(top: 16, right: 16, left: 16),
           child: TextField(
             autofocus: false,
             decoration: InputDecoration(
@@ -329,7 +331,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               prefixIcon: Icon(Icons.search, color: Colors.grey.shade600, size: 20,),
               filled: true,
               fillColor: Colors.grey.shade100,
-              contentPadding: EdgeInsets.all(8.0),
+              contentPadding: const EdgeInsets.all(8.0),
               enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
                   borderSide: BorderSide(
@@ -348,35 +350,49 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
         ),
         const SizedBox(height: 7 ,),
-        StreamBuilder<ConnectivityResult>(
-          stream: Connectivity().onConnectivityChanged,
-            builder: (_, snapshot) {
-              switch(snapshot.connectionState){
-                case ConnectionState.active :
-                  final state = snapshot.data ;
-                  switch(state) {
-                    case ConnectivityResult.none:
-                      return Container(
-                        alignment: Alignment.center,
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height / 30,
-                        // color: Colors.red,
-                        child: const Text(
-                          'No Internet Connection',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      );
-                    default :
-                      return Container();
-                  }
-                default :
-                  return Container();
-              }
-            }
-        ),
+        isDeviceConnected == false
+            ? Container(
+          alignment: Alignment.center,
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height / 30,
+          // color: Colors.red,
+          child: const Text(
+            'No Internet Connection',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ) : Container(),
+        // StreamBuilder<ConnectivityResult>(
+        //   stream: Connectivity().onConnectivityChanged,
+        //     builder: (_, snapshot) {
+        //       switch(snapshot.connectionState){
+        //         case ConnectionState.active :
+        //           final state = snapshot.data ;
+        //           switch(state) {
+        //             case ConnectivityResult.none:
+        //               return Container(
+        //                 alignment: Alignment.center,
+        //                 width: MediaQuery.of(context).size.width,
+        //                 height: MediaQuery.of(context).size.height / 30,
+        //                 // color: Colors.red,
+        //                 child: const Text(
+        //                   'No Internet Connection',
+        //                   style: TextStyle(
+        //                     fontSize: 15,
+        //                     fontWeight: FontWeight.w500,
+        //                   ),
+        //                 ),
+        //               );
+        //             default :
+        //               return Container();
+        //           }
+        //         default :
+        //           return Container();
+        //       }
+        //     }
+        // ),
         const SizedBox(height: 5,),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -400,10 +416,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             );
                           },
                           child: Padding(
-                              padding: EdgeInsets.only(left:5,right: 10),
+                              padding: const EdgeInsets.only(left:5,right: 10),
                               child :Column(
                                 children: <Widget>[
-                                  Container(
+                                  SizedBox(
                                     width: 60,
                                     height: 60,
                                     child: Stack(

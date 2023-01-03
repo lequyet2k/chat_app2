@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -9,6 +11,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/screens/group/group_info.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -40,6 +43,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
 
   @override
   void initState() {
+    getConnectivity();
     getMemberList();
     getCurrentUserAvatar();
     updateIsReadMessage();
@@ -58,6 +62,22 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
   void dispose() {
     updateIsReadMessage();
     super.dispose();
+  }
+
+
+  late StreamSubscription subscription;
+
+  getConnectivity() async {
+    return subscription = Connectivity().onConnectivityChanged.listen(
+            (ConnectivityResult result) async {
+          widget.isDeviceConnected = await InternetConnectionChecker().hasConnection;
+          if(mounted){
+            setState(() {
+
+            });
+          }
+        }
+    );
   }
 
   updateIsReadMessage() async{
@@ -213,7 +233,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                         MaterialPageRoute(builder: (_) => HomeScreen(user: widget.user) )
                     );
                   },
-                  icon: Icon(Icons.arrow_back_ios, color: Colors.blueAccent,),
+                  icon: const Icon(Icons.arrow_back_ios, color: Colors.blueAccent,),
                 ),
                 const SizedBox(width: 2,),
                 const CircleAvatar(
@@ -238,7 +258,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                         MaterialPageRoute(builder: (_) => GroupInfo(groupName: widget.groupName, groupId: widget.groupChatId, user: widget.user, memberListt: memberList, isDeviceConnected: widget.isDeviceConnected,))
                     );
                   },
-                  icon: Icon(Icons.more_vert,color: Colors.blueAccent,),
+                  icon: const Icon(Icons.more_vert,color: Colors.blueAccent,),
                 ),
               ],
             ),
@@ -251,6 +271,20 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         },
         child: Column(
           children: <Widget>[
+            widget.isDeviceConnected == false
+                ? Container(
+              alignment: Alignment.center,
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height / 30,
+              // color: Colors.red,
+              child: const Text(
+                'No Internet Connection',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ) : Container(),
             Expanded(
               child: Container(
                   color: Colors.white24,
@@ -486,7 +520,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               const SizedBox(width: 2,),
               chatMap['sendBy'] != widget.user.displayName ?
               Container(
-                margin: EdgeInsets.only(bottom: 8),
+                margin: const EdgeInsets.only(bottom: 8),
                 height: size.width / 13 ,
                 width: size.width / 13 ,
                 child: CircleAvatar(
@@ -504,7 +538,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                 child: Container(
                   height: size.height / 2.5,
                   width: chatMap['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
-                  padding: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
+                  padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 10),
                   alignment: chatMap['sendBy'] == widget.user.displayName
                       ? Alignment.centerRight
                       : Alignment.centerLeft,
@@ -518,8 +552,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      alignment: chatMap['message'] != "" ? null : Alignment.center,
-                      child: chatMap['message'] != ""? ClipRRect(borderRadius: BorderRadius.circular(18.0),child: Image.network(chatMap['message'], fit: BoxFit.cover,)) : CircularProgressIndicator(),
+                      alignment: chatMap['message'] != "" && widget.isDeviceConnected == true ? null : Alignment.center,
+                      child: chatMap['message'] != "" && widget.isDeviceConnected == true ? ClipRRect(borderRadius: BorderRadius.circular(18.0),child: Image.network(chatMap['message'], fit: BoxFit.cover,)) : const CircularProgressIndicator(),
                     ),
                   ),
                 ),

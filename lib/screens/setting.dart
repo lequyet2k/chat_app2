@@ -245,7 +245,7 @@ class _SettingState extends State<Setting> {
                   return Column(
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      SizedBox(height: 10,),
+                      const SizedBox(height: 10,),
                       GestureDetector(
                         onTap: (){
                           if(widget.isDeviceConnected == false) {
@@ -254,7 +254,7 @@ class _SettingState extends State<Setting> {
                             getImage();
                           }
                         },
-                        child: Container(
+                        child: SizedBox(
                           height: 100,
                           width: 100,
                           child: Stack(

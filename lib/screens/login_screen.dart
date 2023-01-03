@@ -210,7 +210,7 @@ class LoginPage extends State<Login> {
                                 },
                               ),
                             ),
-                            SizedBox(height: 5,),
+                            const SizedBox(height: 5,),
                             Container(
                               width: 320,
                               margin: const EdgeInsets.all(5.0),
