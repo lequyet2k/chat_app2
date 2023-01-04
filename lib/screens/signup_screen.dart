@@ -56,7 +56,7 @@ class _SignUpScreen extends State<SignUp> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SignUp(),
+                  builder: (context) => const SignUp(),
                 ));
           }
       )..show();
@@ -80,26 +80,26 @@ class _SignUpScreen extends State<SignUp> {
     Size size = MediaQuery.of(context).size;
     return isLoading
         ? Center(
-      child: Container(
+      child: SizedBox(
         height: MediaQuery.of(context).size.height / 20 ,
         width: MediaQuery.of(context).size.height / 20 ,
-        child: CircularProgressIndicator(),
+        child: const CircularProgressIndicator(),
       ),
     ) : Scaffold(
-      body: Container(
+      body: SizedBox(
         width: size.width,
         height: size.height,
         child: Stack(
           children: [
-            Upside(imgUrl : "assets/images/logo.png",),
+            const Upside(imgUrl : "assets/images/logo.png",),
             Positioned(
-              top: 165,
+              top: 230,
               left: 0,
               right: 0,
               child: Container(
                 width: double.infinity,
                 height: 100,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                     color: Color(0xfffeeeee4),
                     borderRadius: BorderRadius.only(
                       topRight: Radius.circular(50),
@@ -109,8 +109,8 @@ class _SignUpScreen extends State<SignUp> {
                 child: Column(
                   children: [
                     Container(
-                      margin: EdgeInsets.only(top: 10),
-                      child: Text(
+                      margin: const EdgeInsets.only(top: 15),
+                      child: const Text(
                         "Create New Account",
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -127,13 +127,13 @@ class _SignUpScreen extends State<SignUp> {
               ),
             ),
             Positioned(
-              top: 210,
+              top: 280,
               left: 0,
               right: 0,
               child: Container(
                 width: double.infinity,
                 height:600,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.only(
                       topRight: Radius.circular(50),
@@ -142,42 +142,42 @@ class _SignUpScreen extends State<SignUp> {
                 ),
                 child: Column(
                   children: [
-                    SizedBox(height: 7,),
-                    Container(
+                    const SizedBox(height: 7,),
+                    SizedBox(
                       height: 40,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          SizedBox(
-                            height: 40,
-                            width: 40,
-                            child: IconButton(
-                              icon: Image.asset(
-                                "assets/images/facebook_icon.png",
-                              ),
-                              onPressed: () async {
-                                // signInWithFacebook();
-                                setState(() {
-                                  isLoading = true;
-                                });
-                                signInWithFacebook().then((user) {
-                                  if(user != null) {
-                                    setState(() {
-                                      isLoading = false;
-                                    });
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => HomeScreen(user: user,),
-                                        ));
-                                    print("Login Successfull");
-                                  } else {
-                                    print("Login Failed");
-                                  }
-                                });
-                              },
-                            ),
-                          ),
+                          // SizedBox(
+                          //   height: 40,
+                          //   width: 40,
+                          //   child: IconButton(
+                          //     icon: Image.asset(
+                          //       "assets/images/facebook_icon.png",
+                          //     ),
+                          //     onPressed: () async {
+                          //       // signInWithFacebook();
+                          //       setState(() {
+                          //         isLoading = true;
+                          //       });
+                          //       signInWithFacebook().then((user) {
+                          //         if(user != null) {
+                          //           setState(() {
+                          //             isLoading = false;
+                          //           });
+                          //           Navigator.push(
+                          //               context,
+                          //               MaterialPageRoute(
+                          //                 builder: (context) => HomeScreen(user: user,),
+                          //               ));
+                          //           print("Login Successfull");
+                          //         } else {
+                          //           print("Login Failed");
+                          //         }
+                          //       });
+                          //     },
+                          //   ),
+                          // ),
                           const SizedBox(width: 20),
                           SizedBox(
                             height: 40,
@@ -188,9 +188,6 @@ class _SignUpScreen extends State<SignUp> {
                                 "assets/images/google_icon.png",
                               ),
                               onPressed: () {
-
-                                // signInWithGoogle();
-
                                 setState(() {
                                   isLoading = true;
                                 });
@@ -206,6 +203,7 @@ class _SignUpScreen extends State<SignUp> {
                                         ));
                                     print("Login Successfull");
                                   } else {
+                                    showRegisterDialog(2);
                                     print("Login Failed");
                                   }
                                 });
@@ -213,21 +211,21 @@ class _SignUpScreen extends State<SignUp> {
                             ),
                           ),
                           const SizedBox(width: 20),
-                          SizedBox(
-                            height: 40,
-                            width: 40,
-                            child: IconButton(
-                              iconSize: 1,
-                              icon: Image.asset(
-                                "assets/images/apple_icon.png",
-                              ),
-                              onPressed: () {},
-                            ),
-                          ),
+                          // SizedBox(
+                          //   height: 40,
+                          //   width: 40,
+                          //   child: IconButton(
+                          //     iconSize: 1,
+                          //     icon: Image.asset(
+                          //       "assets/images/apple_icon.png",
+                          //     ),
+                          //     onPressed: () {},
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
-                    Text(
+                    const Text(
                       'or use your email account',
                       style: TextStyle(
                         color: Colors.grey,
@@ -236,7 +234,7 @@ class _SignUpScreen extends State<SignUp> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    SizedBox(height:10,),
+                    const SizedBox(height:10,),
                     Form(
                       key: _formKey,
                         child: Column(
@@ -278,7 +276,7 @@ class _SignUpScreen extends State<SignUp> {
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return "Không được để trống!";
-                                  } else if(value != null && (value.length < 10 || value.length > 12)){
+                                  } else if( (value.length < 10 || value.length > 12)){
                                     return "Email không hợp lệ";
                                   }
                                   return null;
@@ -309,12 +307,11 @@ class _SignUpScreen extends State<SignUp> {
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return "Không được để trống!";
-                                  } else if(value != null && value.length < 6){
+                                  } else if( value.length < 6){
                                     return "Mật khẩu phải dài hơn 6 ký tự";
                                   } else {
                                     return validatePassword(value);
                                   }
-                                  return null;
                                 },
                               ),
                             ),
@@ -354,7 +351,7 @@ class _SignUpScreen extends State<SignUp> {
                           ],
                         )
                     ),
-                  SizedBox(height: 10,),
+                  const SizedBox(height: 10,),
                     SizedBox(
                       width: 200,
                       height: 35,
@@ -402,7 +399,7 @@ class _SignUpScreen extends State<SignUp> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        SizedBox(width: 5,),
+                        const SizedBox(width: 5,),
                         TextButton(
                             onPressed: () {
                               Navigator.push(

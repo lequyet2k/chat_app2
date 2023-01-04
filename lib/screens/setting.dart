@@ -12,6 +12,7 @@ import 'package:my_porject/screens/login_screen.dart';
 import 'package:uuid/uuid.dart';
 
 
+// ignore: must_be_immutable
 class Setting extends StatefulWidget {
 
   User user;
@@ -39,18 +40,12 @@ class _SettingState extends State<Setting> {
     super.initState();
   }
 
-  // status() async {
-  //   await _firestore.collection('users').doc(_auth.currentUser?.uid).get().then((value) {
-  //     isSwitched = value.data()!['isStatusLocked'];
-  //   });
-  // }
-
   Future getImage() async {
     ImagePicker _picker = ImagePicker();
 
     await _picker.pickImage(source: ImageSource.gallery).then((xFile) {
       if(xFile != null){
-        imageFile = File(xFile.path as String);
+        imageFile = File(xFile.path);
         uploadImage();
       }
     });
@@ -62,7 +57,7 @@ class _SettingState extends State<Setting> {
       isLoading = true;
     });
 
-    String fileName = Uuid().v1();
+    String fileName = const Uuid().v1();
 
     int status = 1;
 
@@ -83,7 +78,6 @@ class _SettingState extends State<Setting> {
         'avatar': imageUrl,
       });
       int? n;
-      print(imageUrl);
       await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value) => {
         n = value.docs.length
       });
@@ -120,8 +114,8 @@ class _SettingState extends State<Setting> {
     showDialog(
         context: context,
         builder: (context) =>  AlertDialog(
-          title: Text("Tắt trạng thái hoạt động?"),
-          content: Text("Are you sure to turn off? "),
+          title: const Text("Tắt trạng thái hoạt động?"),
+          content: const Text("Are you sure to turn off? "),
           actions: <Widget>[
             TextButton(
               onPressed: () async {
@@ -131,13 +125,13 @@ class _SettingState extends State<Setting> {
                 });
                 Navigator.maybePop(context);
               },
-              child: Text("Yes"),
+              child: const Text("Yes"),
             ),
             TextButton(
               onPressed: () async {
                 Navigator.maybePop(context);
               },
-              child: Text("No"),
+              child: const Text("No"),
             ),
           ],
         )
@@ -193,21 +187,21 @@ class _SettingState extends State<Setting> {
     showDialog(
         context: context,
         builder: (context) =>  AlertDialog(
-          title: Text("Bật trạng thái hoạt động?"),
-          content: Text("Are you sure to turn on? "),
+          title: const Text("Bật trạng thái hoạt động?"),
+          content: const Text("Are you sure to turn on? "),
           actions: <Widget>[
             TextButton(
               onPressed: () async {
                 turnOnStatus();
                 Navigator.maybePop(context);
               },
-              child: Text("Yes"),
+              child: const Text("Yes"),
             ),
             TextButton(
               onPressed: () async {
                 Navigator.maybePop(context);
               },
-              child: Text("No"),
+              child: const Text("No"),
             ),
           ],
         )
@@ -229,8 +223,8 @@ class _SettingState extends State<Setting> {
           SafeArea(
             child: Container(
               alignment: Alignment.center,
-              padding: EdgeInsets.only(left: 16, top: 10, right: 16),
-              child: Text(
+              padding: const EdgeInsets.only(left: 16, top: 10, right: 16),
+              child: const Text(
                 "Setting",
                 style: TextStyle(fontSize: 22,fontWeight: FontWeight.bold),
               ),
@@ -297,18 +291,18 @@ class _SettingState extends State<Setting> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 10,),
+                      const SizedBox(height: 10,),
                       Text(
                         map['name'],
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                           color: Colors.black
                         ),
                       ),
-                      SizedBox(height: 30,),
+                      const SizedBox(height: 30,),
                       Container(
-                        margin: EdgeInsets.only(left: 20,right: 20),
+                        margin: const EdgeInsets.only(left: 20,right: 20),
                         height: size.height / 6,
                         decoration: BoxDecoration(
                           color: Colors.grey.shade300,
@@ -317,7 +311,7 @@ class _SettingState extends State<Setting> {
                         child: Column(
                           children: [
                             Container(
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                   border: Border(
                                     bottom: BorderSide(
                                       color: Colors.black38,
@@ -327,10 +321,10 @@ class _SettingState extends State<Setting> {
                               height: size.height / 18,
                               child: Row(
                                 children: [
-                                  SizedBox(width: 5,),
-                                  Icon(Icons.perm_identity),
-                                  SizedBox(width: 7,),
-                                  Text(
+                                  const SizedBox(width: 5,),
+                                  const Icon(Icons.perm_identity),
+                                  const SizedBox(width: 7,),
+                                  const Text(
                                       "Name :",
                                     style: TextStyle(
                                       color: Colors.black,
@@ -338,10 +332,10 @@ class _SettingState extends State<Setting> {
                                       fontSize: 14
                                     ),
                                   ),
-                                  Spacer(),
+                                  const Spacer(),
                                   Text(
                                     map['name'],
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: Colors.black,
                                         fontWeight: FontWeight.bold,
                                       fontSize: 14
@@ -357,7 +351,7 @@ class _SettingState extends State<Setting> {
                               ),
                             ),
                             Container(
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                   border: Border(
                                       bottom: BorderSide(
                                         color: Colors.black38,
@@ -368,20 +362,20 @@ class _SettingState extends State<Setting> {
                               height: size.height / 18,
                               child: Row(
                                 children: [
-                                  SizedBox(width: 5,),
-                                  Icon(Icons.email_outlined),
-                                  SizedBox(width: 7,),
-                                  Text(
+                                  const SizedBox(width: 5,),
+                                  const Icon(Icons.email_outlined),
+                                  const SizedBox(width: 7,),
+                                  const Text(
                                     "Email :",
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14
                                     ),
                                   ),
-                                  Spacer(),
+                                  const Spacer(),
                                   Text(
                                     map['email'],
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14
                                     ),
@@ -394,24 +388,24 @@ class _SettingState extends State<Setting> {
                                 ],
                               ),
                             ),
-                            Container(
+                            SizedBox(
                               height: size.height / 18,
                               child: Row(
                                 children: [
-                                  SizedBox(width: 5,),
-                                  Icon(Icons.online_prediction),
-                                  SizedBox(width: 7,),
-                                  Text(
+                                  const SizedBox(width: 5,),
+                                  const Icon(Icons.online_prediction),
+                                  const SizedBox(width: 7,),
+                                  const Text(
                                     "Status :",
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14
                                     ),
                                   ),
-                                  Spacer(),
+                                  const Spacer(),
                                   Text(
                                     map['status'],
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14
                                     ),
@@ -423,16 +417,16 @@ class _SettingState extends State<Setting> {
                           ],
                         ),
                       ),
-                      SizedBox(height: 30,),
+                      const SizedBox(height: 30,),
                       Container(
-                        margin: EdgeInsets.only(left: 20,right: 20),
+                        margin: const EdgeInsets.only(left: 20,right: 20),
                         height: size.height / 20,
                         decoration: BoxDecoration(
                           color: Colors.grey.shade300,
                           borderRadius: BorderRadius.circular(15),
                         ),
                         child: Row(
-                          children: [
+                          children: const [
                             SizedBox(width: 5,),
                             Icon(Icons.help_outline),
                             SizedBox(width: 7,),
@@ -456,7 +450,7 @@ class _SettingState extends State<Setting> {
                           }
                         },
                         child: Container(
-                          margin: EdgeInsets.only(left: 20,right: 20),
+                          margin: const EdgeInsets.only(left: 20,right: 20),
                           height: size.height / 20,
                           decoration: BoxDecoration(
                             color: Colors.grey.shade500,
@@ -465,7 +459,7 @@ class _SettingState extends State<Setting> {
                           child: Container(
                             alignment: Alignment.centerLeft,
                             child: Row(
-                              children: [
+                              children: const [
                                 SizedBox(width: 5,),
                                 Icon(Icons.logout_outlined, color: Colors.redAccent,),
                                 SizedBox(width: 7,),

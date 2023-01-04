@@ -22,6 +22,7 @@ import 'package:my_porject/resources/methods.dart';
 import '../db/log_repository.dart';
 import 'chat_screen.dart';
 
+// ignore: must_be_immutable
 class HomeScreen extends StatefulWidget {
   User user;
   HomeScreen({Key? key, required this.user}) : super(key: key);
@@ -277,11 +278,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       children: <Widget>[
         SafeArea(
           child: Padding(
-            padding: EdgeInsets.only(left: 16, top: 10, right: 16),
+            padding: const EdgeInsets.only(left: 16, top: 10, right: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(
+                const Text(
                   "Conversations",
                   style: TextStyle(fontSize: 22,fontWeight: FontWeight.bold),
                 ),
@@ -293,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     );
                   },
                   child: Container(
-                    padding: EdgeInsets.only(left: 8, right: 8, top: 2, bottom: 2),
+                    padding: const EdgeInsets.only(left: 8, right: 8, top: 2, bottom: 2),
                     height: 30,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
@@ -445,10 +446,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                             width: 20,
                                             height: 20,
                                             decoration: BoxDecoration(
-                                                color: Color(0xFF66BB6A),
+                                                color: const Color(0xFF66BB6A),
                                                 shape: BoxShape.circle,
                                                 border: Border.all(
-                                                  color: Color(0xFFFFFFFF),
+                                                  color: const Color(0xFFFFFFFF),
                                                   width: 3,
                                                 )
                                             ),
@@ -467,7 +468,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                       ],
                                     ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 10,
                                   ),
                                   SizedBox(
@@ -494,7 +495,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               }
           ),
         ),
-        SizedBox(height: 5,),
+        const SizedBox(height: 5,),
         Expanded(
           child: Container(
             decoration: BoxDecoration(

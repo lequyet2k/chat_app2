@@ -10,7 +10,6 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:my_porject/resources/methods.dart';
 import 'package:my_porject/screens/callscreen/call_utils.dart';
 import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +18,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:my_porject/models/user_model.dart';
 
+// ignore: must_be_immutable
 class ChatScreen extends StatefulWidget {
   Map<String, dynamic> userMap ;
 
@@ -57,14 +57,6 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     });
     updateIsReadMessage();
-    controller = ScrollController();
-    // WidgetsBinding.instance.addPostFrameCallback((_){
-    //   if (controller.hasClients) {
-    //     scrollToIndex();
-    //   }
-    //   scrollToIndex();
-    // });
-    scrollToIndex();
     getUserInfo();
     super.initState();
   }
@@ -75,6 +67,7 @@ class _ChatScreenState extends State<ChatScreen> {
     updateIsReadMessage();
     super.dispose();
   }
+
 
   updateIsReadMessage() async{
     await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['uid']).update({
@@ -291,16 +284,8 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     }
   }
-  late ScrollController controller;
+  late ScrollController controller = ScrollController();
   late int index;
-  void scrollToIndex() async {
-    final bottomOffset = controller.position.maxScrollExtent;
-    controller.animateTo(
-      bottomOffset,
-      duration: const Duration(milliseconds: 1000),
-      curve: Curves.easeInOut,
-    );
-  }
   
   
   void liveLocation() {
@@ -438,6 +423,12 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').orderBy('timeStamp',descending: false).snapshots(),
                   builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
+                    WidgetsBinding.instance
+                        .addPostFrameCallback((_){
+                      if (controller.hasClients) {
+                        controller.jumpTo(controller.position.maxScrollExtent);
+                      }
+                    });
                     if(snapshot.data!= null){
                         return GroupedListView<QueryDocumentSnapshot<Object?>, String>(
                         elements: snapshot.data?.docs as List<QueryDocumentSnapshot<Object?>> ,
@@ -494,6 +485,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         // SizedBox(width: 15,),
                         Expanded(
                             child: TextField(
+                              autofocus: true,
                               focusNode: focusNode,
                               decoration: InputDecoration(
                                 filled: true,

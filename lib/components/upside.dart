@@ -14,14 +14,14 @@ class Upside extends StatelessWidget {
         Container(
           width: size.width,
           height: size.height / 2,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage("assets/images/background_login_or_signup.jpeg"),
               fit: BoxFit.cover,
             ),
           ),
           child: Padding(
-            padding: EdgeInsets.only(top: 30),
+            padding: const EdgeInsets.only(top: 60),
             child: Image.asset(
               imgUrl,
               alignment: Alignment.topCenter,

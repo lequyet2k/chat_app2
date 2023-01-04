@@ -38,6 +38,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
 
   FirebaseAuth _auth = FirebaseAuth.instance;
 
+  late ScrollController controller = ScrollController();
+
   List memberList = [];
   String? avatarUrl;
 
@@ -179,12 +181,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       }
     }
   }
-  final itemScrollController = ItemScrollController();
-  // void scrollToIndex() async {
-  //   await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').get().then((value) {
-  //     itemScrollController.jumpTo(index: value.docs.length - 1);
-  //   });
-  // }
+
   late String lat;
   late String long;
 
@@ -292,10 +289,17 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore.collection('groups').doc(widget.groupChatId).collection('chats').orderBy('timeStamp',descending: false).limit(limit).snapshots(),
                   builder: (context, snapshot){
+                    WidgetsBinding.instance
+                        .addPostFrameCallback((_){
+                      if (controller.hasClients) {
+                        controller.jumpTo(controller.position.maxScrollExtent);
+                      }
+                    });
                     if(snapshot.hasData) {
                       return GroupedListView<QueryDocumentSnapshot<Object?>, String>(
                         elements: snapshot.data?.docs as List<QueryDocumentSnapshot<Object?>> ,
                         shrinkWrap: true,
+                        controller: controller,
                         groupBy: (element) => element['time'],
                         groupSeparatorBuilder:  (String groupByValue) => Container(
                           alignment: Alignment.center,
@@ -356,6 +360,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                           child: SizedBox(
                             height: size.height / 20.8,
                             child: TextField(
+                              autofocus: true,
                               focusNode: focusNode,
                               decoration: InputDecoration(
                                 filled: true,

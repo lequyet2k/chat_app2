@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/provider/user_provider.dart';
@@ -9,6 +8,7 @@ import 'package:my_porject/components/upside.dart';
 import 'package:provider/provider.dart';
 
 
+// ignore: must_be_immutable
 class Login extends StatefulWidget {
   String? email;
   String? password;
@@ -18,8 +18,8 @@ class Login extends StatefulWidget {
 }
 
 class LoginPage extends State<Login> {
-  TextEditingController? _email = TextEditingController();
-  TextEditingController? _password =  TextEditingController();
+  final TextEditingController? _email = TextEditingController();
+  final TextEditingController? _password =  TextEditingController();
   late final String imgUrl;
   bool isLoading = false;
 
@@ -67,26 +67,26 @@ class LoginPage extends State<Login> {
       ],
       child: isLoading
           ? Center(
-        child: Container(
+        child: SizedBox(
           height: MediaQuery.of(context).size.height / 20 ,
           width: MediaQuery.of(context).size.height / 20 ,
-          child: CircularProgressIndicator(),
+          child: const CircularProgressIndicator(),
         ),
       ) : Scaffold(
-        body: Container(
+        body: SizedBox(
           width: size.width,
           height: size.height,
           child: Stack(
             children: [
-              Upside(imgUrl : "assets/images/logo.png",),
+              const Upside(imgUrl : "assets/images/logo.png",),
               Positioned(
-                top: 210,
+                top: 230,
                 left: 0,
                 right: 0,
                 child: Container(
                   width: double.infinity,
                   height: 100,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                       color: Color(0xfffeeeee4),
                       borderRadius: BorderRadius.only(
                         topRight: Radius.circular(50),
@@ -96,8 +96,8 @@ class LoginPage extends State<Login> {
                   child: Column(
                     children: [
                       Container(
-                        margin: EdgeInsets.only(top: 15),
-                        child: Text(
+                        margin: const EdgeInsets.only(top: 15),
+                        child: const Text(
                           "Login to your account",
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -114,13 +114,13 @@ class LoginPage extends State<Login> {
                 ),
               ),
               Positioned(
-                top: 260,
+                top: 280,
                 left: 0,
                 right: 0,
                 child: Container(
                   width: double.infinity,
                   height: 600,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.only(
                         topRight: Radius.circular(50),
@@ -129,22 +129,22 @@ class LoginPage extends State<Login> {
                   ),
                   child: Column(
                     children: [
-                      SizedBox(height: 20,),
-                      Container(
+                      const SizedBox(height: 20,),
+                      SizedBox(
                         height: 40,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            SizedBox(
-                              height: 40,
-                              width: 40,
-                              child: IconButton(
-                                icon: Image.asset(
-                                  "assets/images/facebook_icon.png",
-                                ),
-                                onPressed: () async {},
-                              ),
-                            ),
+                            // SizedBox(
+                            //   height: 40,
+                            //   width: 40,
+                            //   child: IconButton(
+                            //     icon: Image.asset(
+                            //       "assets/images/facebook_icon.png",
+                            //     ),
+                            //     onPressed: () async {},
+                            //   ),
+                            // ),
                             const SizedBox(width: 20),
                             SizedBox(
                               height: 40,
@@ -155,26 +155,45 @@ class LoginPage extends State<Login> {
                                   "assets/images/google_icon.png",
                                 ),
                                 onPressed: () {
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+                                  signInWithGoogle().then((user) {
+                                    if(user != null) {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => HomeScreen(user: user,),
+                                          ));
+                                      print("Login Successfull");
+                                    } else {
+                                      showLoginDialog(false);
+                                      print("Login Failed");
+                                    }
+                                  });
                                 },
                               ),
                             ),
                             const SizedBox(width: 20),
-                            SizedBox(
-                              height: 40,
-                              width: 40,
-                              child: IconButton(
-                                iconSize: 1,
-                                icon: Image.asset(
-                                  "assets/images/apple_icon.png",
-                                ),
-                                onPressed: () {},
-                              ),
-                            ),
+                            // SizedBox(
+                            //   height: 40,
+                            //   width: 40,
+                            //   child: IconButton(
+                            //     iconSize: 1,
+                            //     icon: Image.asset(
+                            //       "assets/images/apple_icon.png",
+                            //     ),
+                            //     onPressed: () {},
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),
-                      SizedBox(height: 5,),
-                      Text(
+                      const SizedBox(height: 5,),
+                      const Text(
                         'or use your email account',
                         style: TextStyle(
                           color: Colors.grey,
@@ -183,7 +202,7 @@ class LoginPage extends State<Login> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      SizedBox(height: 10,),
+                      const SizedBox(height: 10,),
                       Form(
                         key: _formKey,
                         child: Column(
@@ -193,7 +212,7 @@ class LoginPage extends State<Login> {
                               margin: const EdgeInsets.all(10.0),
                               child: TextFormField(
                                 decoration: InputDecoration(
-                                    prefixIcon: Icon(Icons.email),
+                                    prefixIcon: const Icon(Icons.email),
                                     hintText: "Email",
                                     border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(20)
@@ -243,7 +262,7 @@ class LoginPage extends State<Login> {
                           ],
                         ),
                       ),
-                      SizedBox(height: 10,),
+                      const SizedBox(height: 10,),
                       SizedBox(
                         width: 200,
                         height: 35,
@@ -259,7 +278,6 @@ class LoginPage extends State<Login> {
                                     setState(() {
                                       isLoading = false;
                                     });
-                                    print(user);
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(builder: (context) => HomeScreen(user: user,)),
@@ -285,7 +303,7 @@ class LoginPage extends State<Login> {
                           const Text("LOGIN", style: TextStyle(color: Colors.white,fontSize: 15,)),
                         ),
                       ),
-                      SizedBox(height: 1,),
+                      const SizedBox(height: 1,),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
@@ -298,13 +316,13 @@ class LoginPage extends State<Login> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          SizedBox(width: 5,),
+                          const SizedBox(width: 5,),
                           TextButton(
                               onPressed: () {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => SignUp(),
+                                      builder: (context) => const SignUp(),
                                     ));
                               },
                               child: const Text(
