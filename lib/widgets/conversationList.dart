@@ -9,6 +9,7 @@ import 'package:my_porject/screens/chat_screen.dart';
 import 'package:my_porject/resources/methods.dart';
 import 'package:my_porject/screens/group/group_chat_room.dart';
 
+// ignore: must_be_immutable
 class ConversationList extends StatefulWidget {
   User user;
   Map<String, dynamic> chatHistory ;
@@ -78,7 +79,7 @@ class _ConversationListState extends State<ConversationList> {
         }
       },
       child: Container(
-        padding: EdgeInsets.only(left: 16, top :10, bottom: 10),
+        padding: const EdgeInsets.only(left: 16, top :10, bottom: 10),
         child: Row(
           children: <Widget>[
             Expanded(
@@ -88,7 +89,7 @@ class _ConversationListState extends State<ConversationList> {
                       backgroundImage: CachedNetworkImageProvider(widget.chatHistory['avatar']),
                       maxRadius: 30,
                     ),
-                    SizedBox(width: 16,),
+                    const SizedBox(width: 16,),
                     Expanded(
                         child: Container(
                           color: Colors.transparent,
@@ -111,7 +112,7 @@ class _ConversationListState extends State<ConversationList> {
                                     fontSize: 16,
                                   )
                                   ),
-                                  SizedBox(width: 10,),
+                                  const SizedBox(width: 10,),
                                   widget.chatHistory['isRead'] == false ?
                                   Container(
                                     width: 10,
@@ -127,7 +128,7 @@ class _ConversationListState extends State<ConversationList> {
                                   ) : Container(),
                                 ],
                               ),
-                              SizedBox(height: 6,),
+                              const SizedBox(height: 6,),
                               Row(
                                 children: [
                                   Container(
@@ -146,20 +147,20 @@ class _ConversationListState extends State<ConversationList> {
                                       color: Colors.grey.shade700,)
                                     )
                     ),
-                                  SizedBox(width: 10,),
+                                  const SizedBox(width: 10,),
                                   Text(
                                     widget.chatHistory['time'].toString().substring(11, 16),
                                     //widget.chatHistory['time'],
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize:   12,
                                       //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal,
                                     ),
                                   ),
-                                  Text(" - "),
+                                  const Text(" - "),
                                   Text(
                                     widget.chatHistory['time'].toString().substring(0, 10),
                                     //widget.chatHistory['time'],
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize:   12,
                                       //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal,
                                     ),
@@ -173,7 +174,7 @@ class _ConversationListState extends State<ConversationList> {
                   ],
                 ),
             ),
-            SizedBox(width: 10,),
+            const SizedBox(width: 10,),
           ],
         ),
       ),

@@ -91,13 +91,13 @@ class _CallLogListContainerState extends State<CallLogListContainer> {
                                           setState(() {});
                                         }
                                       },
-                                      child: Text("Yes"),
+                                      child: const Text("Yes"),
                                   ),
                                   TextButton(
                                     onPressed: () async {
                                       Navigator.maybePop(context);
                                     },
-                                    child: Text("No"),
+                                    child: const Text("No"),
                                   ),
                                 ],
                               )
@@ -111,39 +111,37 @@ class _CallLogListContainerState extends State<CallLogListContainer> {
                                 backgroundImage: hasDialled  ? CachedNetworkImageProvider(_log.receiverPic!) : CachedNetworkImageProvider(_log.callerPic!)  ,
                                 maxRadius: 25,
                               ),
-                              SizedBox(width: 12,),
-                              Container(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      hasDialled ? _log.receiverName! : _log.callerName!,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                      )
-                                    ),
-                                    SizedBox(height: 5,),
-                                    Row(
-                                      children: [
-                                        getIcon(_log.callStatus),
-                                        SizedBox(width: 5,),
-                                        Text(
-                                          _log.timeStamp!.substring(11,16),
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                        Text(" - "),
-                                        Text(
-                                          _log.timeStamp!.substring(0,10),
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ],
+                              const SizedBox(width: 12,),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    hasDialled ? _log.receiverName! : _log.callerName!,
+                                    style: const TextStyle(
+                                      fontSize: 16,
                                     )
-                                  ],
-                                ),
+                                  ),
+                                  const SizedBox(height: 5,),
+                                  Row(
+                                    children: [
+                                      getIcon(_log.callStatus),
+                                      const SizedBox(width: 5,),
+                                      Text(
+                                        _log.timeStamp!.substring(11,16),
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                      const Text(" - "),
+                                      Text(
+                                        _log.timeStamp!.substring(0,10),
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                ],
                               ),
                             ],
                           ),

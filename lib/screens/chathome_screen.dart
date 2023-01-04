@@ -288,10 +288,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 ),
                 GestureDetector(
                   onTap: (){
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ChatBot(user: widget.user,)),
-                    );
+                    if(isDeviceConnected == false) {
+                      showDialogInternetCheck();
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ChatBot(user: widget.user,)),
+                      );
+                    }
                   },
                   child: Container(
                     padding: const EdgeInsets.only(left: 8, right: 8, top: 2, bottom: 2),
@@ -351,49 +355,49 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
         ),
         const SizedBox(height: 7 ,),
-        isDeviceConnected == false
-            ? Container(
-          alignment: Alignment.center,
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height / 30,
-          // color: Colors.red,
-          child: const Text(
-            'No Internet Connection',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ) : Container(),
-        // StreamBuilder<ConnectivityResult>(
-        //   stream: Connectivity().onConnectivityChanged,
-        //     builder: (_, snapshot) {
-        //       switch(snapshot.connectionState){
-        //         case ConnectionState.active :
-        //           final state = snapshot.data ;
-        //           switch(state) {
-        //             case ConnectivityResult.none:
-        //               return Container(
-        //                 alignment: Alignment.center,
-        //                 width: MediaQuery.of(context).size.width,
-        //                 height: MediaQuery.of(context).size.height / 30,
-        //                 // color: Colors.red,
-        //                 child: const Text(
-        //                   'No Internet Connection',
-        //                   style: TextStyle(
-        //                     fontSize: 15,
-        //                     fontWeight: FontWeight.w500,
-        //                   ),
-        //                 ),
-        //               );
-        //             default :
-        //               return Container();
-        //           }
-        //         default :
-        //           return Container();
-        //       }
-        //     }
-        // ),
+        // isDeviceConnected == false
+        //     ? Container(
+        //   alignment: Alignment.center,
+        //   width: MediaQuery.of(context).size.width,
+        //   height: MediaQuery.of(context).size.height / 30,
+        //   // color: Colors.red,
+        //   child: const Text(
+        //     'No Internet Connection',
+        //     style: TextStyle(
+        //       fontSize: 15,
+        //       fontWeight: FontWeight.w500,
+        //     ),
+        //   ),
+        // ) : Container(),
+        StreamBuilder<ConnectivityResult>(
+          stream: Connectivity().onConnectivityChanged,
+            builder: (_, snapshot) {
+              switch(snapshot.connectionState){
+                case ConnectionState.active :
+                  final state = snapshot.data ;
+                  switch(state) {
+                    case ConnectivityResult.none:
+                      return Container(
+                        alignment: Alignment.center,
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height / 30,
+                        // color: Colors.red,
+                        child: const Text(
+                          'No Internet Connection',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      );
+                    default :
+                      return Container();
+                  }
+                default :
+                  return Container();
+              }
+            }
+        ),
         const SizedBox(height: 5,),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,

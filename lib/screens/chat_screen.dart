@@ -642,7 +642,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     : Alignment.centerLeft,
                 child: InkWell(
                   onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => ShowImage(imageUrl: map['message'])),
+                    MaterialPageRoute(builder: (context) => ShowImage(imageUrl: map['message'], isDeviceConnected: widget.isDeviceConnected,)),
                   ),
                   child: Container(
                     height: size.height / 2.5,
@@ -652,7 +652,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       color: Colors.grey.shade300  ,
                     ),
                     alignment: map['message'] != "" && widget.isDeviceConnected == true ? null : Alignment.center,
-                    child: map['message'] != "" && widget.isDeviceConnected == true ? ClipRRect(borderRadius: BorderRadius.circular(18.0),child: Image.network(map['message'] , fit: BoxFit.cover,)) : const CircularProgressIndicator(),
+                    child: map['message'] != "" && widget.isDeviceConnected == true ? ClipRRect(borderRadius: BorderRadius.circular(18.0),child: CachedNetworkImage( fit: BoxFit.cover, imageUrl: map['message'] ,)) : const CircularProgressIndicator(),
                   ),
                 ),
               ),
@@ -1224,7 +1224,8 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
 class ShowImage extends StatelessWidget {
-  const ShowImage({ Key? key, required this.imageUrl }) :super(key :key);
+  bool isDeviceConnected;
+  ShowImage({ Key? key, required this.imageUrl, required this.isDeviceConnected }) :super(key :key);
 
   final String imageUrl ;
 
@@ -1237,8 +1238,9 @@ class ShowImage extends StatelessWidget {
       body: Container(
         height: size.height,
         width: size.width,
-        color: Colors.black,
-        child: Image.network(imageUrl),
+        color: Colors.grey.shade300,
+        alignment: Alignment.center,
+        child: isDeviceConnected == true ? CachedNetworkImage(imageUrl: imageUrl,) : const CircularProgressIndicator(),
       ),
     );
   }

@@ -27,7 +27,7 @@ class _CallLogScreenState extends State<CallLogScreen> {
               )
           ),
         ),
-        CallLogListContainer(),
+        const CallLogListContainer(),
       ],
     );
   }

@@ -549,7 +549,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                       : Alignment.centerLeft,
                   child: InkWell(
                     onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => ShowImage(imageUrl: chatMap['message'])),
+                      MaterialPageRoute(builder: (context) => ShowImage(imageUrl: chatMap['message'], isDeviceConnected: widget.isDeviceConnected,)),
                     ),
                     child: Container(
                       height: size.height / 2.5,
@@ -558,7 +558,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       alignment: chatMap['message'] != "" && widget.isDeviceConnected == true ? null : Alignment.center,
-                      child: chatMap['message'] != "" && widget.isDeviceConnected == true ? ClipRRect(borderRadius: BorderRadius.circular(18.0),child: Image.network(chatMap['message'], fit: BoxFit.cover,)) : const CircularProgressIndicator(),
+                      child: chatMap['message'] != "" && widget.isDeviceConnected == true ? ClipRRect(borderRadius: BorderRadius.circular(18.0),child: CachedNetworkImage( fit: BoxFit.cover, imageUrl: chatMap['message'],)) : const CircularProgressIndicator(),
                     ),
                   ),
                 ),
@@ -578,7 +578,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               ),
               child: Text(
                 chatMap['message'],
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: Colors.white,
@@ -590,10 +590,10 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              SizedBox(width: 2,),
+              const SizedBox(width: 2,),
               chatMap['sendBy'] != widget.user.displayName ?
               Container(
-                margin: EdgeInsets.only(bottom: 5),
+                margin: const EdgeInsets.only(bottom: 5),
                 height: size.width / 13 ,
                 width: size.width / 13 ,
                 child: CircleAvatar(
@@ -877,7 +877,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               height: 70,
               alignment: Alignment.center,
               width: MediaQuery.of(context).size.width,
-              child: Text(
+              child: const Text(
                 "Turn off locationed",
                 style: TextStyle(
                   color: Colors.redAccent,
@@ -943,7 +943,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                       showEditForm(index, length, message);
                     },
                     child: Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                           border: Border(
                               top: BorderSide(
                                   color: Colors.black26,
@@ -953,7 +953,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                       ),
                       alignment: Alignment.center,
                       width: MediaQuery.of(context).size.width,
-                      child: Text(
+                      child: const Text(
                         "Edit message",
                         style: TextStyle(
                           fontWeight: FontWeight.w500,

@@ -7,8 +7,8 @@ import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/screens/group/add_members_group.dart';
 
 import '../../resources/methods.dart';
-import 'group_chat.dart';
 
+// ignore: must_be_immutable
 class GroupInfo extends StatefulWidget {
 
   User user;
@@ -67,7 +67,7 @@ class _GroupInfoState extends State<GroupInfo> {
                 removeMember(index);
                 Navigator.pop(context);
               },
-              title: Text("Remove this member"),
+              title: const Text("Remove this member"),
             ),
           );
         },
@@ -178,16 +178,16 @@ class _GroupInfoState extends State<GroupInfo> {
           height: size.height,
           width: size.width,
           alignment: Alignment.center,
-          child: CircularProgressIndicator(),
+          child: const CircularProgressIndicator(),
         ) : SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Align(
+              const Align(
                 alignment: Alignment.centerLeft,
                 child: BackButton(),
               ),
-              Container(
+              SizedBox(
                 height: size.height / 8,
                 width: size.width / 1.1,
                 child: Row(
@@ -244,7 +244,7 @@ class _GroupInfoState extends State<GroupInfo> {
                     );
                   }
                 },
-                leading: Icon(
+                leading: const Icon(
                   Icons.add,
                 ),
                 title: Text(
@@ -259,7 +259,7 @@ class _GroupInfoState extends State<GroupInfo> {
                   child: ListView.builder(
                     itemCount: membersList.length,
                     shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
+                    physics: const NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
                       return ListTile(
                         onTap: () {

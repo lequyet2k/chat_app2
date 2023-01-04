@@ -6,6 +6,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../resources/methods.dart';
 
+// ignore: must_be_immutable
 class ChatBot extends StatefulWidget {
   User user;
   ChatBot({Key? key,required this.user});
@@ -21,6 +22,7 @@ class _ChatBotState extends State<ChatBot> {
   TextEditingController _message = TextEditingController();
   final itemScrollController = ItemScrollController();
 
+  @override
   void initState() {
     DialogFlowtter.fromFile().then((instance) => dialogFlowtter = instance);
     WidgetsBinding.instance.addPostFrameCallback((_) => scrollToIndex());
@@ -41,26 +43,26 @@ class _ChatBotState extends State<ChatBot> {
         backgroundColor: Colors.white,
         flexibleSpace: SafeArea(
           child: Container(
-            padding: EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.only(right: 16),
             child: Row(
               children: <Widget>[
                 IconButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  icon: Icon(Icons.arrow_back_ios, color: Colors.black,),
+                  icon: const Icon(Icons.arrow_back_ios, color: Colors.black,),
                 ),
-                SizedBox(width: 2,),
-                CircleAvatar(
+                const SizedBox(width: 2,),
+                const CircleAvatar(
                   backgroundImage: AssetImage('assets/images/chatbot.png'),
                   maxRadius: 20,
                 ),
-                SizedBox(width: 12,),
+                const SizedBox(width: 12,),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
+                    children: const <Widget>[
                       Text(
                         'chatBot',
                         style: TextStyle(fontSize: 16,fontWeight: FontWeight.w600),
@@ -107,10 +109,10 @@ class _ChatBotState extends State<ChatBot> {
               color: Colors.white70,
               child: Row(
                 children: <Widget>[
-                  SizedBox(width: 10,),
+                  const SizedBox(width: 10,),
                   // SizedBox(width: 15,),
                   Expanded(
-                    child: Container(
+                    child: SizedBox(
                       height: size.height / 20.8,
                       // decoration: BoxDecoration(
                       //     color: Colors.grey.shade300,
@@ -123,7 +125,7 @@ class _ChatBotState extends State<ChatBot> {
                           // hintText: "Aa",
                           // hintStyle: TextStyle(color: Colors.white38),
                           // contentPadding: EdgeInsets.all(8.0),
-                          prefixIcon: Icon(Icons.abc),
+                          prefixIcon: const Icon(Icons.abc),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
                           ),
@@ -136,7 +138,7 @@ class _ChatBotState extends State<ChatBot> {
                     onPressed: () {
                       sendMessage();
                     },
-                    icon: Icon(Icons.send, color: Colors.blueAccent,),
+                    icon: const Icon(Icons.send, color: Colors.blueAccent,),
                   ),
                 ],
               ),
@@ -150,12 +152,12 @@ class _ChatBotState extends State<ChatBot> {
   Widget messages(Size size, Map<String, dynamic> map, BuildContext context) {
     return Row(
       children: [
-        SizedBox(width: 2,),
+        const SizedBox(width: 2,),
         map['sendBy'] !=  widget.user.displayName?
         Container(
           height: size.width / 13 ,
           width: size.width / 13 ,
-          child: CircleAvatar(
+          child: const CircleAvatar(
             backgroundImage: AssetImage('assets/images/chatbot.png'),
             maxRadius: 30,
           ),
@@ -166,15 +168,15 @@ class _ChatBotState extends State<ChatBot> {
           alignment: map['sendBy'] == widget.user.displayName ? Alignment.centerRight : Alignment.centerLeft,
           child: Container(
             constraints: BoxConstraints( maxWidth: size.width / 1.5),
-            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
               color: Colors.blueAccent,
             ),
             child: Text(
               map['message'],
-              style: TextStyle(color: Colors.white,fontSize: 17),
+              style: const TextStyle(color: Colors.white,fontSize: 17),
             ),
           ),
         ),
