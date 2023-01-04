@@ -14,12 +14,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/screens/group/group_info.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:uuid/uuid.dart';
 
 import '../chat_screen.dart';
 import '../../resources/methods.dart';
 
+// ignore: must_be_immutable
 class GroupChatRoom extends StatefulWidget {
   User user;
   bool isDeviceConnected;
@@ -143,7 +143,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
   }
   Future uploadImage() async {
 
-    String fileName =   Uuid().v1();
+    String fileName =   const Uuid().v1();
 
     int status = 1 ;
 
@@ -199,12 +199,11 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
     return SizedBox(
       height: 250,
       child: EmojiPicker(
-        config: Config(
+        config: const Config(
           columns: 7,
         ),
         onEmojiSelected: (emoji, category) {
           _message.text = _message.text + category.emoji;
-          print(emoji);
         },
       ),
     );
@@ -220,7 +219,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         backgroundColor: Colors.white,
         flexibleSpace: SafeArea(
           child: Container(
-            padding: EdgeInsets.only(top: 4),
+            padding: const EdgeInsets.only(top: 4),
             child: Row(
               children: <Widget>[
                 IconButton(
@@ -247,7 +246,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                     : Text(widget.groupName, style: const TextStyle(
                     fontSize: 17,fontWeight: FontWeight.w600)
                 ),
-                Spacer(),
+                const Spacer(),
                 IconButton(
                   onPressed: () {
                     Navigator.push(
@@ -343,7 +342,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                           onPressed: () {
                             getImage();
                           },
-                          icon: Icon(Icons.image_outlined, color: Colors.blueAccent,),
+                          icon: const Icon(Icons.image_outlined, color: Colors.blueAccent,),
                         ),
                         IconButton(
                           onPressed: () {
@@ -353,7 +352,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                               checkUserisLocationed();
                             }
                           },
-                          icon: Icon(Icons.location_on, color: Colors.blueAccent,),
+                          icon: const Icon(Icons.location_on, color: Colors.blueAccent,),
                         ),
                         // SizedBox(width: 15,),
                         Expanded(
@@ -391,7 +390,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                           onPressed: () {
                             onSendMessage();
                           },
-                          icon: Icon(Icons.send, color: Colors.blueAccent,),
+                          icon: const Icon(Icons.send, color: Colors.blueAccent,),
                         ),
                       ],
                     ),
@@ -411,9 +410,9 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       if(chatMap['status'] == 'removed'){
         return Row(
           children: [
-            SizedBox(width: 2,),
+            const SizedBox(width: 2,),
             chatMap['sendBy'] != widget.user.displayName ?
-            Container(
+            SizedBox(
               height: size.width / 13 ,
               width: size.width / 13 ,
               child: CircleAvatar(
@@ -429,8 +428,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                 alignment: chatMap['sendBy'] == widget.user.displayName ? Alignment.centerRight : Alignment.centerLeft,
                 child: Container(
                   constraints: BoxConstraints( maxWidth: size.width / 1.5),
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
                     color: Colors.grey.shade200,
@@ -453,10 +452,10 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              SizedBox(width: 2,),
+              const SizedBox(width: 2,),
               chatMap['sendBy'] != widget.user.displayName ?
               Container(
-                margin: EdgeInsets.only(bottom: 5),
+                margin: const EdgeInsets.only(bottom: 5),
                 height: size.width / 13 ,
                 width: size.width / 13 ,
                 child: CircleAvatar(
@@ -469,7 +468,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                 children: [
                   chatMap['sendBy'] != widget.user.displayName ?
                   Container(
-                    padding: EdgeInsets.only(left: 8),
+                    padding: const EdgeInsets.only(left: 8),
                     width:  size.width * 0.7,
                     alignment:  Alignment.centerLeft,
                     child: Text(
@@ -492,8 +491,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                       alignment: chatMap['sendBy'] == widget.user.displayName ? Alignment.centerRight : Alignment.centerLeft,
                       child: Container(
                         constraints: BoxConstraints( maxWidth: size.width / 1.5),
-                        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                        margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
                           color: Colors.blueAccent,
@@ -502,7 +501,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                           children: [
                             Text(
                               chatMap['message'],
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.white,
@@ -570,8 +569,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
             width: size.width,
             alignment: Alignment.center,
             child: Container(
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 color: Colors.black87,
@@ -614,8 +613,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                   child: Container(
                     width: size.width / 2,
                     // constraints: BoxConstraints( maxWidth: size.width / 1.5),
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.grey.shade800,
@@ -625,22 +624,22 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                         Row(
                           children: [
                             Container(
-                              padding: EdgeInsets.all(4.0),
+                              padding: const EdgeInsets.all(4.0),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(100),
                                 color: Colors.blueAccent,
                               ),
-                              child: Icon(
+                              child: const Icon(
                                 Icons.location_on_outlined,
                                 color: Colors.white70,
                                 size: 18,
                               ),
                             ),
-                            SizedBox(width: 10,),
+                            const SizedBox(width: 10,),
                             Expanded(
                               child: Column(
                                 children: [
-                                  Text(
+                                  const Text(
                                     "Vi tri truc tiep",
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -661,7 +660,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 10,),
+                        const SizedBox(height: 10,),
                         GestureDetector(
                           onTap: (){
                             takeUserLocation(chatMap['uid']);
@@ -676,7 +675,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                             ),
                             child: Container(
                               alignment: Alignment.center,
-                              child: Text(
+                              child: const Text(
                                   "Xem vi tri"
                               ),
                             ),
@@ -693,10 +692,10 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              SizedBox(width: 2,),
+              const SizedBox(width: 2,),
               chatMap['sendBy'] != widget.user.displayName ?
               Container(
-                margin: EdgeInsets.only(bottom: 5),
+                margin: const EdgeInsets.only(bottom: 5),
                 height: size.width / 13 ,
                 width: size.width / 13 ,
                 child: CircleAvatar(
@@ -717,8 +716,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                   child: Container(
                     width: size.width / 1.8,
                     // constraints: BoxConstraints( maxWidth: size.width / 1.5),
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.grey.shade700,
@@ -728,25 +727,23 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                         Row(
                           children: [
                             Container(
-                              padding: EdgeInsets.all(4.0),
+                              padding: const EdgeInsets.all(4.0),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(100),
                                 color: Colors.blueAccent,
                               ),
-                              child: Icon(
+                              child: const Icon(
                                 Icons.location_on_outlined,
                                 color: Colors.white70,
                                 size: 18,
                               ),
                             ),
-                            SizedBox(width: 10,),
-                            Container(
-                              child: Text(
-                                "Chia sẻ vị trí đã kết thúc",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white70,
-                                ),
+                            const SizedBox(width: 10,),
+                            const Text(
+                              "Chia sẻ vị trí đã kết thúc",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white70,
                               ),
                             ),
                           ],
@@ -795,7 +792,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               height: 70,
               alignment: Alignment.center,
               width: MediaQuery.of(context).size.width,
-              child: Text(
+              child: const Text(
                 "Share your location",
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
@@ -822,7 +819,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
   }
 
   void sendLocation() async {
-    String messageId = Uuid().v1();
+    String messageId = const Uuid().v1();
     await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').doc(messageId).set({
       'sendBy' : widget.user.displayName,
       'message' : '${widget.user.displayName} đã gửi một vị trí trực tiếp',
@@ -925,7 +922,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                     child: Container(
                       alignment: Alignment.center,
                       width: MediaQuery.of(context).size.width,
-                      child: Text(
+                      child: const Text(
                         "Remove message",
                         style: TextStyle(
                           color: Colors.red,

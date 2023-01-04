@@ -7,6 +7,7 @@ import 'package:my_porject/screens/group/group_chat_room.dart';
 import 'package:my_porject/screens/group/create_group/add_member.dart';
 
 
+// ignore: must_be_immutable
 class GroupChatHomeScreen extends StatefulWidget {
   User user;
   bool isDeviceConnected;
@@ -32,13 +33,11 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
   @override
   Widget build(BuildContext context) {
 
-    final Size size = MediaQuery.of(context).size;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          margin: EdgeInsets.only(top: 15,left: 15),
+          margin: const EdgeInsets.only(top: 15,left: 15),
           child: const Text(
               'Groups',
               style: TextStyle(
@@ -60,8 +59,8 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                       return ListView.builder(
                           itemCount: snapshot.data?.docs.length,
                           shrinkWrap: true,
-                          padding: EdgeInsets.only(top: 5),
-                          physics: NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.only(top: 5),
+                          physics: const NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
                             Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
                             return listGroup(map : map, memberList: map['members'] ?? [] );
@@ -88,8 +87,8 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                       );
                     }
                   },
-                  child: Icon(Icons.create),
                   tooltip: "Create Group",
+                  child: const Icon(Icons.create),
                 ),
               ),
             ],
@@ -108,14 +107,14 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
         );
       },
       child: Container(
-        padding: EdgeInsets.only(left: 16, right: 16, top : 10, bottom: 10),
+        padding: const EdgeInsets.only(left: 16, right: 16, top : 10, bottom: 10),
         child: Row(
           children: <Widget>[
             const CircleAvatar(
               backgroundImage: CachedNetworkImageProvider("https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98"),
               maxRadius: 30,
             ),
-            SizedBox(width: 16,),
+            const SizedBox(width: 16,),
             Expanded(
               child: Container(
                 color: Colors.transparent,
@@ -126,15 +125,15 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                     map['name'].toString().length >= 30
                         ? Text(
                         '${map['name'].toString().substring(0, 30)}...',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                         )
                     )
-                        : Text(map['name'], style: TextStyle(
+                        : Text(map['name'], style: const TextStyle(
                       fontSize: 16,
                     )
                     ),
-                    SizedBox(height: 6,),
+                    const SizedBox(height: 6,),
                     Container(
                       constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 2.1,),
                       child: StreamBuilder<DocumentSnapshot>(

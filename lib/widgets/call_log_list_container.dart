@@ -68,7 +68,7 @@ class _CallLogListContainerState extends State<CallLogListContainer> {
                 return ListView.builder(
                   padding: const EdgeInsets.all(0),
                   shrinkWrap: true,
-                  // reverse: false,
+                  reverse: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: logList.length,
                     itemBuilder: (context, i) {
@@ -77,31 +77,31 @@ class _CallLogListContainerState extends State<CallLogListContainer> {
                       bool hasDialled = _log.callStatus == "dialled";
                       return GestureDetector(
                         onLongPress: () {
-                          showDialog(
-                              context: context,
-                              builder: (context) =>  AlertDialog(
-                                title: const Text("Delete this log?"),
-                                content: const Text("Are you sure to delete this log?"),
-                                actions: <Widget>[
-                                  TextButton(
-                                      onPressed: () async {
-                                        Navigator.maybePop(context);
-                                        await LogRepository.deleteLogs(i);
-                                        if (mounted) {
-                                          setState(() {});
-                                        }
-                                      },
-                                      child: const Text("Yes"),
-                                  ),
-                                  TextButton(
-                                    onPressed: () async {
-                                      Navigator.maybePop(context);
-                                    },
-                                    child: const Text("No"),
-                                  ),
-                                ],
-                              )
-                          );
+                          // showDialog(
+                          //     context: context,
+                          //     builder: (context) =>  AlertDialog(
+                          //       title: const Text("Delete this log?"),
+                          //       content: const Text("Are you sure to delete this log?"),
+                          //       actions: <Widget>[
+                          //         TextButton(
+                          //             onPressed: () async {
+                          //               Navigator.maybePop(context);
+                          //               await LogRepository.deleteLogs(i);
+                          //               if (mounted) {
+                          //                 setState(() {});
+                          //               }
+                          //             },
+                          //             child: const Text("Yes"),
+                          //         ),
+                          //         TextButton(
+                          //           onPressed: () async {
+                          //             Navigator.maybePop(context);
+                          //           },
+                          //           child: const Text("No"),
+                          //         ),
+                          //       ],
+                          //     )
+                          // );
                         },
                         child: Container(
                           padding: const EdgeInsets.only(left: 16, right: 16, top : 10, bottom: 10),

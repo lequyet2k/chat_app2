@@ -1,7 +1,8 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:my_porject/screens/group/group_chat_room.dart';
 
 import '../../resources/methods.dart';
 
@@ -21,9 +22,9 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
 
   Map<String, dynamic>? userMap;
   bool isLoading = false;
-  TextEditingController _search = TextEditingController();
+  final TextEditingController _search = TextEditingController();
 
-  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String query = "";
   List membersList = [];
@@ -97,11 +98,11 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
       height: size.height,
       width: size.width,
       alignment: Alignment.center,
-      child: CircularProgressIndicator(),
+      child: const CircularProgressIndicator(),
     ) : Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.grey,
-        title: Text(
+        title: const Text(
           "Add Members",
         ),
       ),
@@ -111,7 +112,7 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
           child: Column(
             children: [
               Container(
-                padding: EdgeInsets.only(top: 16, right: 16, left: 16),
+                padding: const EdgeInsets.only(top: 16, right: 16, left: 16),
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: "Search..",
@@ -119,7 +120,7 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
                     prefixIcon: Icon(Icons.search, color: Colors.grey.shade600, size: 20,),
                     filled: true,
                     fillColor: Colors.grey.shade100,
-                    contentPadding: EdgeInsets.all(8.0),
+                    contentPadding: const EdgeInsets.all(8.0),
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                         borderSide: BorderSide(
@@ -135,26 +136,7 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
                   },
                 ),
               ),
-              SizedBox(height: 10,),
-              // userMap != null? ListTile(
-              //   onTap: (){
-              //     setState(() {
-              //       isLoading = true;
-              //     });
-              //     onAddMembers();
-              //     setState(() {
-              //       isLoading = false;
-              //     });
-              //     Navigator.push(
-              //         context,
-              //         MaterialPageRoute(builder: (_) => GroupChatRoom(groupChatId: widget.groupId, groupName: widget.groupName, user: widget.user))
-              //     );
-              //   },
-              //   leading: Icon(Icons.account_circle),
-              //   title: Text(userMap!['name']),
-              //   subtitle: Text(userMap!['email']),
-              //   trailing: Icon(Icons.add),
-              // ) : SizedBox(),
+              const SizedBox(height: 10,),
               onResultTap(query),
             ],
           ),
@@ -171,11 +153,11 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
             stream: _firestore.collection('users').where('uid' , isNotEqualTo: _auth.currentUser!.uid).snapshots(),
             builder: (context, snapshots){
               return (snapshots.connectionState == ConnectionState.waiting)
-                  ? Center(
+                  ? const Center(
                 child: CircularProgressIndicator(),
               ) : ListView.builder(
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: snapshots.data!.docs.length,
                   itemBuilder: (context, index) {
                     var map = snapshots.data!.docs[index].data() as Map<String, dynamic>;
@@ -193,10 +175,6 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
                             isLoading = false;
                           });
                           Navigator.pop(context);
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(builder: (_) => GroupChatRoom(groupChatId: widget.groupId, groupName: widget.groupName, user: widget.user))
-                          // );
                         },
                         title: Text(
                           map['name'],
@@ -211,7 +189,7 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
                         leading: CircleAvatar(
                           backgroundImage: NetworkImage(map['avatar']),
                         ),
-                        trailing: Icon(Icons.add),
+                        trailing: const Icon(Icons.add),
                       );
                     }
                     return Container();
