@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:my_porject/db/log_repository.dart';
 
 import '../models/log_model.dart';
-import '../resources/methods.dart';
 
 class CallLogListContainer extends StatefulWidget {
   const CallLogListContainer({Key? key}) : super(key: key);
@@ -44,7 +43,7 @@ class _CallLogListContainerState extends State<CallLogListContainer> {
     }
 
     return Container(
-      margin: EdgeInsets.only(right: 5),
+      margin: const EdgeInsets.only(right: 5),
       child: _icon,
     );
   }
@@ -72,7 +71,6 @@ class _CallLogListContainerState extends State<CallLogListContainer> {
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: logList.length,
                     itemBuilder: (context, i) {
-                      print(logList);
                       Log _log = logList[i];
                       bool hasDialled = _log.callStatus == "dialled";
                       return GestureDetector(
