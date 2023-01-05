@@ -214,192 +214,195 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
 
     final Size size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        flexibleSpace: SafeArea(
-          child: Container(
-            padding: const EdgeInsets.only(top: 4),
-            child: Row(
-              children: <Widget>[
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => HomeScreen(user: widget.user) )
-                    );
-                  },
-                  icon: const Icon(Icons.arrow_back_ios, color: Colors.blueAccent,),
-                ),
-                const SizedBox(width: 2,),
-                const CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider('https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98'),
-                  maxRadius: 20,
-                ),
-                const SizedBox(width: 12,),
-                widget.groupName.length >= 25
-                    ? Text(
-                    '${widget.groupName.substring(0, 25)}...',
-                    style: const TextStyle(
-                        fontSize: 17,fontWeight: FontWeight.w600)
-                )
-                    : Text(widget.groupName, style: const TextStyle(
-                    fontSize: 17,fontWeight: FontWeight.w600)
-                ),
-                const Spacer(),
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => GroupInfo(groupName: widget.groupName, groupId: widget.groupChatId, user: widget.user, memberListt: memberList, isDeviceConnected: widget.isDeviceConnected,))
-                    );
-                  },
-                  icon: const Icon(Icons.more_vert,color: Colors.blueAccent,),
-                ),
-              ],
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          flexibleSpace: SafeArea(
+            child: Container(
+              padding: const EdgeInsets.only(top: 4),
+              child: Row(
+                children: <Widget>[
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => HomeScreen(user: widget.user) )
+                      );
+                    },
+                    icon: const Icon(Icons.arrow_back_ios, color: Colors.blueAccent,),
+                  ),
+                  const SizedBox(width: 2,),
+                  const CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider('https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98'),
+                    maxRadius: 20,
+                  ),
+                  const SizedBox(width: 12,),
+                  widget.groupName.length >= 25
+                      ? Text(
+                      '${widget.groupName.substring(0, 25)}...',
+                      style: const TextStyle(
+                          fontSize: 17,fontWeight: FontWeight.w600)
+                  )
+                      : Text(widget.groupName, style: const TextStyle(
+                      fontSize: 17,fontWeight: FontWeight.w600)
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => GroupInfo(groupName: widget.groupName, groupId: widget.groupChatId, user: widget.user, memberListt: memberList, isDeviceConnected: widget.isDeviceConnected,))
+                      );
+                    },
+                    icon: const Icon(Icons.more_vert,color: Colors.blueAccent,),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      body: RefreshIndicator(
-        onRefresh: () {
-          return abc();
-        },
-        child: Column(
-          children: <Widget>[
-            widget.isDeviceConnected == false
-                ? Container(
-              alignment: Alignment.center,
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height / 30,
-              // color: Colors.red,
-              child: const Text(
-                'No Internet Connection',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ) : Container(),
-            Expanded(
-              child: Container(
-                  color: Colors.white24,
-                width: size.width,
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: _firestore.collection('groups').doc(widget.groupChatId).collection('chats').orderBy('timeStamp',descending: false).limit(limit).snapshots(),
-                  builder: (context, snapshot){
-                    WidgetsBinding.instance
-                        .addPostFrameCallback((_){
-                      if (controller.hasClients) {
-                        controller.jumpTo(controller.position.maxScrollExtent);
-                      }
-                    });
-                    if(snapshot.hasData) {
-                      return GroupedListView<QueryDocumentSnapshot<Object?>, String>(
-                        elements: snapshot.data?.docs as List<QueryDocumentSnapshot<Object?>> ,
-                        shrinkWrap: true,
-                        controller: controller,
-                        groupBy: (element) => element['time'],
-                        groupSeparatorBuilder:  (String groupByValue) => Container(
-                          alignment: Alignment.center,
-                          height: 30,
-                          child: Text(
-                            "${groupByValue.substring(11,16)}, ${groupByValue.substring(0,10)}",
-                            style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontWeight: FontWeight.bold
-                            ),
-                          ),
-                        ),
-                        // itemCount: snapshot.data?.docs.length as int ,
-                        indexedItemBuilder: (context, element, index) {
-                          // Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
-                          Map<String, dynamic> map = element.data() as Map<String, dynamic>;
-                          return messageTitle(size, map, index, snapshot.data!.docs.length);
-                        },
-                        // controller: itemScrollController,
-                      );
-
-                    } else {
-                      return Container();
-                    }
-                  },
-                )
-              ),
-            ),
-            Column(
-              children: [
-                Container(
-                  height: size.height / 16,
-                  width: double.infinity,
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    // padding: EdgeInsets.only(bottom: 10,top: 10),
-                    color: Colors.white70,
-                    child: Row(
-                      children: <Widget>[
-                        IconButton(
-                          onPressed: () {
-                            getImage();
-                          },
-                          icon: const Icon(Icons.image_outlined, color: Colors.blueAccent,),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            if(widget.isDeviceConnected == false) {
-                              showDialogInternetCheck();
-                            } else {
-                              checkUserisLocationed();
-                            }
-                          },
-                          icon: const Icon(Icons.location_on, color: Colors.blueAccent,),
-                        ),
-                        // SizedBox(width: 15,),
-                        Expanded(
-                          child: SizedBox(
-                            height: size.height / 20.8,
-                            child: TextField(
-                              autofocus: true,
-                              focusNode: focusNode,
-                              decoration: InputDecoration(
-                                filled: true,
-                                fillColor: Colors.grey.shade300,
-                                // hintText: "Aa",
-                                // hintStyle: TextStyle(color: Colors.white30),
-                                prefixIcon: const Icon(Icons.abc),
-                                suffixIcon: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      focusNode.unfocus();
-                                      focusNode.canRequestFocus = false;
-                                      showEmoji = !showEmoji;
-                                    });
-                                  },
-                                  icon: const Icon(Icons.emoji_emotions,color: Colors.blueAccent,),
-                                ) ,
-                                // contentPadding: EdgeInsets.all(8.0),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                              ),
-                              controller: _message,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            onSendMessage();
-                          },
-                          icon: const Icon(Icons.send, color: Colors.blueAccent,),
-                        ),
-                      ],
-                    ),
+        body: RefreshIndicator(
+          onRefresh: () {
+            return abc();
+          },
+          child: Column(
+            children: <Widget>[
+              widget.isDeviceConnected == false
+                  ? Container(
+                alignment: Alignment.center,
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height / 30,
+                // color: Colors.red,
+                child: const Text(
+                  'No Internet Connection',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-              ],
-            ),
-            showEmoji ? showEmojiPicker() : Container(),
-          ],
+              ) : Container(),
+              Expanded(
+                child: Container(
+                    color: Colors.white24,
+                  width: size.width,
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: _firestore.collection('groups').doc(widget.groupChatId).collection('chats').orderBy('timeStamp',descending: false).limit(limit).snapshots(),
+                    builder: (context, snapshot){
+                      WidgetsBinding.instance
+                          .addPostFrameCallback((_){
+                        if (controller.hasClients) {
+                          controller.jumpTo(controller.position.maxScrollExtent);
+                        }
+                      });
+                      if(snapshot.hasData) {
+                        return GroupedListView<QueryDocumentSnapshot<Object?>, String>(
+                          elements: snapshot.data?.docs as List<QueryDocumentSnapshot<Object?>> ,
+                          shrinkWrap: true,
+                          controller: controller,
+                          groupBy: (element) => element['time'],
+                          groupSeparatorBuilder:  (String groupByValue) => Container(
+                            alignment: Alignment.center,
+                            height: 30,
+                            child: Text(
+                              "${groupByValue.substring(11,16)}, ${groupByValue.substring(0,10)}",
+                              style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontWeight: FontWeight.bold
+                              ),
+                            ),
+                          ),
+                          // itemCount: snapshot.data?.docs.length as int ,
+                          indexedItemBuilder: (context, element, index) {
+                            // Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
+                            Map<String, dynamic> map = element.data() as Map<String, dynamic>;
+                            return messageTitle(size, map, index, snapshot.data!.docs.length);
+                          },
+                          // controller: itemScrollController,
+                        );
+
+                      } else {
+                        return Container();
+                      }
+                    },
+                  )
+                ),
+              ),
+              Column(
+                children: [
+                  Container(
+                    height: size.height / 16,
+                    width: double.infinity,
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      // padding: EdgeInsets.only(bottom: 10,top: 10),
+                      color: Colors.white70,
+                      child: Row(
+                        children: <Widget>[
+                          IconButton(
+                            onPressed: () {
+                              getImage();
+                            },
+                            icon: const Icon(Icons.image_outlined, color: Colors.blueAccent,),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              if(widget.isDeviceConnected == false) {
+                                showDialogInternetCheck();
+                              } else {
+                                checkUserisLocationed();
+                              }
+                            },
+                            icon: const Icon(Icons.location_on, color: Colors.blueAccent,),
+                          ),
+                          // SizedBox(width: 15,),
+                          Expanded(
+                            child: SizedBox(
+                              height: size.height / 20.8,
+                              child: TextField(
+                                autofocus: true,
+                                focusNode: focusNode,
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.grey.shade300,
+                                  // hintText: "Aa",
+                                  // hintStyle: TextStyle(color: Colors.white30),
+                                  prefixIcon: const Icon(Icons.abc),
+                                  suffixIcon: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        focusNode.unfocus();
+                                        focusNode.canRequestFocus = false;
+                                        showEmoji = !showEmoji;
+                                      });
+                                    },
+                                    icon: const Icon(Icons.emoji_emotions,color: Colors.blueAccent,),
+                                  ) ,
+                                  // contentPadding: EdgeInsets.all(8.0),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                ),
+                                controller: _message,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              onSendMessage();
+                            },
+                            icon: const Icon(Icons.send, color: Colors.blueAccent,),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              showEmoji ? showEmojiPicker() : Container(),
+            ],
+          ),
         ),
       ),
     );

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:my_porject/db/log_repository.dart';
 
 import '../models/log_model.dart';
-import '../resources/methods.dart';
 
 class CallLogListContainer extends StatefulWidget {
   const CallLogListContainer({Key? key}) : super(key: key);

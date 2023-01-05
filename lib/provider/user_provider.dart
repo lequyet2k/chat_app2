@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 import 'package:my_porject/models/user_model.dart';
 import 'package:my_porject/resources/firebase_repository.dart';

@@ -49,7 +49,7 @@ class _SignUpScreen extends State<SignUp> {
         dialogType: DialogType.error,
         animType: AnimType.rightSlide,
         title: 'Register Failed',
-        desc: 'The email address or password is incorrect',
+        // desc: 'The email address or password is incorrect',
           btnCancelText: 'Sign Up Again',
           btnCancelIcon: Icons.arrow_back_ios,
           btnCancelOnPress: () {
@@ -201,7 +201,7 @@ class _SignUpScreen extends State<SignUp> {
                                         MaterialPageRoute(
                                           builder: (context) => HomeScreen(user: user,),
                                         ));
-                                    print("Login Successfull");
+                                    print("Login Successfully");
                                   } else {
                                     showRegisterDialog(2);
                                     print("Login Failed");
@@ -276,8 +276,6 @@ class _SignUpScreen extends State<SignUp> {
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return "Không được để trống!";
-                                  } else if( (value.length < 10 || value.length > 12)){
-                                    return "Email không hợp lệ";
                                   }
                                   return null;
                                 },

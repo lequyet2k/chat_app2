@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dialog_flowtter/dialog_flowtter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:grouped_list/grouped_list.dart';
 
 import '../../resources/methods.dart';
 
@@ -20,19 +20,12 @@ class _ChatBotState extends State<ChatBot> {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   FirebaseAuth _auth = FirebaseAuth.instance;
   TextEditingController _message = TextEditingController();
-  final itemScrollController = ItemScrollController();
+  late ScrollController controller = ScrollController();
 
   @override
   void initState() {
     DialogFlowtter.fromFile().then((instance) => dialogFlowtter = instance);
-    WidgetsBinding.instance.addPostFrameCallback((_) => scrollToIndex());
     super.initState();
-  }
-
-  void scrollToIndex() async {
-    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatvsBot').get().then((value) {
-      itemScrollController.jumpTo(index: value.docs.length - 1);
-    });
   }
 
   @override
@@ -84,14 +77,33 @@ class _ChatBotState extends State<ChatBot> {
               child: StreamBuilder<QuerySnapshot>(
                 stream: _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatvsBot').orderBy('timeStamp',descending: false).snapshots(),
                 builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
+                  WidgetsBinding.instance
+                      .addPostFrameCallback((_){
+                    if (controller.hasClients) {
+                      controller.jumpTo(controller.position.maxScrollExtent);
+                    }
+                  });
                   if(snapshot.data!= null){
-                    return ScrollablePositionedList.builder(
-                      itemCount: snapshot.data?.docs.length as int,
-                      itemBuilder: (context, index) {
+                    return GroupedListView<QueryDocumentSnapshot<Object?>, String>(
+                      shrinkWrap: true,
+                      groupBy: (element) => element['time'],
+                      elements: snapshot.data?.docs as List<QueryDocumentSnapshot<Object?>> ,
+                      groupSeparatorBuilder:  (String groupByValue) => Container(
+                        alignment: Alignment.center,
+                        height: 30,
+                        child: Text(
+                          "${groupByValue.substring(11,16)}, ${groupByValue.substring(0,10)}",
+                          style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.bold
+                          ),
+                        ),
+                      ),
+                      indexedItemBuilder: (context, element, index) {
                         Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
                         return messages(size, map,context);
                       },
-                      itemScrollController: itemScrollController,
+                      controller: controller,
                     );
                   } else {
                     return Container();
@@ -103,8 +115,8 @@ class _ChatBotState extends State<ChatBot> {
           Container(
             alignment: Alignment.bottomCenter,
             child: Container(
-              // padding: EdgeInsets.only(bottom: 10,top: 10),
-              height: size.height / 16,
+              padding: const EdgeInsets.only(top: 5,bottom: 10),
+              height: size.height / 15,
               width: double.infinity,
               color: Colors.white70,
               child: Row(
@@ -119,13 +131,14 @@ class _ChatBotState extends State<ChatBot> {
                       //     borderRadius: BorderRadius.circular(25),
                       // ),
                       child: TextFormField(
+                        autofocus: true,
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: Colors.grey.shade300,
                           // hintText: "Aa",
                           // hintStyle: TextStyle(color: Colors.white38),
                           // contentPadding: EdgeInsets.all(8.0),
-                          prefixIcon: const Icon(Icons.abc),
+                          prefixIcon: const Icon(Icons.abc,size: 30,),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
                           ),
@@ -154,7 +167,7 @@ class _ChatBotState extends State<ChatBot> {
       children: [
         const SizedBox(width: 2,),
         map['sendBy'] !=  widget.user.displayName?
-        Container(
+        SizedBox(
           height: size.width / 13 ,
           width: size.width / 13 ,
           child: const CircleAvatar(
@@ -220,7 +233,6 @@ class _ChatBotState extends State<ChatBot> {
     } else {
       print('Enter some text');
     }
-    scrollToIndex();
   }
 }
 
