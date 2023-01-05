@@ -104,10 +104,9 @@ class _SettingState extends State<Setting> {
     setState(() {
       isLoading = false;
     });
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Login()),
-    );
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => Login()),
+            (Route<dynamic> route) => false);
   }
 
   showTurnOffStatus() {

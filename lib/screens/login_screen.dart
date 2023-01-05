@@ -31,6 +31,12 @@ class LoginPage extends State<Login> {
     _email?.text = widget.email ?? "";
     _password?.text = widget.password ?? "" ;
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   void updateStatus(){
     setState(() {
       _isVisible = !_isVisible;
@@ -72,270 +78,270 @@ class LoginPage extends State<Login> {
           width: MediaQuery.of(context).size.height / 20 ,
           child: const CircularProgressIndicator(),
         ),
-      ) : Scaffold(
-        body: SizedBox(
-          width: size.width,
-          height: size.height,
-          child: Stack(
-            children: [
-              const Upside(imgUrl : "assets/images/logo.png",),
-              Positioned(
-                top: 230,
-                left: 0,
-                right: 0,
-                child: Container(
-                  width: double.infinity,
-                  height: 100,
-                  decoration: const BoxDecoration(
-                      color: Color(0xfffeeeee4),
-                      borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(50),
-                        topLeft: Radius.circular(50),
-                      )
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.only(top: 15),
-                        child: const Text(
-                          "Login to your account",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: 'OpenSans',
-                            fontSize: 17,
-                            letterSpacing: 1,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xfff575861),
+      ) : GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: Scaffold(
+          body: SizedBox(
+            width: size.width,
+            height: size.height,
+            child: Stack(
+              children: [
+                const Upside(imgUrl : "assets/images/logo.png",),
+                Positioned(
+                  top: 230,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    width: double.infinity,
+                    height: 100,
+                    decoration: const BoxDecoration(
+                        color: Color(0xfffeeeee4),
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(50),
+                          topLeft: Radius.circular(50),
+                        )
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(top: 15),
+                          child: const Text(
+                            "Login to your account",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'OpenSans',
+                              fontSize: 17,
+                              letterSpacing: 1,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xfff575861),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Positioned(
-                top: 280,
-                left: 0,
-                right: 0,
-                child: Container(
-                  width: double.infinity,
-                  height: 600,
-                  decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(50),
-                        topLeft: Radius.circular(50),
-                      )
-                  ),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 20,),
-                      SizedBox(
-                        height: 40,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            // SizedBox(
-                            //   height: 40,
-                            //   width: 40,
-                            //   child: IconButton(
-                            //     icon: Image.asset(
-                            //       "assets/images/facebook_icon.png",
-                            //     ),
-                            //     onPressed: () async {},
-                            //   ),
-                            // ),
-                            const SizedBox(width: 20),
-                            SizedBox(
-                              height: 40,
-                              width: 40,
-                              child: IconButton(
-                                iconSize: 20,
-                                icon: Image.asset(
-                                  "assets/images/google_icon.png",
+                Positioned(
+                  top: 280,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    width: double.infinity,
+                    height: 600,
+                    decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(50),
+                          topLeft: Radius.circular(50),
+                        )
+                    ),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 20,),
+                        SizedBox(
+                          height: 40,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              // SizedBox(
+                              //   height: 40,
+                              //   width: 40,
+                              //   child: IconButton(
+                              //     icon: Image.asset(
+                              //       "assets/images/facebook_icon.png",
+                              //     ),
+                              //     onPressed: () async {},
+                              //   ),
+                              // ),
+                              const SizedBox(width: 20),
+                              SizedBox(
+                                height: 40,
+                                width: 40,
+                                child: IconButton(
+                                  iconSize: 20,
+                                  icon: Image.asset(
+                                    "assets/images/google_icon.png",
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      isLoading = true;
+                                    });
+                                    signInWithGoogle().then((user) {
+                                      if(user != null) {
+                                        setState(() {
+                                          isLoading = false;
+                                        });
+                                        Navigator.of(context).pushAndRemoveUntil(
+                                            MaterialPageRoute(builder: (context) => HomeScreen(user: user)),
+                                                (Route<dynamic> route) => false);
+                                        print("Login Successfull");
+                                      } else {
+                                        showLoginDialog(false);
+                                        print("Login Failed");
+                                      }
+                                    });
+                                  },
                                 ),
-                                onPressed: () {
+                              ),
+                              const SizedBox(width: 20),
+                              // SizedBox(
+                              //   height: 40,
+                              //   width: 40,
+                              //   child: IconButton(
+                              //     iconSize: 1,
+                              //     icon: Image.asset(
+                              //       "assets/images/apple_icon.png",
+                              //     ),
+                              //     onPressed: () {},
+                              //   ),
+                              // ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 5,),
+                        const Text(
+                          'or use your email account',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontFamily: 'OpenSans',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 10,),
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 320,
+                                margin: const EdgeInsets.all(10.0),
+                                child: TextFormField(
+                                  decoration: InputDecoration(
+                                      prefixIcon: const Icon(Icons.email),
+                                      hintText: "Email",
+                                      border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(20)
+                                      )
+                                  ),
+                                  controller: _email,
+                                  validator: (value) {
+                                    if (value != null && value.isNotEmpty && value.length < 10 ) {
+                                      return "Phải lớn hơn 10 ký tự!";
+                                    } else if(value == null || value.isEmpty) {
+                                      return "Không được để trống!";
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 5,),
+                              Container(
+                                width: 320,
+                                margin: const EdgeInsets.all(5.0),
+                                child: TextFormField(
+                                  obscureText: _isVisible ? false : true,
+                                  decoration: InputDecoration(
+                                      prefixIcon: const Padding(
+                                        padding: EdgeInsetsDirectional.only(start: 12),
+                                        child: Icon(Icons.password),
+                                      ),
+                                      hintText: "Password",
+                                      border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(20)),
+                                      suffixIcon: Padding(
+                                        padding: const EdgeInsetsDirectional.only(end: 12),
+                                        child: IconButton(
+                                          onPressed: () => updateStatus(),
+                                          icon: Icon(_isVisible ? Icons.visibility : Icons.visibility_off),
+                                        ),
+                                      )),
+                                  controller: _password,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "Không được để trống!";
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 10,),
+                        SizedBox(
+                          width: 200,
+                          height: 35,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if(_formKey.currentState!.validate()){
+                                if((_email!.text.isNotEmpty && _password!.text.isNotEmpty)){
                                   setState(() {
                                     isLoading = true;
                                   });
-                                  signInWithGoogle().then((user) {
+                                  logIn(_email!.text, _password!.text).then((user) {
                                     if(user != null) {
                                       setState(() {
                                         isLoading = false;
                                       });
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => HomeScreen(user: user,),
-                                          ));
-                                      print("Login Successfull");
+                                      Navigator.of(context).pushAndRemoveUntil(
+                                          MaterialPageRoute(builder: (context) => HomeScreen(user: user)),
+                                              (Route<dynamic> route) => false);
+                                      print("Login Successful");
                                     } else {
                                       showLoginDialog(false);
                                       print("Login Failed");
                                     }
                                   });
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 20),
-                            // SizedBox(
-                            //   height: 40,
-                            //   width: 40,
-                            //   child: IconButton(
-                            //     iconSize: 1,
-                            //     icon: Image.asset(
-                            //       "assets/images/apple_icon.png",
-                            //     ),
-                            //     onPressed: () {},
-                            //   ),
-                            // ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 5,),
-                      const Text(
-                        'or use your email account',
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontFamily: 'OpenSans',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 10,),
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 320,
-                              margin: const EdgeInsets.all(10.0),
-                              child: TextFormField(
-                                decoration: InputDecoration(
-                                    prefixIcon: const Icon(Icons.email),
-                                    hintText: "Email",
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(20)
-                                    )
-                                ),
-                                controller: _email,
-                                validator: (value) {
-                                  if (value != null && value.isNotEmpty && value.length < 10 ) {
-                                    return "Phải lớn hơn 10 ký tự!";
-                                  } else if(value == null || value.isEmpty) {
-                                    return "Không được để trống!";
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                            const SizedBox(height: 5,),
-                            Container(
-                              width: 320,
-                              margin: const EdgeInsets.all(5.0),
-                              child: TextFormField(
-                                obscureText: _isVisible ? false : true,
-                                decoration: InputDecoration(
-                                    prefixIcon: const Padding(
-                                      padding: EdgeInsetsDirectional.only(start: 12),
-                                      child: Icon(Icons.password),
-                                    ),
-                                    hintText: "Password",
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(20)),
-                                    suffixIcon: Padding(
-                                      padding: const EdgeInsetsDirectional.only(end: 12),
-                                      child: IconButton(
-                                        onPressed: () => updateStatus(),
-                                        icon: Icon(_isVisible ? Icons.visibility : Icons.visibility_off),
-                                      ),
-                                    )),
-                                controller: _password,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return "Không được để trống!";
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 10,),
-                      SizedBox(
-                        width: 200,
-                        height: 35,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if(_formKey.currentState!.validate()){
-                              if((_email!.text.isNotEmpty && _password!.text.isNotEmpty)){
-                                setState(() {
-                                  isLoading = true;
-                                });
-                                logIn(_email!.text, _password!.text).then((user) {
-                                  if(user != null) {
-                                    setState(() {
-                                      isLoading = false;
-                                    });
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => HomeScreen(user: user,)),
-                                    );
-                                    print("Login Successful");
-                                  } else {
-                                    showLoginDialog(false);
-                                    print("Login Failed");
-                                  }
-                                });
-                              } else {
+                                } else {
 
+                                }
                               }
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30.0),
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
                             ),
+                            child:
+                            const Text("LOGIN", style: TextStyle(color: Colors.white,fontSize: 15,)),
                           ),
-                          child:
-                          const Text("LOGIN", style: TextStyle(color: Colors.white,fontSize: 15,)),
                         ),
-                      ),
-                      const SizedBox(height: 1,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          const Text(
-                            "Don't have an account?",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontFamily: 'OpenSans',
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                        const SizedBox(height: 1,),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            const Text(
+                              "Don't have an account?",
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontFamily: 'OpenSans',
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 5,),
-                          TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const SignUp(),
-                                    ));
-                              },
-                              child: const Text(
-                                "Register here",
-                                style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
-                              ))
-                        ],
-                      ),
-                    ],
+                            const SizedBox(width: 5,),
+                            TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const SignUp(),
+                                      ));
+                                },
+                                child: const Text(
+                                  "Register here",
+                                  style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
+                                ))
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
