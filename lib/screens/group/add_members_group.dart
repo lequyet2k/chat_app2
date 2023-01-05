@@ -99,46 +99,49 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
       width: size.width,
       alignment: Alignment.center,
       child: const CircularProgressIndicator(),
-    ) : Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.grey,
-        title: const Text(
-          "Add Members",
+    ) : GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.grey,
+          title: const Text(
+            "Add Members",
+          ),
         ),
-      ),
-      body: SingleChildScrollView(
-        child: SizedBox(
-          height: size.height,
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.only(top: 16, right: 16, left: 16),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: "Search..",
-                    hintStyle: TextStyle(color: Colors.grey.shade600),
-                    prefixIcon: Icon(Icons.search, color: Colors.grey.shade600, size: 20,),
-                    filled: true,
-                    fillColor: Colors.grey.shade100,
-                    contentPadding: const EdgeInsets.all(8.0),
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade100,
-                        )
+        body: SingleChildScrollView(
+          child: SizedBox(
+            height: size.height,
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.only(top: 16, right: 16, left: 16),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Search..",
+                      hintStyle: TextStyle(color: Colors.grey.shade600),
+                      prefixIcon: Icon(Icons.search, color: Colors.grey.shade600, size: 20,),
+                      filled: true,
+                      fillColor: Colors.grey.shade100,
+                      contentPadding: const EdgeInsets.all(8.0),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide(
+                            color: Colors.grey.shade100,
+                          )
+                      ),
                     ),
+                    controller: _search,
+                    onChanged: (value) {
+                      setState(() {
+                        query = value;
+                      });
+                    },
                   ),
-                  controller: _search,
-                  onChanged: (value) {
-                    setState(() {
-                      query = value;
-                    });
-                  },
                 ),
-              ),
-              const SizedBox(height: 10,),
-              onResultTap(query),
-            ],
+                const SizedBox(height: 10,),
+                onResultTap(query),
+              ],
+            ),
           ),
         ),
       ),

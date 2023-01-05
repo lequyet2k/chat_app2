@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../resources/methods.dart';
 
+// ignore: must_be_immutable
 class CreateGroup extends StatefulWidget {
   User user;
   bool isDeviceConnected;
@@ -21,7 +22,6 @@ class _CreateGroupState extends State<CreateGroup> {
   final TextEditingController _groupName = TextEditingController();
   bool isLoading = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void setState(VoidCallback fn) {

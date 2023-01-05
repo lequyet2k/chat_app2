@@ -193,38 +193,40 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
 
-    return PickUpLayout(
-      scaffold: Scaffold(
-          body: appBar(_selectedIndex),
-          bottomNavigationBar: BottomNavigationBar(
-            selectedItemColor: Colors.blueAccent,
-            unselectedItemColor: Colors.grey.shade600,
-            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
-            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
-            type: BottomNavigationBarType.fixed,
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.messenger),
-                label: "Message",
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.group),
-                label: "Group",
-              ),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.call),
-                label: "Calls",
-              ),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.settings),
-                label: "Setting",
-              ),
-          ],
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
-          ),
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: PickUpLayout(
+        scaffold: Scaffold(
+            body: appBar(_selectedIndex),
+            bottomNavigationBar: BottomNavigationBar(
+              selectedItemColor: Colors.blueAccent,
+              unselectedItemColor: Colors.grey.shade600,
+              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
+              unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
+              type: BottomNavigationBarType.fixed,
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.messenger),
+                  label: "Message",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.group),
+                  label: "Group",
+                ),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.call),
+                  label: "Calls",
+                ),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.settings),
+                  label: "Setting",
+                ),
+            ],
+              currentIndex: _selectedIndex,
+              onTap: _onItemTapped,
+            ),
+        ),
       ),
     );
   }

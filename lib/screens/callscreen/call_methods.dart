@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:my_porject/models/call_model.dart';
 import 'package:uuid/uuid.dart';
 
@@ -87,12 +86,12 @@ class CallMethods {
 
   Future<bool> endCall({required Call call}) async {
     chatRooomId = chatRoomId(call.callerName as String, call.receiverName as String);
-    String? messageId;
-    String? time;
-    await _firestore.collection('chatroom').doc(chatRooomId).get().then((value){
-      messageId = value.data()!['messageId'] ;
-      time = value.data()!['time'];
-    });
+    // String? messageId;
+    // String? time;
+    // await _firestore.collection('chatroom').doc(chatRooomId).get().then((value){
+    //   messageId = value.data()!['messageId'] ;
+    //   time = value.data()!['time'];
+    // });
     // await _firestore.collection('chatroom').doc(chatRooomId).collection('chats').doc(messageId).update({
     //   'timeSpend' : DateTime.now().second - (time!.toDate().second),
     // });

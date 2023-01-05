@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:my_porject/db/sqlite_methods_call_log.dart';
 
 import '../models/log_model.dart';

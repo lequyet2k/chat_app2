@@ -328,202 +328,205 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return PickUpLayout(
-      scaffold: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          flexibleSpace: SafeArea(
-            child: Container(
-              padding: const EdgeInsets.only(right: 10),
-              child: Row(
-                children: <Widget>[
-                  IconButton(
-                      onPressed: () async {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.arrow_back_ios, color: Colors.blueAccent,),
-                  ),
-                  const SizedBox(width: 2,),
-                  CircleAvatar(
-                    backgroundImage: CachedNetworkImageProvider(widget.userMap['avatar']),
-                    maxRadius: 20,
-                  ),
-                  const SizedBox(width: 12,),
-                  Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text(
-                              widget.userMap['name'],
-                            style: const TextStyle(fontSize: 16,fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 6,),
-                          StreamBuilder<DocumentSnapshot>(
-                            stream: _firestore.collection("users").doc(widget.userMap['uid']).snapshots(),
-                            builder: (context, snapshot) {
-                              if(snapshot.data != null ) {
-                                return Text(
-                                  snapshot.data!['status'],
-                                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13,),
-                                );
-                              } else {
-                                return const Text('null');
-                              }
-                            },
-                          )
-                        ],
-                      ),
-                  ),
-                  IconButton(
-                      onPressed: () async {
-                        if(widget.isDeviceConnected == false) {
-                          showDialogInternetCheck();
-                        } else {
-                          await CallUtils.dial(
-                            from: sender,
-                            to: receiver,
-                            context: context,
-                          );
-                        }
-                      },
-                      icon: const Icon(Icons.video_call,color: Colors.blueAccent,),
-                  ),
-                ],
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: PickUpLayout(
+        scaffold: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            flexibleSpace: SafeArea(
+              child: Container(
+                padding: const EdgeInsets.only(right: 10),
+                child: Row(
+                  children: <Widget>[
+                    IconButton(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.arrow_back_ios, color: Colors.blueAccent,),
+                    ),
+                    const SizedBox(width: 2,),
+                    CircleAvatar(
+                      backgroundImage: CachedNetworkImageProvider(widget.userMap['avatar']),
+                      maxRadius: 20,
+                    ),
+                    const SizedBox(width: 12,),
+                    Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text(
+                                widget.userMap['name'],
+                              style: const TextStyle(fontSize: 16,fontWeight: FontWeight.w600),
+                            ),
+                            const SizedBox(height: 6,),
+                            StreamBuilder<DocumentSnapshot>(
+                              stream: _firestore.collection("users").doc(widget.userMap['uid']).snapshots(),
+                              builder: (context, snapshot) {
+                                if(snapshot.data != null ) {
+                                  return Text(
+                                    snapshot.data!['status'],
+                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13,),
+                                  );
+                                } else {
+                                  return const Text('null');
+                                }
+                              },
+                            )
+                          ],
+                        ),
+                    ),
+                    IconButton(
+                        onPressed: () async {
+                          if(widget.isDeviceConnected == false) {
+                            showDialogInternetCheck();
+                          } else {
+                            await CallUtils.dial(
+                              from: sender,
+                              to: receiver,
+                              context: context,
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.video_call,color: Colors.blueAccent,),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-        body: isLoading ? Container(
-          height: size.height ,
-          width: size.width ,
-          alignment: Alignment.center,
-          child: const CircularProgressIndicator(),
-        ) : RefreshIndicator(
-          onRefresh: () {
-            return abc();
-          },
-          child: Column(
-            children: <Widget>[
-              widget.isDeviceConnected == false
-              ? Container(
-                alignment: Alignment.center,
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height / 30,
-                // color: Colors.red,
-                child: const Text(
-                  'No Internet Connection',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ) : Container(),
-              Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').orderBy('timeStamp',descending: false).snapshots(),
-                  builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
-                    WidgetsBinding.instance
-                        .addPostFrameCallback((_){
-                      if (controller.hasClients) {
-                        controller.jumpTo(controller.position.maxScrollExtent);
-                      }
-                    });
-                    if(snapshot.data!= null){
-                        return GroupedListView<QueryDocumentSnapshot<Object?>, String>(
-                        elements: snapshot.data?.docs as List<QueryDocumentSnapshot<Object?>> ,
-                        shrinkWrap: true,
-                        groupBy: (element) => element['time'],
-                          groupSeparatorBuilder:  (String groupByValue) => Container(
-                            alignment: Alignment.center,
-                            height: 30,
-                            child: Text(
-                              "${groupByValue.substring(11,16)}, ${groupByValue.substring(0,10)}",
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontWeight: FontWeight.bold
-                              ),
-                            ),
-                          ),
-                        indexedItemBuilder: (context, element, index) {
-                          Map<String, dynamic> map = element.data() as Map<String, dynamic>;
-                          return messages(size, map, widget.userMap, index , snapshot.data?.docs.length as int, context);
-                        },
-                        controller: controller,
-                      );
-                    } else {
-                      return Container();
-                    }
-                  },
-                ),
-              ),
-              Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.only(top: 5,bottom: 10),
-                    height: size.height / 15,
-                    width: double.infinity,
-                    color: Colors.white,
-                    child: Row(
-                      children: <Widget>[
-                        IconButton(
-                            onPressed: () {
-                              getImage();
-                            },
-                            icon: const Icon(Icons.image_outlined, color: Colors.blueAccent,size: 27,),
-                        ),
-                        IconButton(
-                            onPressed: () {
-                              if(widget.isDeviceConnected == false) {
-                                showDialogInternetCheck();
-                              } else {
-                                initLocationDoc();
-                              }
-                            },
-                            icon: const Icon(Icons.location_on, color: Colors.blueAccent,size: 27,),
-                        ),
-                        // SizedBox(width: 15,),
-                        Expanded(
-                            child: TextField(
-                              autofocus: true,
-                              focusNode: focusNode,
-                              decoration: InputDecoration(
-                                filled: true,
-                                fillColor: Colors.grey.shade300,
-                                // hintText: "Aa",
-                                // hintStyle: TextStyle(color: Colors.white38),
-                                // contentPadding: EdgeInsets.all(8.0),
-                                prefixIcon: const Icon(Icons.abc,size: 30,),
-                                suffixIcon: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      focusNode.unfocus();
-                                      focusNode.canRequestFocus = false;
-                                      showEmoji = !showEmoji;
-                                    });
-                                  },
-                                  icon: const Icon(Icons.emoji_emotions,color: Colors.blueAccent,size: 23,),
-                                ) ,
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(25),
-                                ),
-                              ),
-                              controller: _message,
-                            ),
-                        ),
-                        IconButton(
-                            onPressed: () {
-                              onSendMessage();
-                            },
-                            icon: const Icon(Icons.send, color: Colors.blueAccent, size: 30,),
-                        ),
-                      ],
+          body: isLoading ? Container(
+            height: size.height ,
+            width: size.width ,
+            alignment: Alignment.center,
+            child: const CircularProgressIndicator(),
+          ) : RefreshIndicator(
+            onRefresh: () {
+              return abc();
+            },
+            child: Column(
+              children: <Widget>[
+                widget.isDeviceConnected == false
+                ? Container(
+                  alignment: Alignment.center,
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height / 30,
+                  // color: Colors.red,
+                  child: const Text(
+                    'No Internet Connection',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                ],
-              ),
-              showEmoji ? showEmojiPicker() : Container(),
-            ],
+                ) : Container(),
+                Expanded(
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').orderBy('timeStamp',descending: false).snapshots(),
+                    builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
+                      WidgetsBinding.instance
+                          .addPostFrameCallback((_){
+                        if (controller.hasClients) {
+                          controller.jumpTo(controller.position.maxScrollExtent);
+                        }
+                      });
+                      if(snapshot.data!= null){
+                          return GroupedListView<QueryDocumentSnapshot<Object?>, String>(
+                          elements: snapshot.data?.docs as List<QueryDocumentSnapshot<Object?>> ,
+                          shrinkWrap: true,
+                          groupBy: (element) => element['time'],
+                            groupSeparatorBuilder:  (String groupByValue) => Container(
+                              alignment: Alignment.center,
+                              height: 30,
+                              child: Text(
+                                "${groupByValue.substring(11,16)}, ${groupByValue.substring(0,10)}",
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontWeight: FontWeight.bold
+                                ),
+                              ),
+                            ),
+                          indexedItemBuilder: (context, element, index) {
+                            Map<String, dynamic> map = element.data() as Map<String, dynamic>;
+                            return messages(size, map, widget.userMap, index , snapshot.data?.docs.length as int, context);
+                          },
+                          controller: controller,
+                        );
+                      } else {
+                        return Container();
+                      }
+                    },
+                  ),
+                ),
+                Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.only(top: 5,bottom: 10),
+                      height: size.height / 15,
+                      width: double.infinity,
+                      color: Colors.white,
+                      child: Row(
+                        children: <Widget>[
+                          IconButton(
+                              onPressed: () {
+                                getImage();
+                              },
+                              icon: const Icon(Icons.image_outlined, color: Colors.blueAccent,size: 27,),
+                          ),
+                          IconButton(
+                              onPressed: () {
+                                if(widget.isDeviceConnected == false) {
+                                  showDialogInternetCheck();
+                                } else {
+                                  initLocationDoc();
+                                }
+                              },
+                              icon: const Icon(Icons.location_on, color: Colors.blueAccent,size: 27,),
+                          ),
+                          // SizedBox(width: 15,),
+                          Expanded(
+                              child: TextField(
+                                autofocus: true,
+                                focusNode: focusNode,
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.grey.shade300,
+                                  // hintText: "Aa",
+                                  // hintStyle: TextStyle(color: Colors.white38),
+                                  // contentPadding: EdgeInsets.all(8.0),
+                                  prefixIcon: const Icon(Icons.abc,size: 30,),
+                                  suffixIcon: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        focusNode.unfocus();
+                                        focusNode.canRequestFocus = false;
+                                        showEmoji = !showEmoji;
+                                      });
+                                    },
+                                    icon: const Icon(Icons.emoji_emotions,color: Colors.blueAccent,size: 23,),
+                                  ) ,
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(25),
+                                  ),
+                                ),
+                                controller: _message,
+                              ),
+                          ),
+                          IconButton(
+                              onPressed: () {
+                                onSendMessage();
+                              },
+                              icon: const Icon(Icons.send, color: Colors.blueAccent, size: 30,),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                showEmoji ? showEmojiPicker() : Container(),
+              ],
+            ),
           ),
         ),
       ),

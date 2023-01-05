@@ -118,7 +118,6 @@ Future<User?> signInWithFacebook() async {
   final LoginResult loginResult = await FacebookAuth.instance.login(permissions: ['email','public_profile']);
 
   if(loginResult == LoginStatus.success){
-    final userData = FacebookAuth.instance.getUserData();
 
     final OAuthCredential oAuthCredential = FacebookAuthProvider.credential(loginResult.accessToken!.token);
 
@@ -141,6 +140,7 @@ Future<User?> signInWithFacebook() async {
   } else {
     print(loginResult.message);
   }
+  return null;
 }
 
 Future<User?> getCurrentUser() async {
