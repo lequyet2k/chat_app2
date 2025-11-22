@@ -10,20 +10,19 @@ import 'package:uuid/uuid.dart';
 import '../../models/log_model.dart';
 import '../../resources/methods.dart';
 
-
 class CallUtils {
   static final CallMethods callMethods = CallMethods();
 
-  static dial({required Userr? from, required Userr to , context}) async {
+  static dial({required Userr? from, required Userr to, context}) async {
     Call call = Call(
-        callerId: from?.uid,
-        callerName: from?.name,
-        callerPic: from?.avatar,
-        receiverId: to.uid,
-        receiverName: to.name ,
-        receiverPic: to.avatar,
-        channelId: Uuid().v1(),
-        hasDialled: null,
+      callerId: from?.uid,
+      callerName: from?.name,
+      callerPic: from?.avatar,
+      receiverId: to.uid,
+      receiverName: to.name,
+      receiverPic: to.avatar,
+      channelId: Uuid().v1(),
+      hasDialled: null,
     );
 
     Log log = Log(
@@ -43,14 +42,14 @@ class CallUtils {
       print(status);
     }
 
-    if(callMade) {
+    if (callMade) {
       LogRepository.addLogs(log);
 
       await _handleCameraAndMic(Permission.camera);
       await _handleCameraAndMic(Permission.microphone);
       await Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => CallScreen(call: call)),
+        context,
+        MaterialPageRoute(builder: (context) => CallScreen(call: call)),
       );
     }
   }

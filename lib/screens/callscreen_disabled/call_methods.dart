@@ -5,15 +5,17 @@ import 'package:uuid/uuid.dart';
 import '../../resources/methods.dart';
 
 class CallMethods {
-
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  final CollectionReference callCollection = FirebaseFirestore.instance.collection('calls');
+  final CollectionReference callCollection =
+      FirebaseFirestore.instance.collection('calls');
 
-  Stream<DocumentSnapshot> callStream({required String? uid}) => callCollection.doc(uid).snapshots();
+  Stream<DocumentSnapshot> callStream({required String? uid}) =>
+      callCollection.doc(uid).snapshots();
 
-  String chatRoomId(String user1, String user2){
-    if(user1[0].toLowerCase().codeUnits[0] > user2.toLowerCase().codeUnits[0]){
+  String chatRoomId(String user1, String user2) {
+    if (user1[0].toLowerCase().codeUnits[0] >
+        user2.toLowerCase().codeUnits[0]) {
       return "$user1$user2";
     } else {
       return "$user2$user1";
@@ -23,69 +25,83 @@ class CallMethods {
   String? chatRooomId;
 
   Future<bool> makeCall({required Call call}) async {
+    String docName = Uuid().v1();
 
-    String docName =   Uuid().v1();
-
-    chatRooomId = chatRoomId(call.callerName as String, call.receiverName as String);
-    await _firestore.collection('chatroom').doc(chatRooomId).collection('chats').doc(docName).set({
-      "type" : "videocall",
-      "sendBy" : call.callerName,
-      "message" : "Videocall",
-      "time" : timeForMessage(DateTime.now().toString()),
-      "messageId" : docName,
-      'timeStamp' : DateTime.now(),
+    chatRooomId =
+        chatRoomId(call.callerName as String, call.receiverName as String);
+    await _firestore
+        .collection('chatroom')
+        .doc(chatRooomId)
+        .collection('chats')
+        .doc(docName)
+        .set({
+      "type": "videocall",
+      "sendBy": call.callerName,
+      "message": "Videocall",
+      "time": timeForMessage(DateTime.now().toString()),
+      "messageId": docName,
+      'timeStamp': DateTime.now(),
     });
 
     await _firestore.collection('chatroom').doc(chatRooomId).set({
-      'user1' : call.callerName,
-      'user2' : call.receiverName,
-      'lastMessage' : "Videocall",
-      'type' : "videocall",
-      'messageId' : docName,
-      'time' : timeForMessage(DateTime.now().toString()),
-      'timeStamp' : DateTime.now(),
+      'user1': call.callerName,
+      'user2': call.receiverName,
+      'lastMessage': "Videocall",
+      'type': "videocall",
+      'messageId': docName,
+      'time': timeForMessage(DateTime.now().toString()),
+      'timeStamp': DateTime.now(),
     });
 
-    await _firestore.collection('users').doc(call.callerId).collection('chatHistory').doc(call.receiverId).update({
-      'lastMessage' : "Bạn đã gọi cho ${call.receiverName}",
-      'type' : "videocall",
-      'name' : call.receiverName,
-      'time' : timeForMessage(DateTime.now().toString()),
-      'uid' : call.receiverId,
-      'avatar' : call.receiverPic,
-      'timeStamp' : DateTime.now(),
-      'isRead' : true,
+    await _firestore
+        .collection('users')
+        .doc(call.callerId)
+        .collection('chatHistory')
+        .doc(call.receiverId)
+        .update({
+      'lastMessage': "Bạn đã gọi cho ${call.receiverName}",
+      'type': "videocall",
+      'name': call.receiverName,
+      'time': timeForMessage(DateTime.now().toString()),
+      'uid': call.receiverId,
+      'avatar': call.receiverPic,
+      'timeStamp': DateTime.now(),
+      'isRead': true,
     });
 
-    await _firestore.collection('users').doc(call.receiverId).collection('chatHistory').doc(call.callerId).update({
-      'lastMessage' : "${call.callerName} đã gọi cho bạn",
-      'type' : "videocall",
-      'name' : call.callerName,
-      'time' : timeForMessage(DateTime.now().toString()),
-      'uid' : call.callerId,
-      'avatar' : call.callerPic,
-      'timeStamp' : DateTime.now(),
-      'isRead' : false,
+    await _firestore
+        .collection('users')
+        .doc(call.receiverId)
+        .collection('chatHistory')
+        .doc(call.callerId)
+        .update({
+      'lastMessage': "${call.callerName} đã gọi cho bạn",
+      'type': "videocall",
+      'name': call.callerName,
+      'time': timeForMessage(DateTime.now().toString()),
+      'uid': call.callerId,
+      'avatar': call.callerPic,
+      'timeStamp': DateTime.now(),
+      'isRead': false,
     });
 
     try {
       call.hasDialled = true;
-      Map<String, dynamic> hasDialledMap = call.toMap(call) ;
+      Map<String, dynamic> hasDialledMap = call.toMap(call);
       call.hasDialled = false;
-      Map<String, dynamic> hasNotDialledMap =  call.toMap(call);
+      Map<String, dynamic> hasNotDialledMap = call.toMap(call);
       await callCollection.doc(call.callerId).set(hasDialledMap);
       await callCollection.doc(call.receiverId).set(hasNotDialledMap);
       return true;
-    } catch(e){
+    } catch (e) {
       print(e);
       return false;
     }
-
   }
 
-
   Future<bool> endCall({required Call call}) async {
-    chatRooomId = chatRoomId(call.callerName as String, call.receiverName as String);
+    chatRooomId =
+        chatRoomId(call.callerName as String, call.receiverName as String);
     // String? messageId;
     // String? time;
     // await _firestore.collection('chatroom').doc(chatRooomId).get().then((value){
@@ -95,15 +111,12 @@ class CallMethods {
     // await _firestore.collection('chatroom').doc(chatRooomId).collection('chats').doc(messageId).update({
     //   'timeSpend' : DateTime.now().second - (time!.toDate().second),
     // });
-    try{
+    try {
       await callCollection.doc(call.callerId).delete();
       await callCollection.doc(call.receiverId).delete();
       return true;
-    } catch(e) {
+    } catch (e) {
       return false;
     }
   }
-
 }
-
-

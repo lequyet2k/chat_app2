@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:my_porject/db/log_repository.dart';
 import 'package:my_porject/models/call_model.dart';
@@ -38,10 +37,10 @@ class _PickUpScreenState extends State<PickUpScreen> {
   Future<void> _handleCameraAndMic(Permission permission) async {
     final status = await permission.request();
   }
-  
+
   @override
   void dispose() {
-    if(isCallMissed) {
+    if (isCallMissed) {
       addToLocalStorage(callStatus: 'missed');
     }
     super.dispose();
@@ -62,13 +61,17 @@ class _PickUpScreenState extends State<PickUpScreen> {
                 fontSize: 30,
               ),
             ),
-            SizedBox(height: 50,),
+            SizedBox(
+              height: 50,
+            ),
             Image.network(
               widget.call.callerPic!,
               height: 150,
               width: 150,
             ),
-            SizedBox(height: 15,),
+            SizedBox(
+              height: 15,
+            ),
             Text(
               widget.call.callerName!,
               style: TextStyle(
@@ -76,20 +79,24 @@ class _PickUpScreenState extends State<PickUpScreen> {
                 fontSize: 20,
               ),
             ),
-            SizedBox(height: 75,),
+            SizedBox(
+              height: 75,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 IconButton(
-                    onPressed: () async {
-                      isCallMissed = false;
-                      addToLocalStorage(callStatus: 'received');
-                      await callMethods.endCall(call : widget.call);
-                    },
-                    color: Colors.redAccent,
-                    icon: Icon(Icons.call_end),
+                  onPressed: () async {
+                    isCallMissed = false;
+                    addToLocalStorage(callStatus: 'received');
+                    await callMethods.endCall(call: widget.call);
+                  },
+                  color: Colors.redAccent,
+                  icon: Icon(Icons.call_end),
                 ),
-                SizedBox(width: 25,),
+                SizedBox(
+                  width: 25,
+                ),
                 IconButton(
                     onPressed: () async {
                       isCallMissed = false;
@@ -97,8 +104,10 @@ class _PickUpScreenState extends State<PickUpScreen> {
                       await _handleCameraAndMic(Permission.camera);
                       await _handleCameraAndMic(Permission.microphone);
                       await Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => CallScreen(call: widget.call)),
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                CallScreen(call: widget.call)),
                       );
                     },
                     color: Colors.green,

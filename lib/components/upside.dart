@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class Upside extends StatelessWidget {
-
   final String imgUrl;
 
   const Upside({Key? key, required this.imgUrl}) : super(key: key);
@@ -16,7 +15,8 @@ class Upside extends StatelessWidget {
           height: size.height / 2,
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/images/background_login_or_signup.jpeg"),
+              image:
+                  AssetImage("assets/images/background_login_or_signup.jpeg"),
               fit: BoxFit.cover,
             ),
           ),

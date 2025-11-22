@@ -14,7 +14,7 @@ import 'package:my_porject/configs/agora_configs.dart';
 import '../../provider/user_provider.dart';
 
 class CallScreen extends StatefulWidget {
-  final Call call ;
+  final Call call;
   final CallMethods callMethods = CallMethods();
   CallScreen({Key? key, required this.call}) : super(key: key);
 
@@ -23,7 +23,6 @@ class CallScreen extends StatefulWidget {
 }
 
 class _CallScreenState extends State<CallScreen> {
-
   final _users = <int>[];
   final _infoStrings = <String>[];
   bool muted = false;
@@ -117,20 +116,21 @@ class _CallScreenState extends State<CallScreen> {
         _infoStrings.add(info);
       });
     }));
-
   }
 
   addPostFrameCallBack() {
     SchedulerBinding.instance.addPostFrameCallback((_) {
       userProvider = Provider.of<UserProvider>(context, listen: false);
 
-      callStreamSubscription = callMethods.callStream(uid: userProvider?.getUser?.uid).listen((DocumentSnapshot ds) {
-        switch(ds.data()){
-          case null :
+      callStreamSubscription = callMethods
+          .callStream(uid: userProvider?.getUser?.uid)
+          .listen((DocumentSnapshot ds) {
+        switch (ds.data()) {
+          case null:
             Navigator.pop(context);
             break;
-            
-          default :
+
+          default:
             break;
         }
 
@@ -159,8 +159,8 @@ class _CallScreenState extends State<CallScreen> {
     if (role == ClientRole.Broadcaster) {
       list.add(RtcLocalView.SurfaceView());
     }
-    _users.forEach((int uid) => list.add(
-        RtcRemoteView.SurfaceView(channelId: widget.call.channelId!, uid: uid)));
+    _users.forEach((int uid) => list.add(RtcRemoteView.SurfaceView(
+        channelId: widget.call.channelId!, uid: uid)));
     return list;
   }
 
@@ -170,32 +170,32 @@ class _CallScreenState extends State<CallScreen> {
       case 1:
         return Container(
             child: Column(
-              children: <Widget>[_videoView(views[0])],
-            ));
+          children: <Widget>[_videoView(views[0])],
+        ));
       case 2:
         return Container(
             child: Column(
-              children: <Widget>[
-                _expandedVideoRow([views[0]]),
-                _expandedVideoRow([views[1]])
-              ],
-            ));
+          children: <Widget>[
+            _expandedVideoRow([views[0]]),
+            _expandedVideoRow([views[1]])
+          ],
+        ));
       case 3:
         return Container(
             child: Column(
-              children: <Widget>[
-                _expandedVideoRow(views.sublist(0, 2)),
-                _expandedVideoRow(views.sublist(2, 3))
-              ],
-            ));
+          children: <Widget>[
+            _expandedVideoRow(views.sublist(0, 2)),
+            _expandedVideoRow(views.sublist(2, 3))
+          ],
+        ));
       case 4:
         return Container(
             child: Column(
-              children: <Widget>[
-                _expandedVideoRow(views.sublist(0, 2)),
-                _expandedVideoRow(views.sublist(2, 4))
-              ],
-            ));
+          children: <Widget>[
+            _expandedVideoRow(views.sublist(0, 2)),
+            _expandedVideoRow(views.sublist(2, 4))
+          ],
+        ));
       default:
     }
     return Container();
@@ -249,7 +249,6 @@ class _CallScreenState extends State<CallScreen> {
       ),
     );
   }
-
 
   Widget _panel() {
     return Container(
@@ -327,5 +326,4 @@ class _CallScreenState extends State<CallScreen> {
       ),
     );
   }
-
 }

@@ -8,19 +8,18 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:my_porject/resources/firebase_options.dart';
 import 'package:provider/provider.dart';
 
-
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  FirebaseFirestore.instance.settings = const Settings(
-      persistenceEnabled: true);
+  FirebaseFirestore.instance.settings =
+      const Settings(persistenceEnabled: true);
   // FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080, sslEnabled: false);
   runApp(const MyApp());
 }
 
-class  MyApp extends StatelessWidget {
+class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
@@ -31,11 +30,11 @@ class  MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: "",
-        debugShowCheckedModeBanner: false ,
+        debugShowCheckedModeBanner: false,
         home: FutureBuilder(
           future: getCurrentUser(),
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-            if(snapshot.hasData) {
+            if (snapshot.hasData) {
               return HomeScreen(user: snapshot.data);
             } else {
               return Login();
@@ -46,4 +45,3 @@ class  MyApp extends StatelessWidget {
     );
   }
 }
-

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class Upside extends StatelessWidget {
-
   final String imgUrl;
 
   const Upside({Key? key, required this.imgUrl}) : super(key: key);

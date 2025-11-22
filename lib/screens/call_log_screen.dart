@@ -16,16 +16,14 @@ class _CallLogScreenState extends State<CallLogScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          margin: const EdgeInsets.only(top: 15,left: 15),
-          child: const Text(
-              'Calls',
+          margin: const EdgeInsets.only(top: 15, left: 15),
+          child: const Text('Calls',
               style: TextStyle(
                 color: Colors.black54,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.5,
-              )
-          ),
+              )),
         ),
         const CallLogListContainer(),
       ],

@@ -23,9 +23,15 @@ import '../../resources/methods.dart';
 class GroupChatRoom extends StatefulWidget {
   User user;
   bool isDeviceConnected;
-  final String groupChatId,groupName;
+  final String groupChatId, groupName;
 
-  GroupChatRoom({Key? key, required this.groupChatId, required this.groupName,required this.user, required this.isDeviceConnected }) : super(key: key);
+  GroupChatRoom(
+      {Key? key,
+      required this.groupChatId,
+      required this.groupName,
+      required this.user,
+      required this.isDeviceConnected})
+      : super(key: key);
 
   @override
   State<GroupChatRoom> createState() => _GroupChatRoomState();
@@ -52,7 +58,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
     // WidgetsBinding.instance.addPostFrameCallback((_) => scrollToIndex());
     super.initState();
     focusNode.addListener(() {
-      if(focusNode.hasFocus) {
+      if (focusNode.hasFocus) {
         setState(() {
           showEmoji = false;
         });
@@ -66,30 +72,36 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
     super.dispose();
   }
 
-
   late StreamSubscription subscription;
 
   getConnectivity() async {
-    return subscription = Connectivity().onConnectivityChanged.listen(
-            (List<ConnectivityResult> results) async {
-          widget.isDeviceConnected = await InternetConnection().hasInternetAccess;
-          if(mounted){
-            setState(() {
-
-            });
-          }
-        }
-    );
+    return subscription = Connectivity()
+        .onConnectivityChanged
+        .listen((List<ConnectivityResult> results) async {
+      widget.isDeviceConnected = await InternetConnection().hasInternetAccess;
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
-  updateIsReadMessage() async{
-    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.groupChatId).update({
-      'isRead' : true,
+  updateIsReadMessage() async {
+    await _firestore
+        .collection('users')
+        .doc(_auth.currentUser!.uid)
+        .collection('chatHistory')
+        .doc(widget.groupChatId)
+        .update({
+      'isRead': true,
     });
   }
 
   void getCurrentUserAvatar() async {
-    await _firestore.collection('users').doc(widget.user.uid).get().then((value) {
+    await _firestore
+        .collection('users')
+        .doc(widget.user.uid)
+        .get()
+        .then((value) {
       avatarUrl = value.data()!['avatar'].toString();
     });
   }
@@ -97,33 +109,46 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
   void onSendMessage() async {
     String message;
     message = _message.text;
-    if(_message.text.isNotEmpty) {
+    if (_message.text.isNotEmpty) {
       Map<String, dynamic> chatData = {
-        "sendBy" : widget.user.displayName,
-        "message" : _message.text,
-        "type" : "text",
-        "time" : timeForMessage(DateTime.now().toString()),
-        'avatar' : avatarUrl,
-        'timeStamp' : DateTime.now(),
+        "sendBy": widget.user.displayName,
+        "message": _message.text,
+        "type": "text",
+        "time": timeForMessage(DateTime.now().toString()),
+        'avatar': avatarUrl,
+        'timeStamp': DateTime.now(),
       };
 
       _message.clear();
 
-      await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').add(chatData);
-      for(int i = 0 ; i < memberList.length ; i++) {
-        await _firestore.collection('users').doc(memberList[i]['uid']).collection('chatHistory').doc(widget.groupChatId).update({
-          'lastMessage' : "${widget.user.displayName}: $message",
-          'type' : "text",
-          'time' : timeForMessage(DateTime.now().toString()),
-          'timeStamp' : DateTime.now(),
-          'isRead' : false,
+      await _firestore
+          .collection('groups')
+          .doc(widget.groupChatId)
+          .collection('chats')
+          .add(chatData);
+      for (int i = 0; i < memberList.length; i++) {
+        await _firestore
+            .collection('users')
+            .doc(memberList[i]['uid'])
+            .collection('chatHistory')
+            .doc(widget.groupChatId)
+            .update({
+          'lastMessage': "${widget.user.displayName}: $message",
+          'type': "text",
+          'time': timeForMessage(DateTime.now().toString()),
+          'timeStamp': DateTime.now(),
+          'isRead': false,
         });
       }
     }
   }
 
   void getMemberList() async {
-    await _firestore.collection('groups').doc(widget.groupChatId).get().then((value) {
+    await _firestore
+        .collection('groups')
+        .doc(widget.groupChatId)
+        .get()
+        .then((value) {
       memberList = value.data()!['members'];
     });
   }
@@ -134,49 +159,69 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
     ImagePicker _picker = ImagePicker();
 
     await _picker.pickImage(source: ImageSource.gallery).then((xFile) {
-      if(xFile != null){
+      if (xFile != null) {
         imageFile = File(xFile.path);
         uploadImage();
       }
     });
     // scrollToIndex();
   }
+
   Future uploadImage() async {
+    String fileName = const Uuid().v1();
 
-    String fileName =   const Uuid().v1();
+    int status = 1;
 
-    int status = 1 ;
-
-    await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').doc(fileName).set({
-      'sendBy' : widget.user.displayName,
-      'message' : _message.text,
-      'type' : "img",
-      'time' :  timeForMessage(DateTime.now().toString()),
-      'avatar' : avatarUrl,
-      'timeStamp' : DateTime.now(),
+    await _firestore
+        .collection('groups')
+        .doc(widget.groupChatId)
+        .collection('chats')
+        .doc(fileName)
+        .set({
+      'sendBy': widget.user.displayName,
+      'message': _message.text,
+      'type': "img",
+      'time': timeForMessage(DateTime.now().toString()),
+      'avatar': avatarUrl,
+      'timeStamp': DateTime.now(),
     });
 
-    var ref = FirebaseStorage.instance.ref().child('images').child("$fileName.jpg");
+    var ref =
+        FirebaseStorage.instance.ref().child('images').child("$fileName.jpg");
 
-    var uploadTask =  await ref.putFile(imageFile!).catchError((error) async {
-      await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').doc(fileName).delete();
+    var uploadTask = await ref.putFile(imageFile!).catchError((error) async {
+      await _firestore
+          .collection('groups')
+          .doc(widget.groupChatId)
+          .collection('chats')
+          .doc(fileName)
+          .delete();
       status = 0;
     });
 
-
-    if(status == 1) {
+    if (status == 1) {
       String imageUrl = await uploadTask.ref.getDownloadURL();
 
-      await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').doc(fileName).update({
-        'message' : imageUrl,
+      await _firestore
+          .collection('groups')
+          .doc(widget.groupChatId)
+          .collection('chats')
+          .doc(fileName)
+          .update({
+        'message': imageUrl,
       });
-      for(int i = 0 ; i < memberList.length ; i++) {
-        await _firestore.collection('users').doc(memberList[i]['uid']).collection('chatHistory').doc(widget.groupChatId).update({
-          'lastMessage' : "${widget.user.displayName} đã gửi một ảnh",
-          'type' : "img",
-          'time' : timeForMessage(DateTime.now().toString()),
-          'timeStamp' : DateTime.now(),
-          'isRead' : false,
+      for (int i = 0; i < memberList.length; i++) {
+        await _firestore
+            .collection('users')
+            .doc(memberList[i]['uid'])
+            .collection('chatHistory')
+            .doc(widget.groupChatId)
+            .update({
+          'lastMessage': "${widget.user.displayName} đã gửi một ảnh",
+          'type': "img",
+          'time': timeForMessage(DateTime.now().toString()),
+          'timeStamp': DateTime.now(),
+          'isRead': false,
         });
       }
     }
@@ -200,8 +245,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       height: 250,
       child: EmojiPicker(
         config: const Config(
-          // columns: 7,  // Deprecated in grouped_list 6.0.0
-        ),
+            // columns: 7,  // Deprecated in grouped_list 6.0.0
+            ),
         onEmojiSelected: (emoji, category) {
           _message.text = _message.text + category.emoji;
         },
@@ -211,7 +256,6 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
 
   @override
   Widget build(BuildContext context) {
-
     final Size size = MediaQuery.of(context).size;
 
     return GestureDetector(
@@ -228,35 +272,50 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                     onPressed: () {
                       Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => HomeScreen(user: widget.user) )
-                      );
+                          MaterialPageRoute(
+                              builder: (_) => HomeScreen(user: widget.user)));
                     },
-                    icon: const Icon(Icons.arrow_back_ios, color: Colors.blueAccent,),
+                    icon: const Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.blueAccent,
+                    ),
                   ),
-                  const SizedBox(width: 2,),
+                  const SizedBox(
+                    width: 2,
+                  ),
                   const CircleAvatar(
-                    backgroundImage: CachedNetworkImageProvider('https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98'),
+                    backgroundImage: CachedNetworkImageProvider(
+                        'https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98'),
                     maxRadius: 20,
                   ),
-                  const SizedBox(width: 12,),
-                  widget.groupName.length >= 25
-                      ? Text(
-                      '${widget.groupName.substring(0, 25)}...',
-                      style: const TextStyle(
-                          fontSize: 17,fontWeight: FontWeight.w600)
-                  )
-                      : Text(widget.groupName, style: const TextStyle(
-                      fontSize: 17,fontWeight: FontWeight.w600)
+                  const SizedBox(
+                    width: 12,
                   ),
+                  widget.groupName.length >= 25
+                      ? Text('${widget.groupName.substring(0, 25)}...',
+                          style: const TextStyle(
+                              fontSize: 17, fontWeight: FontWeight.w600))
+                      : Text(widget.groupName,
+                          style: const TextStyle(
+                              fontSize: 17, fontWeight: FontWeight.w600)),
                   const Spacer(),
                   IconButton(
                     onPressed: () {
                       Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => GroupInfo(groupName: widget.groupName, groupId: widget.groupChatId, user: widget.user, memberListt: memberList, isDeviceConnected: widget.isDeviceConnected,))
-                      );
+                          MaterialPageRoute(
+                              builder: (_) => GroupInfo(
+                                    groupName: widget.groupName,
+                                    groupId: widget.groupChatId,
+                                    user: widget.user,
+                                    memberListt: memberList,
+                                    isDeviceConnected: widget.isDeviceConnected,
+                                  )));
                     },
-                    icon: const Icon(Icons.more_vert,color: Colors.blueAccent,),
+                    icon: const Icon(
+                      Icons.more_vert,
+                      color: Colors.blueAccent,
+                    ),
                   ),
                 ],
               ),
@@ -271,63 +330,72 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
             children: <Widget>[
               widget.isDeviceConnected == false
                   ? Container(
-                alignment: Alignment.center,
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height / 30,
-                // color: Colors.red,
-                child: const Text(
-                  'No Internet Connection',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ) : Container(),
+                      alignment: Alignment.center,
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height / 30,
+                      // color: Colors.red,
+                      child: const Text(
+                        'No Internet Connection',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    )
+                  : Container(),
               Expanded(
                 child: Container(
                     color: Colors.white24,
-                  width: size.width,
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: _firestore.collection('groups').doc(widget.groupChatId).collection('chats').orderBy('timeStamp',descending: false).limit(limit).snapshots(),
-                    builder: (context, snapshot){
-                      WidgetsBinding.instance
-                          .addPostFrameCallback((_){
-                        if (controller.hasClients) {
-                          controller.jumpTo(controller.position.maxScrollExtent);
-                        }
-                      });
-                      if(snapshot.hasData) {
-                        return GroupedListView<QueryDocumentSnapshot<Object?>, String>(
-                          elements: snapshot.data?.docs as List<QueryDocumentSnapshot<Object?>> ,
-                          shrinkWrap: true,
-                          controller: controller,
-                          groupBy: (element) => element['time'],
-                          groupSeparatorBuilder:  (String groupByValue) => Container(
-                            alignment: Alignment.center,
-                            height: 30,
-                            child: Text(
-                              "${groupByValue.substring(11,16)}, ${groupByValue.substring(0,10)}",
-                              style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontWeight: FontWeight.bold
+                    width: size.width,
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: _firestore
+                          .collection('groups')
+                          .doc(widget.groupChatId)
+                          .collection('chats')
+                          .orderBy('timeStamp', descending: false)
+                          .limit(limit)
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (controller.hasClients) {
+                            controller
+                                .jumpTo(controller.position.maxScrollExtent);
+                          }
+                        });
+                        if (snapshot.hasData) {
+                          return GroupedListView<QueryDocumentSnapshot<Object?>,
+                              String>(
+                            elements: snapshot.data?.docs
+                                as List<QueryDocumentSnapshot<Object?>>,
+                            shrinkWrap: true,
+                            controller: controller,
+                            groupBy: (element) => element['time'],
+                            groupSeparatorBuilder: (String groupByValue) =>
+                                Container(
+                              alignment: Alignment.center,
+                              height: 30,
+                              child: Text(
+                                "${groupByValue.substring(11, 16)}, ${groupByValue.substring(0, 10)}",
+                                style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontWeight: FontWeight.bold),
                               ),
                             ),
-                          ),
-                          // itemCount: snapshot.data?.docs.length as int ,
-                          indexedItemBuilder: (context, element, index) {
-                            // Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
-                            Map<String, dynamic> map = element.data() as Map<String, dynamic>;
-                            return messageTitle(size, map, index, snapshot.data!.docs.length);
-                          },
-                          // controller: itemScrollController,
-                        );
-
-                      } else {
-                        return Container();
-                      }
-                    },
-                  )
-                ),
+                            // itemCount: snapshot.data?.docs.length as int ,
+                            indexedItemBuilder: (context, element, index) {
+                              // Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
+                              Map<String, dynamic> map =
+                                  element.data() as Map<String, dynamic>;
+                              return messageTitle(
+                                  size, map, index, snapshot.data!.docs.length);
+                            },
+                            // controller: itemScrollController,
+                          );
+                        } else {
+                          return Container();
+                        }
+                      },
+                    )),
               ),
               Column(
                 children: [
@@ -344,17 +412,23 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                             onPressed: () {
                               getImage();
                             },
-                            icon: const Icon(Icons.image_outlined, color: Colors.blueAccent,),
+                            icon: const Icon(
+                              Icons.image_outlined,
+                              color: Colors.blueAccent,
+                            ),
                           ),
                           IconButton(
                             onPressed: () {
-                              if(widget.isDeviceConnected == false) {
+                              if (widget.isDeviceConnected == false) {
                                 showDialogInternetCheck();
                               } else {
                                 checkUserisLocationed();
                               }
                             },
-                            icon: const Icon(Icons.location_on, color: Colors.blueAccent,),
+                            icon: const Icon(
+                              Icons.location_on,
+                              color: Colors.blueAccent,
+                            ),
                           ),
                           // SizedBox(width: 15,),
                           Expanded(
@@ -377,8 +451,11 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                                         showEmoji = !showEmoji;
                                       });
                                     },
-                                    icon: const Icon(Icons.emoji_emotions,color: Colors.blueAccent,),
-                                  ) ,
+                                    icon: const Icon(
+                                      Icons.emoji_emotions,
+                                      color: Colors.blueAccent,
+                                    ),
+                                  ),
                                   // contentPadding: EdgeInsets.all(8.0),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(25),
@@ -392,7 +469,10 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                             onPressed: () {
                               onSendMessage();
                             },
-                            icon: const Icon(Icons.send, color: Colors.blueAccent,),
+                            icon: const Icon(
+                              Icons.send,
+                              color: Colors.blueAccent,
+                            ),
                           ),
                         ],
                       ),
@@ -408,31 +488,40 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
     );
   }
 
-  Widget messageTitle(Size size , Map<String, dynamic> chatMap,int index,int length) {
+  Widget messageTitle(
+      Size size, Map<String, dynamic> chatMap, int index, int length) {
     return Builder(builder: (context) {
-      if(chatMap['status'] == 'removed'){
+      if (chatMap['status'] == 'removed') {
         return Row(
           children: [
-            const SizedBox(width: 2,),
-            chatMap['sendBy'] != widget.user.displayName ?
-            SizedBox(
-              height: size.width / 13 ,
-              width: size.width / 13 ,
-              child: CircleAvatar(
-                backgroundImage: NetworkImage(chatMap['avatar']),
-                maxRadius: 30,
-              ),
-            ): Container(
+            const SizedBox(
+              width: 2,
             ),
+            chatMap['sendBy'] != widget.user.displayName
+                ? SizedBox(
+                    height: size.width / 13,
+                    width: size.width / 13,
+                    child: CircleAvatar(
+                      backgroundImage: NetworkImage(chatMap['avatar']),
+                      maxRadius: 30,
+                    ),
+                  )
+                : Container(),
             GestureDetector(
-              onLongPress: (){},
+              onLongPress: () {},
               child: Container(
-                width: chatMap['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.7,
-                alignment: chatMap['sendBy'] == widget.user.displayName ? Alignment.centerRight : Alignment.centerLeft,
+                width: chatMap['sendBy'] == widget.user.displayName
+                    ? size.width * 0.98
+                    : size.width * 0.7,
+                alignment: chatMap['sendBy'] == widget.user.displayName
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft,
                 child: Container(
-                  constraints: BoxConstraints( maxWidth: size.width / 1.5),
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                  margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                  constraints: BoxConstraints(maxWidth: size.width / 1.5),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
                     color: Colors.grey.shade200,
@@ -451,51 +540,61 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
           ],
         );
       } else {
-        if(chatMap['type'] == 'text') {
+        if (chatMap['type'] == 'text') {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const SizedBox(width: 2,),
-              chatMap['sendBy'] != widget.user.displayName ?
-              Container(
-                margin: const EdgeInsets.only(bottom: 5),
-                height: size.width / 13 ,
-                width: size.width / 13 ,
-                child: CircleAvatar(
-                  backgroundImage: NetworkImage(chatMap['avatar']),
-                  maxRadius: 30,
-                ),
-              ): Container(
+              const SizedBox(
+                width: 2,
               ),
+              chatMap['sendBy'] != widget.user.displayName
+                  ? Container(
+                      margin: const EdgeInsets.only(bottom: 5),
+                      height: size.width / 13,
+                      width: size.width / 13,
+                      child: CircleAvatar(
+                        backgroundImage: NetworkImage(chatMap['avatar']),
+                        maxRadius: 30,
+                      ),
+                    )
+                  : Container(),
               Column(
                 children: [
-                  chatMap['sendBy'] != widget.user.displayName ?
-                  Container(
-                    padding: const EdgeInsets.only(left: 8),
-                    width:  size.width * 0.7,
-                    alignment:  Alignment.centerLeft,
-                    child: Text(
-                      chatMap['sendBy'],
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                  ): Container(),
+                  chatMap['sendBy'] != widget.user.displayName
+                      ? Container(
+                          padding: const EdgeInsets.only(left: 8),
+                          width: size.width * 0.7,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            chatMap['sendBy'],
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey.shade800,
+                            ),
+                          ),
+                        )
+                      : Container(),
                   GestureDetector(
-                    onLongPress: (){
-                      if(chatMap['sendBy'] == widget.user.displayName){
-                        changeMessage(index, length, chatMap['message'], chatMap['type']);
+                    onLongPress: () {
+                      if (chatMap['sendBy'] == widget.user.displayName) {
+                        changeMessage(
+                            index, length, chatMap['message'], chatMap['type']);
                       }
                     },
                     child: Container(
-                      width: chatMap['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.7,
-                      alignment: chatMap['sendBy'] == widget.user.displayName ? Alignment.centerRight : Alignment.centerLeft,
+                      width: chatMap['sendBy'] == widget.user.displayName
+                          ? size.width * 0.98
+                          : size.width * 0.7,
+                      alignment: chatMap['sendBy'] == widget.user.displayName
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
                       child: Container(
-                        constraints: BoxConstraints( maxWidth: size.width / 1.5),
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                        constraints: BoxConstraints(maxWidth: size.width / 1.5),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 12),
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
                           color: Colors.blueAccent,
@@ -519,39 +618,48 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               ),
             ],
           );
-        }
-        else if(chatMap['type'] == 'img') {
+        } else if (chatMap['type'] == 'img') {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const SizedBox(width: 2,),
-              chatMap['sendBy'] != widget.user.displayName ?
-              Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                height: size.width / 13 ,
-                width: size.width / 13 ,
-                child: CircleAvatar(
-                  backgroundImage: NetworkImage(chatMap['avatar']),
-                  maxRadius: 30,
-                ),
-              ): Container(
+              const SizedBox(
+                width: 2,
               ),
+              chatMap['sendBy'] != widget.user.displayName
+                  ? Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      height: size.width / 13,
+                      width: size.width / 13,
+                      child: CircleAvatar(
+                        backgroundImage: NetworkImage(chatMap['avatar']),
+                        maxRadius: 30,
+                      ),
+                    )
+                  : Container(),
               GestureDetector(
-                onLongPress: (){
-                  if(chatMap['sendBy'] == widget.user.displayName){
-                    changeMessage(index, length, chatMap['message'], chatMap['type']);
+                onLongPress: () {
+                  if (chatMap['sendBy'] == widget.user.displayName) {
+                    changeMessage(
+                        index, length, chatMap['message'], chatMap['type']);
                   }
                 },
                 child: Container(
                   height: size.height / 2.5,
-                  width: chatMap['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
-                  padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 10),
+                  width: chatMap['sendBy'] == widget.user.displayName
+                      ? size.width * 0.98
+                      : size.width * 0.77,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                   alignment: chatMap['sendBy'] == widget.user.displayName
                       ? Alignment.centerRight
                       : Alignment.centerLeft,
                   child: InkWell(
                     onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => ShowImage(imageUrl: chatMap['message'], isDeviceConnected: widget.isDeviceConnected,)),
+                      MaterialPageRoute(
+                          builder: (context) => ShowImage(
+                                imageUrl: chatMap['message'],
+                                isDeviceConnected: widget.isDeviceConnected,
+                              )),
                     ),
                     child: Container(
                       height: size.height / 2.5,
@@ -559,15 +667,26 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      alignment: chatMap['message'] != "" && widget.isDeviceConnected == true ? null : Alignment.center,
-                      child: chatMap['message'] != "" && widget.isDeviceConnected == true ? ClipRRect(borderRadius: BorderRadius.circular(18.0),child: CachedNetworkImage( fit: BoxFit.cover, imageUrl: chatMap['message'],)) : const CircularProgressIndicator(),
+                      alignment: chatMap['message'] != "" &&
+                              widget.isDeviceConnected == true
+                          ? null
+                          : Alignment.center,
+                      child: chatMap['message'] != "" &&
+                              widget.isDeviceConnected == true
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(18.0),
+                              child: CachedNetworkImage(
+                                fit: BoxFit.cover,
+                                imageUrl: chatMap['message'],
+                              ))
+                          : const CircularProgressIndicator(),
                     ),
                   ),
                 ),
               ),
             ],
           );
-        }else if(chatMap['type'] == 'notify'){
+        } else if (chatMap['type'] == 'notify') {
           return Container(
             width: size.width,
             alignment: Alignment.center,
@@ -588,36 +707,45 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               ),
             ),
           );
-        } else if(chatMap['type']  == 'location') {
+        } else if (chatMap['type'] == 'location') {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const SizedBox(width: 2,),
-              chatMap['sendBy'] != widget.user.displayName ?
-              Container(
-                margin: const EdgeInsets.only(bottom: 5),
-                height: size.width / 13 ,
-                width: size.width / 13 ,
-                child: CircleAvatar(
-                  backgroundImage: NetworkImage(chatMap['avatar']),
-                  maxRadius: 30,
-                ),
-              ): Container(
+              const SizedBox(
+                width: 2,
               ),
+              chatMap['sendBy'] != widget.user.displayName
+                  ? Container(
+                      margin: const EdgeInsets.only(bottom: 5),
+                      height: size.width / 13,
+                      width: size.width / 13,
+                      child: CircleAvatar(
+                        backgroundImage: NetworkImage(chatMap['avatar']),
+                        maxRadius: 30,
+                      ),
+                    )
+                  : Container(),
               GestureDetector(
-                onLongPress: (){
-                  if(chatMap['sendBy'] == widget.user.displayName){
-                    changeMessage(index, length, chatMap['message'], chatMap['type']);
+                onLongPress: () {
+                  if (chatMap['sendBy'] == widget.user.displayName) {
+                    changeMessage(
+                        index, length, chatMap['message'], chatMap['type']);
                   }
                 },
                 child: Container(
-                  width: chatMap['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
-                  alignment: chatMap['sendBy'] == widget.user.displayName  ? Alignment.centerRight : Alignment.centerLeft,
+                  width: chatMap['sendBy'] == widget.user.displayName
+                      ? size.width * 0.98
+                      : size.width * 0.77,
+                  alignment: chatMap['sendBy'] == widget.user.displayName
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
                   child: Container(
                     width: size.width / 2,
                     // constraints: BoxConstraints( maxWidth: size.width / 1.5),
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.grey.shade800,
@@ -638,7 +766,9 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                                 size: 18,
                               ),
                             ),
-                            const SizedBox(width: 10,),
+                            const SizedBox(
+                              width: 10,
+                            ),
                             Expanded(
                               child: Column(
                                 children: [
@@ -651,7 +781,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                                   ),
                                   Text(
                                     // int.parse(map['timeSpend'].toString()) < 60 ?
-                                    "Da bat dau chia se" ,
+                                    "Da bat dau chia se",
                                     // : (map['timeSpend'] / 60).toString() + "p "+ (map['timeSpend'] % 60).toString() + "s",
                                     style: TextStyle(
                                       fontSize: 13,
@@ -663,9 +793,11 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10,),
+                        const SizedBox(
+                          height: 10,
+                        ),
                         GestureDetector(
-                          onTap: (){
+                          onTap: () {
                             takeUserLocation(chatMap['uid']);
                           },
                           child: Container(
@@ -678,9 +810,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                             ),
                             child: Container(
                               alignment: Alignment.center,
-                              child: const Text(
-                                  "Xem vi tri"
-                              ),
+                              child: const Text("Xem vi tri"),
                             ),
                           ),
                         )
@@ -691,36 +821,45 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               ),
             ],
           );
-        } else if(chatMap['type'] == 'locationed') {
+        } else if (chatMap['type'] == 'locationed') {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const SizedBox(width: 2,),
-              chatMap['sendBy'] != widget.user.displayName ?
-              Container(
-                margin: const EdgeInsets.only(bottom: 5),
-                height: size.width / 13 ,
-                width: size.width / 13 ,
-                child: CircleAvatar(
-                  backgroundImage: NetworkImage(chatMap['avatar']),
-                  maxRadius: 30,
-                ),
-              ): Container(
+              const SizedBox(
+                width: 2,
               ),
+              chatMap['sendBy'] != widget.user.displayName
+                  ? Container(
+                      margin: const EdgeInsets.only(bottom: 5),
+                      height: size.width / 13,
+                      width: size.width / 13,
+                      child: CircleAvatar(
+                        backgroundImage: NetworkImage(chatMap['avatar']),
+                        maxRadius: 30,
+                      ),
+                    )
+                  : Container(),
               GestureDetector(
-                onLongPress: (){
-                  if(chatMap['sendBy'] == widget.user.displayName){
-                    changeMessage(index, length, chatMap['message'], chatMap['type']);
+                onLongPress: () {
+                  if (chatMap['sendBy'] == widget.user.displayName) {
+                    changeMessage(
+                        index, length, chatMap['message'], chatMap['type']);
                   }
                 },
                 child: Container(
-                  width: chatMap['sendBy'] == widget.user.displayName ?  size.width * 0.98 : size.width * 0.77,
-                  alignment: chatMap['sendBy'] == widget.user.displayName  ? Alignment.centerRight : Alignment.centerLeft,
+                  width: chatMap['sendBy'] == widget.user.displayName
+                      ? size.width * 0.98
+                      : size.width * 0.77,
+                  alignment: chatMap['sendBy'] == widget.user.displayName
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
                   child: Container(
                     width: size.width / 1.8,
                     // constraints: BoxConstraints( maxWidth: size.width / 1.5),
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.grey.shade700,
@@ -741,7 +880,9 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                                 size: 18,
                               ),
                             ),
-                            const SizedBox(width: 10,),
+                            const SizedBox(
+                              width: 10,
+                            ),
                             const Text(
                               "Chia sẻ vị trí đã kết thúc",
                               style: TextStyle(
@@ -758,8 +899,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               ),
             ],
           );
-        }
-        else {
+        } else {
           return Container();
         }
       }
@@ -768,10 +908,16 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
 
   bool? isLocationed;
   void checkUserisLocationed() async {
-    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.groupChatId).get().then((value) {
+    await _firestore
+        .collection('users')
+        .doc(_auth.currentUser!.uid)
+        .collection('location')
+        .doc(widget.groupChatId)
+        .get()
+        .then((value) {
       isLocationed = value.data()!['isLocationed'];
     });
-    if(isLocationed == true) {
+    if (isLocationed == true) {
       return showTurnOffLocation();
     } else {
       return showTurnOnLocation();
@@ -781,7 +927,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
   void showTurnOnLocation() {
     showModalBottomSheet(
         backgroundColor: Colors.grey,
-        shape:  RoundedRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
         ),
         context: context,
@@ -804,8 +950,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               ),
             ),
           );
-        }
-    );
+        });
   }
 
   void turnOnLocation() async {
@@ -813,38 +958,58 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       lat = '${value.latitude}';
       long = '${value.longitude}';
     });
-    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.groupChatId).set({
-      'isLocationed' : true,
-      'lat' : lat,
-      'long' : long,
+    await _firestore
+        .collection('users')
+        .doc(_auth.currentUser!.uid)
+        .collection('location')
+        .doc(widget.groupChatId)
+        .set({
+      'isLocationed': true,
+      'lat': lat,
+      'long': long,
     });
     sendLocation();
   }
 
   void sendLocation() async {
     String messageId = const Uuid().v1();
-    await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').doc(messageId).set({
-      'sendBy' : widget.user.displayName,
-      'message' : '${widget.user.displayName} đã gửi một vị trí trực tiếp',
-      'type' : "location",
-      'time' :  timeForMessage(DateTime.now().toString()),
-      'avatar' : avatarUrl,
-      'messageId' : messageId,
-      'uid' : _auth.currentUser!.uid,
-      'timeStamp' : DateTime.now(),
+    await _firestore
+        .collection('groups')
+        .doc(widget.groupChatId)
+        .collection('chats')
+        .doc(messageId)
+        .set({
+      'sendBy': widget.user.displayName,
+      'message': '${widget.user.displayName} đã gửi một vị trí trực tiếp',
+      'type': "location",
+      'time': timeForMessage(DateTime.now().toString()),
+      'avatar': avatarUrl,
+      'messageId': messageId,
+      'uid': _auth.currentUser!.uid,
+      'timeStamp': DateTime.now(),
     });
 
-    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.groupChatId).update({
-      'messageId' : messageId,
+    await _firestore
+        .collection('users')
+        .doc(_auth.currentUser!.uid)
+        .collection('location')
+        .doc(widget.groupChatId)
+        .update({
+      'messageId': messageId,
     });
 
-    for(int i = 0 ; i < memberList.length ; i++) {
-      await _firestore.collection('users').doc(memberList[i]['uid']).collection('chatHistory').doc(widget.groupChatId).update({
-        'lastMessage' : "${widget.user.displayName} đã gửi một vị trí trực tiếp",
-        'type' : "location",
-        'time' : timeForMessage(DateTime.now().toString()),
-        'timeStamp' : DateTime.now(),
-        'isRead' : false,
+    for (int i = 0; i < memberList.length; i++) {
+      await _firestore
+          .collection('users')
+          .doc(memberList[i]['uid'])
+          .collection('chatHistory')
+          .doc(widget.groupChatId)
+          .update({
+        'lastMessage': "${widget.user.displayName} đã gửi một vị trí trực tiếp",
+        'type': "location",
+        'time': timeForMessage(DateTime.now().toString()),
+        'timeStamp': DateTime.now(),
+        'isRead': false,
       });
     }
     // scrollToIndex();
@@ -853,7 +1018,13 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
   String? userLat;
   String? userLong;
   void takeUserLocation(String uid) async {
-    await _firestore.collection('users').doc(uid).collection('location').doc(widget.groupChatId).get().then((value) {
+    await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('location')
+        .doc(widget.groupChatId)
+        .get()
+        .then((value) {
       userLat = value.data()!['lat'];
       userLong = value.data()!['long'];
     });
@@ -863,7 +1034,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
   void showTurnOffLocation() {
     showModalBottomSheet(
         backgroundColor: Colors.grey,
-        shape:  RoundedRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
         ),
         context: context,
@@ -887,27 +1058,43 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               ),
             ),
           );
-        }
-    );
+        });
   }
 
   void turnOffLocation() async {
     String? messageId;
-    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.groupChatId).update({
-      'isLocationed' : false,
+    await _firestore
+        .collection('users')
+        .doc(_auth.currentUser!.uid)
+        .collection('location')
+        .doc(widget.groupChatId)
+        .update({
+      'isLocationed': false,
     });
-    await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('location').doc(widget.groupChatId).get().then((value){
-      messageId =  value.data()!['messageId'];
+    await _firestore
+        .collection('users')
+        .doc(_auth.currentUser!.uid)
+        .collection('location')
+        .doc(widget.groupChatId)
+        .get()
+        .then((value) {
+      messageId = value.data()!['messageId'];
     });
-    await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').doc(messageId).update({
-      'type' : 'locationed' ,
+    await _firestore
+        .collection('groups')
+        .doc(widget.groupChatId)
+        .collection('chats')
+        .doc(messageId)
+        .update({
+      'type': 'locationed',
     });
   }
 
-  void changeMessage(int index, int length, String message, String messageType) {
+  void changeMessage(
+      int index, int length, String message, String messageType) {
     showModalBottomSheet(
         backgroundColor: Colors.grey,
-        shape:  RoundedRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
         ),
         context: context,
@@ -936,38 +1123,34 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                     ),
                   ),
                 ),
-                messageType == 'text' ?
-                Expanded(
-                  child: GestureDetector(
-                    onTap: (){
-                      showEditForm(index, length, message);
-                    },
-                    child: Container(
-                      decoration: const BoxDecoration(
-                          border: Border(
-                              top: BorderSide(
-                                  color: Colors.black26,
-                                  width: 1.5
-                              )
-                          )
-                      ),
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width,
-                      child: const Text(
-                        "Edit message",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 18,
+                messageType == 'text'
+                    ? Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            showEditForm(index, length, message);
+                          },
+                          child: Container(
+                            decoration: const BoxDecoration(
+                                border: Border(
+                                    top: BorderSide(
+                                        color: Colors.black26, width: 1.5))),
+                            alignment: Alignment.center,
+                            width: MediaQuery.of(context).size.width,
+                            child: const Text(
+                              "Edit message",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                ) : Container(),
+                      )
+                    : Container(),
               ],
             ),
           );
-        }
-    );
+        });
   }
 
   void showEditForm(int index, int length, String message) {
@@ -980,33 +1163,49 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       builder: (_) {
         return AlertDialog(
             content: TextField(
-              controller: _controller,
-              onSubmitted: (text) {
-                editMessage(index, length, text);
-                Navigator.pop(context);
-              },
-            )
-        );
+          controller: _controller,
+          onSubmitted: (text) {
+            editMessage(index, length, text);
+            Navigator.pop(context);
+          },
+        ));
       },
     );
   }
+
   void editMessage(int index, int length, String message) async {
     String? str;
-    await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').orderBy('timeStamp').get().then((value) {
+    await _firestore
+        .collection('groups')
+        .doc(widget.groupChatId)
+        .collection('chats')
+        .orderBy('timeStamp')
+        .get()
+        .then((value) {
       str = value.docs[index].id;
     });
-    if(str != null) {
-      await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').doc(str).update({
-        'message' : message,
-        'status' : 'edited',
+    if (str != null) {
+      await _firestore
+          .collection('groups')
+          .doc(widget.groupChatId)
+          .collection('chats')
+          .doc(str)
+          .update({
+        'message': message,
+        'status': 'edited',
       });
-      if(index == length - 1){
-        for(int i = 0; i < memberList.length ; i++ ){
-          await _firestore.collection('users').doc(memberList[i]['uid']).collection('chatHistory').doc(widget.groupChatId).update({
-            'lastMessage' : '${widget.user.displayName}: $message',
-            'time' : timeForMessage(DateTime.now().toString()),
-            'timeStamp' : DateTime.now(),
-            'isRead' : false,
+      if (index == length - 1) {
+        for (int i = 0; i < memberList.length; i++) {
+          await _firestore
+              .collection('users')
+              .doc(memberList[i]['uid'])
+              .collection('chatHistory')
+              .doc(widget.groupChatId)
+              .update({
+            'lastMessage': '${widget.user.displayName}: $message',
+            'time': timeForMessage(DateTime.now().toString()),
+            'timeStamp': DateTime.now(),
+            'isRead': false,
           });
         }
       }
@@ -1015,21 +1214,37 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
 
   void removeMessage(int index, int length) async {
     String? str;
-    await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').orderBy('timeStamp').get().then((value) {
+    await _firestore
+        .collection('groups')
+        .doc(widget.groupChatId)
+        .collection('chats')
+        .orderBy('timeStamp')
+        .get()
+        .then((value) {
       str = value.docs[index].id;
     });
-    if(str != null) {
-      await _firestore.collection('groups').doc(widget.groupChatId).collection('chats').doc(str).update({
-        'message' : 'Bạn đã xóa một tin nhắn',
-        'status' : 'removed',
+    if (str != null) {
+      await _firestore
+          .collection('groups')
+          .doc(widget.groupChatId)
+          .collection('chats')
+          .doc(str)
+          .update({
+        'message': 'Bạn đã xóa một tin nhắn',
+        'status': 'removed',
       });
-      if(index == length - 1){
-        for(int i = 0; i < memberList.length; i++) {
-          await _firestore.collection('users').doc(memberList[i]['uid']).collection('chatHistory').doc(widget.groupChatId).update({
-            'lastMessage' : '${widget.user.displayName} đã xóa một tin nhắn',
-            'time' : timeForMessage(DateTime.now().toString()),
-            'timeStamp' : DateTime.now(),
-            'isRead' : false,
+      if (index == length - 1) {
+        for (int i = 0; i < memberList.length; i++) {
+          await _firestore
+              .collection('users')
+              .doc(memberList[i]['uid'])
+              .collection('chatHistory')
+              .doc(widget.groupChatId)
+              .update({
+            'lastMessage': '${widget.user.displayName} đã xóa một tin nhắn',
+            'time': timeForMessage(DateTime.now().toString()),
+            'timeStamp': DateTime.now(),
+            'isRead': false,
           });
         }
       }
@@ -1039,33 +1254,25 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
   showDialogInternetCheck() => showCupertinoDialog<String>(
       context: context,
       builder: (BuildContext context) => CupertinoAlertDialog(
-        title: const Text(
-          'No Connection',
-          style: TextStyle(
-            letterSpacing: 0.5,
-          ),
-        ),
-        content: const Text(
-          'Please check your internet connectivity',
-          style: TextStyle(
-              letterSpacing: 0.5,
-              fontSize: 12
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-              onPressed: () async {
-                Navigator.pop(context, 'Cancel');
-              },
-              child: const Text(
-                'OK',
-                style: TextStyle(
-                    letterSpacing: 0.5,
-                    fontSize: 15
-                ),
-              )
-          )
-        ],
-      )
-  );
+            title: const Text(
+              'No Connection',
+              style: TextStyle(
+                letterSpacing: 0.5,
+              ),
+            ),
+            content: const Text(
+              'Please check your internet connectivity',
+              style: TextStyle(letterSpacing: 0.5, fontSize: 12),
+            ),
+            actions: <Widget>[
+              TextButton(
+                  onPressed: () async {
+                    Navigator.pop(context, 'Cancel');
+                  },
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(letterSpacing: 0.5, fontSize: 15),
+                  ))
+            ],
+          ));
 }

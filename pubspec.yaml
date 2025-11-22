@@ -80,6 +80,7 @@ dependencies:
   # Rive updated for Flutter 3.38.0
   rive: ^0.14.0-dev.14
 
+  path: any
 dependency_overrides:
   # Force upgrade win32 to fix Flutter 3.38.0 compatibility
   win32: ^5.15.0

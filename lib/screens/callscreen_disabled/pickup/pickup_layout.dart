@@ -7,9 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../../models/call_model.dart';
 
-
 class PickUpLayout extends StatelessWidget {
-
   final Widget scaffold;
   final CallMethods callMethods = CallMethods();
 
@@ -17,28 +15,28 @@ class PickUpLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final UserProvider userProvider = Provider.of<UserProvider>(context);
 
-    return (userProvider.getUser != null) ?
-    StreamBuilder<DocumentSnapshot>(
-      stream: callMethods.callStream(uid: userProvider.getUser!.uid),
-      builder: (context, snapshot) {
-        if(snapshot.hasData && snapshot.data?.data() != null) {
-          Call call = Call.fromMap(snapshot.data?.data() as Map<String, dynamic>);
-          if (!call.hasDialled!) {
-            return PickUpScreen(call: call);
-          }
-        } else {
-          return scaffold;
-        }
-        return scaffold;
-      },
-    )
+    return (userProvider.getUser != null)
+        ? StreamBuilder<DocumentSnapshot>(
+            stream: callMethods.callStream(uid: userProvider.getUser!.uid),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data?.data() != null) {
+                Call call =
+                    Call.fromMap(snapshot.data?.data() as Map<String, dynamic>);
+                if (!call.hasDialled!) {
+                  return PickUpScreen(call: call);
+                }
+              } else {
+                return scaffold;
+              }
+              return scaffold;
+            },
+          )
         : Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
   }
 }

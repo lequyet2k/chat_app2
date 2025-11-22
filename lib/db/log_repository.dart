@@ -6,7 +6,7 @@ class LogRepository {
   static var dbObject;
 
   static init({required String dbName}) {
-    dbObject =  SqliteMethodsforCallLog();
+    dbObject = SqliteMethodsforCallLog();
     dbObject.openDb(dbName);
     dbObject.init();
   }

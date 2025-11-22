@@ -32,7 +32,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
-
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -43,19 +42,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool isAlertSet = false;
 
   getConnectivity() async {
-    return subscription = Connectivity().onConnectivityChanged.listen(
-          (List<ConnectivityResult> results) async {
-            isDeviceConnected = await InternetConnection().hasInternetAccess;
-            setState(() {});
-            if(!isDeviceConnected && isAlertSet == false) {
-              showDialogInternetCheck();
-              setState(() {
-                isAlertSet = true;
-              });
-            }
-
-          }
-      );
+    return subscription = Connectivity()
+        .onConnectivityChanged
+        .listen((List<ConnectivityResult> results) async {
+      isDeviceConnected = await InternetConnection().hasInternetAccess;
+      setState(() {});
+      if (!isDeviceConnected && isAlertSet == false) {
+        showDialogInternetCheck();
+        setState(() {
+          isAlertSet = true;
+        });
+      }
+    });
   }
 
   @override
@@ -81,58 +79,64 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   showDialogInternetCheck() => showCupertinoDialog<String>(
       context: context,
       builder: (BuildContext context) => CupertinoAlertDialog(
-        title: const Text(
-          'No Connection',
-          style: TextStyle(
-            letterSpacing: 0.5,
-          ),
-        ),
-        content: const Text(
-            'Please check your internet connectivity',
-          style: TextStyle(
-            letterSpacing: 0.5,
-            fontSize: 12
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-              onPressed: () async {
-                Navigator.pop(context, 'Cancel');
-                setState(() {
-                  isAlertSet = false;
-                });
-                isDeviceConnected = await InternetConnection().hasInternetAccess;
-              },
-              child: const Text(
-                  'OK',
-                style: TextStyle(
-                  letterSpacing: 0.5,
-                  fontSize: 15
-                ),
-              )
-          )
-        ],
-      )
-  );
+            title: const Text(
+              'No Connection',
+              style: TextStyle(
+                letterSpacing: 0.5,
+              ),
+            ),
+            content: const Text(
+              'Please check your internet connectivity',
+              style: TextStyle(letterSpacing: 0.5, fontSize: 12),
+            ),
+            actions: <Widget>[
+              TextButton(
+                  onPressed: () async {
+                    Navigator.pop(context, 'Cancel');
+                    setState(() {
+                      isAlertSet = false;
+                    });
+                    isDeviceConnected =
+                        await InternetConnection().hasInternetAccess;
+                  },
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(letterSpacing: 0.5, fontSize: 15),
+                  ))
+            ],
+          ));
 
   void setStatus(String status) async {
     await _firestore.collection('users').doc(_auth.currentUser?.uid).update({
-      "status" : status,
+      "status": status,
     });
   }
 
   void changeStatus(String statuss) async {
     int? n;
-    await FirebaseFirestore.instance.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value) => {
-      n = value.docs.length
-    });
-    for(int i = 0 ; i < n! ; i++) {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(_auth.currentUser!.uid)
+        .collection('chatHistory')
+        .get()
+        .then((value) => {n = value.docs.length});
+    for (int i = 0; i < n!; i++) {
       String? uId;
-      await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').get().then((value) async {
-        if(value.docs[i]['datatype'] == 'p2p'){
-          uId = value.docs[i]['uid'] ;
-          await _firestore.collection('users').doc(uId).collection('chatHistory').doc(_auth.currentUser!.uid).update({
-            'status' : statuss,
+      await _firestore
+          .collection('users')
+          .doc(_auth.currentUser!.uid)
+          .collection('chatHistory')
+          .get()
+          .then((value) async {
+        if (value.docs[i]['datatype'] == 'p2p') {
+          uId = value.docs[i]['uid'];
+          await _firestore
+              .collection('users')
+              .doc(uId)
+              .collection('chatHistory')
+              .doc(_auth.currentUser!.uid)
+              .update({
+            'status': statuss,
           });
         }
       });
@@ -141,39 +145,44 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if(state == AppLifecycleState.resumed) {
+    if (state == AppLifecycleState.resumed) {
       setStatus("Online");
       changeStatus('Online');
-    }else {
+    } else {
       setStatus("Offline");
       changeStatus('Offline');
     }
   }
-  int _selectedIndex = 0 ;
+
+  int _selectedIndex = 0;
 
   Widget body(int index) {
-    if(index == 0) {
+    if (index == 0) {
       return listChat(widget.user);
-    } else if(index == 2) {
+    } else if (index == 2) {
       return const CallLogScreen();
-    } else if(index == 1){
-      return GroupChatHomeScreen(user: widget.user, isDeviceConnected: isDeviceConnected,);
+    } else if (index == 1) {
+      return GroupChatHomeScreen(
+        user: widget.user,
+        isDeviceConnected: isDeviceConnected,
+      );
     } else {
       return Container();
     }
   }
 
-
   Widget appBar(int index) {
-    if(index == 0 || index == 1 || index == 2){
+    if (index == 0 || index == 1 || index == 2) {
       return searchAndStatusBar();
     } else {
-      return Setting(user: widget.user, isDeviceConnected: isDeviceConnected,);
+      return Setting(
+        user: widget.user,
+        isDeviceConnected: isDeviceConnected,
+      );
     }
   }
 
-
-  void _onItemTapped(int index){
+  void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
@@ -186,46 +195,46 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void onSearch() async {
     showSearch(
       context: context,
-      delegate: CustomSearch(user: widget.user,isDeviceConnected : isDeviceConnected),
+      delegate:
+          CustomSearch(user: widget.user, isDeviceConnected: isDeviceConnected),
     );
     _search.clear();
   }
 
   @override
   Widget build(BuildContext context) {
-
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-            body: appBar(_selectedIndex),
-            bottomNavigationBar: BottomNavigationBar(
-              selectedItemColor: Colors.blueAccent,
-              unselectedItemColor: Colors.grey.shade600,
-              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
-              unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
-              type: BottomNavigationBarType.fixed,
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.messenger),
-                  label: "Message",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.group),
-                  label: "Group",
-                ),
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.call),
-                  label: "Calls",
-                ),
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.settings),
-                  label: "Setting",
-                ),
-            ],
-              currentIndex: _selectedIndex,
-              onTap: _onItemTapped,
+        body: appBar(_selectedIndex),
+        bottomNavigationBar: BottomNavigationBar(
+          selectedItemColor: Colors.blueAccent,
+          unselectedItemColor: Colors.grey.shade600,
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
+          type: BottomNavigationBarType.fixed,
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.messenger),
+              label: "Message",
             ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.group),
+              label: "Group",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.call),
+              label: "Calls",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: "Setting",
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
         ),
+      ),
     );
   }
 
@@ -234,38 +243,46 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          margin: const EdgeInsets.only(top: 15,left: 15),
-          child: const Text(
-            'Recent Chats',
-            style: TextStyle(
-              color: Colors.black54,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
-            )
-          ),
+          margin: const EdgeInsets.only(top: 15, left: 15),
+          child: const Text('Recent Chats',
+              style: TextStyle(
+                color: Colors.black54,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              )),
         ),
         Expanded(
           child: SingleChildScrollView(
             child: StreamBuilder(
-                stream: _firestore.collection('users').doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0").collection('chatHistory').orderBy('timeStamp',descending: true).snapshots(),
-                builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if(snapshot.data!= null){
+                stream: _firestore
+                    .collection('users')
+                    .doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0")
+                    .collection('chatHistory')
+                    .orderBy('timeStamp', descending: true)
+                    .snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.data != null) {
                     return ListView.builder(
                       itemCount: snapshot.data?.docs.length,
                       shrinkWrap: true,
                       padding: const EdgeInsets.only(top: 5),
                       physics: const NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
-                        Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
-                        return ConversationList(chatHistory: map,user: widget.user, isDeviceConnected: isDeviceConnected, );
+                        Map<String, dynamic> map = snapshot.data?.docs[index]
+                            .data() as Map<String, dynamic>;
+                        return ConversationList(
+                          chatHistory: map,
+                          user: widget.user,
+                          isDeviceConnected: isDeviceConnected,
+                        );
                       },
                     );
                   } else {
                     return Container();
                   }
-                }
-            ),
+                }),
           ),
         ),
       ],
@@ -284,21 +301,25 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               children: <Widget>[
                 const Text(
                   "Conversations",
-                  style: TextStyle(fontSize: 22,fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 GestureDetector(
-                  onTap: (){
-                    if(isDeviceConnected == false) {
+                  onTap: () {
+                    if (isDeviceConnected == false) {
                       showDialogInternetCheck();
                     } else {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ChatBot(user: widget.user,)),
+                        MaterialPageRoute(
+                            builder: (context) => ChatBot(
+                                  user: widget.user,
+                                )),
                       );
                     }
                   },
                   child: Container(
-                    padding: const EdgeInsets.only(left: 8, right: 8, top: 2, bottom: 2),
+                    padding: const EdgeInsets.only(
+                        left: 8, right: 8, top: 2, bottom: 2),
                     height: 30,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
@@ -307,7 +328,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     child: Row(
                       children: <Widget>[
                         Tab(
-                          icon: Image.asset( //        <-- Image
+                          icon: Image.asset(
+                            //        <-- Image
                             'assets/icons/chatbot-icon.png',
                             height: 25,
                             fit: BoxFit.cover,
@@ -315,9 +337,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         ),
                         const Text(
                           "ChatBot",
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(width : 5),
+                        const SizedBox(width: 5),
                       ],
                     ),
                   ),
@@ -333,7 +356,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             decoration: InputDecoration(
               hintText: "Search..",
               hintStyle: TextStyle(color: Colors.grey.shade600),
-              prefixIcon: Icon(Icons.search, color: Colors.grey.shade600, size: 20,),
+              prefixIcon: Icon(
+                Icons.search,
+                color: Colors.grey.shade600,
+                size: 20,
+              ),
               filled: true,
               fillColor: Colors.grey.shade100,
               contentPadding: const EdgeInsets.all(8.0),
@@ -341,12 +368,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   borderRadius: BorderRadius.circular(20),
                   borderSide: BorderSide(
                     color: Colors.grey.shade100,
-                  )
-              ),
+                  )),
             ),
             controller: _search,
             onTap: () {
-              if(isDeviceConnected == false) {
+              if (isDeviceConnected == false) {
                 showDialogInternetCheck();
               } else {
                 onSearch();
@@ -354,7 +380,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             },
           ),
         ),
-        const SizedBox(height: 7 ,),
+        const SizedBox(
+          height: 7,
+        ),
         // isDeviceConnected == false
         //     ? Container(
         //   alignment: Alignment.center,
@@ -370,12 +398,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         //   ),
         // ) : Container(),
         StreamBuilder<List<ConnectivityResult>>(
-          stream: Connectivity().onConnectivityChanged,
+            stream: Connectivity().onConnectivityChanged,
             builder: (_, snapshot) {
-              switch(snapshot.connectionState){
-                case ConnectionState.active :
+              switch (snapshot.connectionState) {
+                case ConnectionState.active:
                   final states = snapshot.data;
-                  if (states != null && states.contains(ConnectivityResult.none)) {
+                  if (states != null &&
+                      states.contains(ConnectivityResult.none)) {
                     return Container(
                       alignment: Alignment.center,
                       width: MediaQuery.of(context).size.width,
@@ -391,36 +420,50 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     );
                   }
                   return Container();
-                default :
+                default:
                   return Container();
               }
-            }
+            }),
+        const SizedBox(
+          height: 5,
         ),
-        const SizedBox(height: 5,),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: StreamBuilder(
-              stream: _firestore.collection('users').doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0").collection('chatHistory').orderBy('status',descending: false).snapshots(),
-              builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot)  {
-                if(snapshot.data!= null){
+              stream: _firestore
+                  .collection('users')
+                  .doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0")
+                  .collection('chatHistory')
+                  .orderBy('status', descending: false)
+                  .snapshots(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.data != null) {
                   return Row(
                     textDirection: TextDirection.rtl,
-                    children: List.generate((snapshot.data?.docs.length as int ), (index) {
-                      Map<String, dynamic> map = snapshot.data?.docs[index].data() as Map<String, dynamic>;
-                      String roomId = ChatRoomId().chatRoomId(widget.user.displayName, map['name']);
-                      if(map['datatype'] != 'group'){
+                    children: List.generate((snapshot.data?.docs.length as int),
+                        (index) {
+                      Map<String, dynamic> map = snapshot.data?.docs[index]
+                          .data() as Map<String, dynamic>;
+                      String roomId = ChatRoomId()
+                          .chatRoomId(widget.user.displayName, map['name']);
+                      if (map['datatype'] != 'group') {
                         return GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context){
-                                  return ChatScreen(chatRoomId: roomId, userMap: map, user: widget.user, isDeviceConnected: isDeviceConnected,);
-                                })
-                            );
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return ChatScreen(
+                                chatRoomId: roomId,
+                                userMap: map,
+                                user: widget.user,
+                                isDeviceConnected: isDeviceConnected,
+                              );
+                            }));
                           },
                           child: Padding(
-                              padding: const EdgeInsets.only(left:5,right: 10),
-                              child :Column(
+                              padding:
+                                  const EdgeInsets.only(left: 5, right: 10),
+                              child: Column(
                                 children: <Widget>[
                                   SizedBox(
                                     width: 60,
@@ -433,40 +476,41 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                           decoration: BoxDecoration(
                                               shape: BoxShape.circle,
                                               image: DecorationImage(
-                                                image: CachedNetworkImageProvider(
+                                                image:
+                                                    CachedNetworkImageProvider(
                                                   map['avatar'],
                                                 ),
                                                 fit: BoxFit.cover,
-                                              )
-                                          ),
+                                              )),
                                         ),
                                         map['status'] == 'Online'
                                             ? Positioned(
-                                          top: 38,
-                                          left: 42,
-                                          child: Container(
-                                            width: 20,
-                                            height: 20,
-                                            decoration: BoxDecoration(
-                                                color: const Color(0xFF66BB6A),
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color: const Color(0xFFFFFFFF),
-                                                  width: 3,
-                                                )
-                                            ),
-                                          ),
-                                        )
-                                            :Container(
-                                          width: 70,
-                                          height: 70,
-                                          decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              image: DecorationImage(
-                                                  image: NetworkImage(
-                                                      map['avatar']),
-                                                  fit: BoxFit.cover)),
-                                        ),
+                                                top: 38,
+                                                left: 42,
+                                                child: Container(
+                                                  width: 20,
+                                                  height: 20,
+                                                  decoration: BoxDecoration(
+                                                      color: const Color(
+                                                          0xFF66BB6A),
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                        color: const Color(
+                                                            0xFFFFFFFF),
+                                                        width: 3,
+                                                      )),
+                                                ),
+                                              )
+                                            : Container(
+                                                width: 70,
+                                                height: 70,
+                                                decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    image: DecorationImage(
+                                                        image: NetworkImage(
+                                                            map['avatar']),
+                                                        fit: BoxFit.cover)),
+                                              ),
                                       ],
                                     ),
                                   ),
@@ -483,8 +527,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                     ),
                                   ),
                                 ],
-                              )
-                          ),
+                              )),
                         );
                       } else {
                         return Container();
@@ -494,15 +537,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 } else {
                   return Container();
                 }
-              }
-          ),
+              }),
         ),
-        const SizedBox(height: 5,),
+        const SizedBox(
+          height: 5,
+        ),
         Expanded(
           child: Container(
             decoration: BoxDecoration(
               color: Colors.grey.shade200,
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20)),
+              borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20), topRight: Radius.circular(20)),
             ),
             child: body(_selectedIndex),
           ),
@@ -511,7 +556,3 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 }
-
-
-
-
