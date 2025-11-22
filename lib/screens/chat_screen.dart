@@ -17,6 +17,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:my_porject/models/user_model.dart';
+import 'package:my_porject/services/encrypted_chat_service.dart';
 
 // ignore: must_be_immutable
 class ChatScreen extends StatefulWidget {
@@ -95,6 +96,14 @@ class _ChatScreenState extends State<ChatScreen> {
   late String lat;
   late String long;
 
+  // Helper method to get decrypted message text
+  Future<String> _getMessageText(Map<String, dynamic> map) async {
+    if (map['encrypted'] == true) {
+      return await EncryptedChatService.decryptMessage(map);
+    }
+    return map['message'] ?? '';
+  }
+
   showDialogInternetCheck() => showCupertinoDialog<String>(
       context: context,
       builder: (BuildContext context) => CupertinoAlertDialog(
@@ -156,14 +165,34 @@ class _ChatScreenState extends State<ChatScreen> {
       _message.clear();
     });
     if(message.isNotEmpty) {
-      Map<String, dynamic> messages = {
-        'sendBy' : _auth.currentUser!.displayName,
-        'message' : message,
-        'type' : "text",
-        'time' :  timeForMessage(DateTime.now().toString()),
-        'timeStamp' : DateTime.now(),
-      };
-      await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').add(messages);
+      // Try to send encrypted message
+      final canEncrypt = await EncryptedChatService.canEncryptChat(widget.userMap['uid']);
+      
+      bool sent = false;
+      if (canEncrypt) {
+        // Send encrypted message
+        sent = await EncryptedChatService.sendEncryptedMessage(
+          recipientUid: widget.userMap['uid'],
+          message: message,
+          chatRoomId: widget.chatRoomId,
+          additionalData: {
+            'time': timeForMessage(DateTime.now().toString()),
+          },
+        );
+      }
+      
+      // Fallback to unencrypted if encryption not available
+      if (!sent) {
+        Map<String, dynamic> messages = {
+          'sendBy' : _auth.currentUser!.displayName,
+          'message' : message,
+          'encrypted': false,
+          'type' : "text",
+          'time' :  timeForMessage(DateTime.now().toString()),
+          'timeStamp' : DateTime.now(),
+        };
+        await _firestore.collection('chatroom').doc(widget.chatRoomId).collection('chats').add(messages);
+      }
       await _firestore.collection('chatroom').doc(widget.chatRoomId).set({
         'user1' : widget.user.displayName,
         'user2' : widget.userMap['name'],
@@ -603,11 +632,34 @@ class _ChatScreenState extends State<ChatScreen> {
                   margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
-                    color: Colors.blueAccent,
+                    color: map['encrypted'] == true ? Colors.green : Colors.blueAccent,
                   ),
-                  child: Text(
-                    map['message'],
-                    style: const TextStyle(color: Colors.white,fontSize: 17),
+                  child: FutureBuilder<String>(
+                    future: _getMessageText(map),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Text(
+                          'Decrypting...',
+                          style: TextStyle(color: Colors.white70, fontSize: 15, fontStyle: FontStyle.italic),
+                        );
+                      }
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (map['encrypted'] == true)
+                            const Padding(
+                              padding: EdgeInsets.only(right: 6),
+                              child: Icon(Icons.lock, color: Colors.white, size: 14),
+                            ),
+                          Flexible(
+                            child: Text(
+                              snapshot.data ?? map['message'] ?? '',
+                              style: const TextStyle(color: Colors.white, fontSize: 17),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),

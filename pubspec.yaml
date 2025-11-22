@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=2.15.0 <=3.0.0-21.0.dev'
+  sdk: '>=2.18.0 <3.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -66,6 +66,15 @@ dependencies:
   shared_preferences: ^2.0.15
   flutter_launcher_icons: ^0.11.0
   rename: ^2.0.1
+  
+  # End-to-End Encryption packages (Flutter 3.3.0 compatible)
+  encrypt: ^5.0.0
+  crypto: ^3.0.1
+  pointycastle: ^3.5.2
+  flutter_secure_storage: ^7.0.1
+  
+  # Fix rive version for Flutter 3.3.0 compatibility
+  rive: 0.9.1
 
 dev_dependencies:
   flutter_test:
