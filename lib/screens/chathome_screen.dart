@@ -11,7 +11,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/screens/call_log_screen.dart';
-import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
+// import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
 import 'package:my_porject/screens/chat_bot/chat_bot.dart';
 import 'package:my_porject/screens/finding_screen.dart';
 import 'package:my_porject/screens/setting.dart';
@@ -196,8 +196,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: PickUpLayout(
-        scaffold: Scaffold(
+      child: Scaffold(
             body: appBar(_selectedIndex),
             bottomNavigationBar: BottomNavigationBar(
               selectedItemColor: Colors.blueAccent,
@@ -227,7 +226,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               onTap: _onItemTapped,
             ),
         ),
-      ),
     );
   }
 
@@ -371,30 +369,28 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         //     ),
         //   ),
         // ) : Container(),
-        StreamBuilder<ConnectivityResult>(
+        StreamBuilder<List<ConnectivityResult>>(
           stream: Connectivity().onConnectivityChanged,
             builder: (_, snapshot) {
               switch(snapshot.connectionState){
                 case ConnectionState.active :
-                  final state = snapshot.data ;
-                  switch(state) {
-                    case ConnectivityResult.none:
-                      return Container(
-                        alignment: Alignment.center,
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height / 30,
-                        // color: Colors.red,
-                        child: const Text(
-                          'No Internet Connection',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                          ),
+                  final states = snapshot.data;
+                  if (states != null && states.contains(ConnectivityResult.none)) {
+                    return Container(
+                      alignment: Alignment.center,
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height / 30,
+                      // color: Colors.red,
+                      child: const Text(
+                        'No Internet Connection',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
                         ),
-                      );
-                    default :
-                      return Container();
+                      ),
+                    );
                   }
+                  return Container();
                 default :
                   return Container();
               }

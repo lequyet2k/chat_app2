@@ -8,8 +8,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:my_porject/resources/methods.dart';
-import 'package:my_porject/screens/callscreen/call_utils.dart';
-import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
+// import 'package:my_porject/screens/callscreen/call_utils.dart';
+// import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -359,8 +359,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: PickUpLayout(
-        scaffold: Scaffold(
+      child: Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.white,
             flexibleSpace: SafeArea(
@@ -411,10 +410,14 @@ class _ChatScreenState extends State<ChatScreen> {
                           if(widget.isDeviceConnected == false) {
                             showDialogInternetCheck();
                           } else {
-                            await CallUtils.dial(
-                              from: sender,
-                              to: receiver,
-                              context: context,
+                            // Video call temporarily disabled - Agora RTC Engine needs upgrade
+                            // await CallUtils.dial(
+                            //   from: sender,
+                            //   to: receiver,
+                            //   context: context,
+                            // );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Video call feature temporarily disabled')),
                             );
                           }
                         },
@@ -558,7 +561,6 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
         ),
-      ),
     );
   }
   Widget messages(Size size, Map<String, dynamic> map,Map<String, dynamic> userMap,int index,int length, BuildContext context) {

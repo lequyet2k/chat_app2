@@ -24,7 +24,8 @@ class _ChatBotState extends State<ChatBot> {
 
   @override
   void initState() {
-    DialogFlowtter.fromFile().then((instance) => dialogFlowtter = instance);
+    // DialogFlowtter temporarily disabled - API needs update
+    // DialogFlowtter.fromFile().then((instance) => dialogFlowtter = instance);
     super.initState();
   }
 

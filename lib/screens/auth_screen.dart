@@ -75,7 +75,8 @@ Future logOut() async {
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   try{
-    await GoogleSignIn.standard().signOut();
+    // Google Sign In 7.x API - use static instance
+    await GoogleSignIn.instance.signOut();
     await _auth.signOut();
 
   } catch(e) {
@@ -90,12 +91,18 @@ Future<User?> signInWithGoogle() async {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   try{
-    final GoogleSignInAccount? googleUser = await GoogleSignIn(
-        scopes: <String>['email']).signIn();
-    final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+    // Google Sign In 7.x API - use static instance
+    final GoogleSignInAccount? googleUser = await GoogleSignIn.instance.signIn();
+    
+    if (googleUser == null) {
+      // User cancelled the sign-in
+      return null;
+    }
+    
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
     final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken!,
+      accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
 
@@ -136,7 +143,7 @@ Future<User?> signInWithFacebook() async {
 
   if(loginResult == LoginStatus.success){
 
-    final OAuthCredential oAuthCredential = FacebookAuthProvider.credential(loginResult.accessToken!!.token);
+    final OAuthCredential oAuthCredential = FacebookAuthProvider.credential(loginResult.accessToken!.tokenString);
 
     User? user = (await FirebaseAuth.instance.signInWithCredential(oAuthCredential)).user;
 

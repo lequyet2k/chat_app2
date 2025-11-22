@@ -30,6 +30,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  
+  # Force upgrade Flutter plugin lifecycle to fix v1 embedding error
+  flutter_plugin_android_lifecycle: ^2.0.33
+  
   dialog_flowtter:
 
 
@@ -75,6 +79,10 @@ dependencies:
   
   # Rive updated for Flutter 3.38.0
   rive: ^0.14.0-dev.14
+
+dependency_overrides:
+  # Force upgrade win32 to fix Flutter 3.38.0 compatibility
+  win32: ^5.15.0
 
 dev_dependencies:
   flutter_test:
