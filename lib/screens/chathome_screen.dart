@@ -8,7 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/screens/call_log_screen.dart';
 import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
@@ -44,8 +44,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   getConnectivity() async {
     return subscription = Connectivity().onConnectivityChanged.listen(
-          (ConnectivityResult result) async {
-            isDeviceConnected = await InternetConnectionChecker().hasConnection;
+          (List<ConnectivityResult> results) async {
+            isDeviceConnected = await InternetConnection().hasInternetAccess;
             setState(() {});
             if(!isDeviceConnected && isAlertSet == false) {
               showDialogInternetCheck();
@@ -101,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 setState(() {
                   isAlertSet = false;
                 });
-                isDeviceConnected = await InternetConnectionChecker().hasConnection;
+                isDeviceConnected = await InternetConnection().hasInternetAccess;
               },
               child: const Text(
                   'OK',

@@ -3,7 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:my_porject/screens/chat_screen.dart';
 import 'package:my_porject/resources/methods.dart';
@@ -36,7 +36,7 @@ class _ConversationListState extends State<ConversationList> {
         userMap = value.docs[0].data() ;
       });
     });
-    widget.isDeviceConnected = await InternetConnectionChecker().hasConnection;
+    widget.isDeviceConnected = await InternetConnection().hasInternetAccess;
 
     String roomId = ChatRoomId().chatRoomId(widget.user.displayName,widget.chatHistory['name']);
 
@@ -54,7 +54,7 @@ class _ConversationListState extends State<ConversationList> {
 
   }
   void groupConversation() async {
-    widget.isDeviceConnected = await InternetConnectionChecker().hasConnection;
+    widget.isDeviceConnected = await InternetConnection().hasInternetAccess;
     if(mounted) {
       setState(() {
         isDeviceConnected = widget.isDeviceConnected;

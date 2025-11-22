@@ -11,7 +11,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/screens/group/group_info.dart';
 import 'package:uuid/uuid.dart';
@@ -71,8 +71,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
 
   getConnectivity() async {
     return subscription = Connectivity().onConnectivityChanged.listen(
-            (ConnectivityResult result) async {
-          widget.isDeviceConnected = await InternetConnectionChecker().hasConnection;
+            (List<ConnectivityResult> results) async {
+          widget.isDeviceConnected = await InternetConnection().hasInternetAccess;
           if(mounted){
             setState(() {
 
@@ -200,7 +200,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       height: 250,
       child: EmojiPicker(
         config: const Config(
-          columns: 7,
+          // columns: 7,  // Deprecated in grouped_list 6.0.0
         ),
         onEmojiSelected: (emoji, category) {
           _message.text = _message.text + category.emoji;
