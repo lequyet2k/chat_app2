@@ -4,13 +4,13 @@
 
 Project của bạn **KHÔNG CẦN migration xuống Flutter 3.3.0** nữa!
 
-Tôi đã **TỰ ĐỘNG NÂN CẤP** project lên **Flutter 3.35.4** (phiên bản mới nhất).
+Tôi đã **TỰ ĐỘNG NÂN CẤP** project lên **Flutter 3.38.0** (phiên bản stable mới nhất).
 
 ---
 
 ## 🚀 **Làm Gì Tiếp Theo?**
 
-### **📖 ĐỌC FILE NÀY TRƯỚC**: `UPGRADE_TO_FLUTTER_3.35.4.md`
+### **📖 ĐỌC FILE NÀY TRƯỚC**: `UPGRADE_TO_FLUTTER_3.38.0.md`
 
 File này chứa:
 - ✅ Tất cả thay đổi đã được thực hiện
@@ -44,8 +44,8 @@ adb install build\app\outputs\flutter-apk\app-release.apk
 ## 📦 **Những Gì Đã Thay Đổi**
 
 ### **✅ Đã Cập Nhật**:
-- 🔥 **Flutter 3.35.4** (Dart 3.9.2)
-- 📦 **30+ packages** lên version mới nhất
+- 🔥 **Flutter 3.38.0** (Dart 3.x - latest stable)
+- 📦 **36+ packages** lên version mới nhất
 - 🔧 **Android API 34** (Android 14)
 - ⚙️ **Gradle 8.1.4** + Kotlin 1.9.24
 - 🔐 **E2EE vẫn hoạt động 100%**
@@ -61,7 +61,7 @@ adb install build\app\outputs\flutter-apk\app-release.apk
 
 ## 🎯 **So Sánh: Nâng Cấp vs Migration**
 
-| | **Nâng Cấp 3.35.4** ✅ | **Migration 3.3.0** ❌ |
+| | **Nâng Cấp 3.38.0** ✅ | **Migration 3.3.0** ❌ |
 |-|------------------------|------------------------|
 | **Thời gian** | 20-30 phút | 45-60 phút |
 | **Độ phức tạp** | Đơn giản (pull + build) | Phức tạp (tạo project mới) |
@@ -69,7 +69,7 @@ adb install build\app\outputs\flutter-apk\app-release.apk
 | **Performance** | Nhanh hơn | Chậm hơn |
 | **Support** | Long-term | Deprecated |
 
-**Khuyến nghị**: ✅ **NÂN CẤP LÊN 3.35.4**
+**Khuyến nghị**: ✅ **NÂN CẤP LÊN 3.38.0**
 
 ---
 
@@ -78,7 +78,8 @@ adb install build\app\outputs\flutter-apk\app-release.apk
 ```
 📁 Project của bạn
 ├── 📄 README_VI.md  ⭐ BẮT ĐẦU TỪ ĐÂY (file này)
-├── 📄 UPGRADE_TO_FLUTTER_3.35.4.md  🔥 QUAN TRỌNG - Đọc tiếp theo
+├── 📄 UPGRADE_TO_FLUTTER_3.38.0.md  🔥 QUAN TRỌNG - Đọc tiếp theo
+├── 📄 UPGRADE_TO_FLUTTER_3.35.4.md  (Reference - cũ hơn)
 ├── 📄 MIGRATION_GUIDE_FLUTTER_3.3.0.md  (Không cần nữa)
 ├── 📄 GITHUB_SETUP_GUIDE.md  (Hướng dẫn Git)
 ├── 📄 TROUBLESHOOTING_FLUTTER_3.3.0.md  (Vẫn hữu ích)
@@ -146,12 +147,12 @@ dependencies:
 
 ## 📞 **Bạn Cần Làm Gì?**
 
-### **Option 1: Nâng Cấp Lên Flutter 3.35.4** ✅ (Khuyến Nghị)
+### **Option 1: Nâng Cấp Lên Flutter 3.38.0** ✅ (Khuyến Nghị)
 
 ```cmd
 # 1. Upgrade Flutter
 flutter upgrade
-flutter --version  # Xác nhận 3.35.4
+flutter --version  # Xác nhận 3.38.0
 
 # 2. Pull code mới
 git pull origin main
@@ -178,7 +179,7 @@ Nếu bạn vẫn muốn dùng Flutter 3.3.0:
 3. Tạo project mới với Flutter 3.3.0
 4. Copy code thủ công
 
-**Lưu ý**: Bạn sẽ mất đi tất cả improvements trong Flutter 3.35.4!
+**Lưu ý**: Bạn sẽ mất đi tất cả improvements trong Flutter 3.38.0!
 
 ---
 
@@ -204,8 +205,8 @@ Nếu bạn dùng Agora:
 ## 📊 **Build Statistics**
 
 ```
-✅ Flutter Version: 3.35.4 (Dart 3.9.2)
-✅ Packages Updated: 133 packages
+✅ Flutter Version: 3.38.0 (Dart 3.x)
+✅ Packages Updated: 36 packages (major updates)
 ✅ Android compileSdk: 34
 ✅ Gradle Version: 8.1.4
 ✅ Kotlin Version: 1.9.24
