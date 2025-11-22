@@ -2,6 +2,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+// Google Sign In 7.x: Use GoogleSignIn.standard() instead of GoogleSignIn()
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_porject/services/key_manager.dart';
 
@@ -74,7 +75,7 @@ Future logOut() async {
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   try{
-    await GoogleSignIn().signOut();
+    await GoogleSignIn.standard().signOut();
     await _auth.signOut();
 
   } catch(e) {
@@ -94,7 +95,7 @@ Future<User?> signInWithGoogle() async {
     final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
 
     final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
+      accessToken: googleAuth.accessToken!,
       idToken: googleAuth.idToken,
     );
 
@@ -135,7 +136,7 @@ Future<User?> signInWithFacebook() async {
 
   if(loginResult == LoginStatus.success){
 
-    final OAuthCredential oAuthCredential = FacebookAuthProvider.credential(loginResult.accessToken!.token);
+    final OAuthCredential oAuthCredential = FacebookAuthProvider.credential(loginResult.accessToken!!.token);
 
     User? user = (await FirebaseAuth.instance.signInWithCredential(oAuthCredential)).user;
 
