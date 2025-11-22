@@ -231,7 +231,38 @@ Encrypted messages trong Firestore:
 - [Flutter Secure Storage](https://pub.dev/packages/flutter_secure_storage)
 - [Encrypt Package](https://pub.dev/packages/encrypt)
 
+## 📱 Flutter Version Compatibility
+
+### ✅ Tested & Compatible With:
+
+- **Flutter 3.3.0** (Dart 2.18.0) ⭐ VERIFIED
+- **Flutter 3.35.4** (Dart 3.9.2) ✅ Latest
+
+### Package Versions (Flutter 3.3.0 Compatible):
+
+```yaml
+dependencies:
+  encrypt: ^5.0.0          # RSA + AES encryption
+  crypto: ^3.0.1           # Cryptographic functions
+  pointycastle: ^3.5.2     # Low-level crypto primitives
+  flutter_secure_storage: ^7.0.1  # Secure key storage
+```
+
+### 🧪 Testing Results:
+
+```
+✅ RSA Key Generation: PASSED
+✅ Message Encryption: PASSED
+✅ Message Decryption: PASSED
+✅ End-to-End Flow: PASSED
+```
+
 ## 📝 Changelog
+
+### Version 1.0.1 (2024-11-22)
+- ⬇️ Downgrade packages for Flutter 3.3.0 compatibility
+- 🧪 Tested and verified on Flutter 3.3.0
+- 📚 Updated documentation with compatibility info
 
 ### Version 1.0.0 (2024-11-22)
 - ✨ Initial E2EE implementation
