@@ -72,6 +72,9 @@ dependencies:
   crypto: ^3.0.1
   pointycastle: ^3.5.2
   flutter_secure_storage: ^7.0.1
+  
+  # Fix rive version for Flutter 3.3.0 compatibility
+  rive: 0.9.1
 
 dev_dependencies:
   flutter_test:
