@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-// Google Sign In 7.x: Use GoogleSignIn.standard() instead of GoogleSignIn()
+// Google Sign In 7.x: Use GoogleSignIn.instance.authenticate() API
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_porject/services/key_manager.dart';
 
@@ -89,21 +89,38 @@ Future<User?> signInWithGoogle() async {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   try {
-    // Google Sign In 7.x API - use static instance
-    final GoogleSignInAccount? googleUser =
-        await GoogleSignIn.instance.signIn();
-
-    if (googleUser == null) {
-      // User cancelled the sign-in
+    // Google Sign In 7.x API - initialize and authenticate
+    await GoogleSignIn.instance.initialize();
+    
+    final GoogleSignInAccount googleUser;
+    try {
+      googleUser = await GoogleSignIn.instance.authenticate();
+    } on GoogleSignInException catch (e) {
+      // User cancelled or error occurred
+      print('Google Sign In cancelled or failed: $e');
       return null;
     }
 
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
+    // Get authorization tokens for Firebase
+    final GoogleSignInClientAuthorization? auth = 
+        await googleUser.authorizationClient.authorizationForScopes([]);
+    
+    if (auth == null) {
+      print('Failed to get authorization tokens');
+      return null;
+    }
+
+    // Get authentication tokens (idToken from authentication getter)
+    final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+    final idToken = googleAuth.idToken;
+    if (idToken == null) {
+      print('Failed to get ID token');
+      return null;
+    }
 
     final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
+      accessToken: auth.accessToken,
+      idToken: idToken,
     );
 
     await _auth.signInWithCredential(credential);
