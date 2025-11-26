@@ -46,10 +46,10 @@ class KeyManager {
         );
         
         // Upload public key to Firestore
-        await _firestore.collection('users').doc(currentUser.uid).update({
+        await _firestore.collection('users').doc(currentUser.uid).set({
           'publicKey': keyPair['publicKey'],
           'encryptionEnabled': true,
-        });
+        }, SetOptions(merge: true));
         
         if (kDebugMode) {
           debugPrint('✅ E2EE Keys initialized for user: ${currentUser.uid}');
@@ -146,6 +146,59 @@ class KeyManager {
       return privateKey != null;
     } catch (e) {
       return false;
+    }
+  }
+  
+  /// Force sync public key to Firestore (for existing users)
+  /// Call this to ensure public key is uploaded even if already generated locally
+  static Future<bool> syncPublicKeyToFirestore() async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) return false;
+      
+      // Get stored public key
+      final publicKey = await getPublicKey();
+      
+      if (publicKey != null) {
+        // Upload to Firestore
+        await _firestore.collection('users').doc(currentUser.uid).set({
+          'publicKey': publicKey,
+          'encryptionEnabled': true,
+        }, SetOptions(merge: true));
+        
+        if (kDebugMode) {
+          debugPrint('✅ Public key synced to Firestore for user: ${currentUser.uid}');
+        }
+        return true;
+      } else {
+        if (kDebugMode) {
+          debugPrint('⚠️ No public key found to sync');
+        }
+        return false;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('❌ Error syncing public key: $e');
+      }
+      return false;
+    }
+  }
+  
+  /// Ensure keys are initialized and synced (call on every app launch)
+  static Future<void> ensureKeysReady() async {
+    try {
+      // First initialize if not exists
+      await initializeKeys();
+      
+      // Then sync to Firestore to ensure it's there
+      final hasLocalKeys = await hasKeys();
+      if (hasLocalKeys) {
+        await syncPublicKeyToFirestore();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('❌ Error ensuring keys ready: $e');
+      }
     }
   }
 }

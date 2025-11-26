@@ -6,6 +6,7 @@ import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:my_porject/provider/user_provider.dart';
+import 'package:my_porject/services/key_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,8 +38,22 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AuthWrapper extends StatelessWidget {
+class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
+
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  bool _keysInitialized = false;
+
+  Future<void> _ensureEncryptionReady(User user) async {
+    if (!_keysInitialized) {
+      await KeyManager.ensureKeysReady();
+      _keysInitialized = true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,9 +69,28 @@ class AuthWrapper extends StatelessWidget {
           );
         }
 
-        // If user is logged in, show home screen
+        // If user is logged in, ensure encryption keys and show home screen
         if (snapshot.hasData && snapshot.data != null) {
-          return HomeScreen(user: snapshot.data!);
+          return FutureBuilder(
+            future: _ensureEncryptionReady(snapshot.data!),
+            builder: (context, keySnapshot) {
+              if (keySnapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(
+                  body: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text('Initializing encryption...'),
+                      ],
+                    ),
+                  ),
+                );
+              }
+              return HomeScreen(user: snapshot.data!);
+            },
+          );
         }
 
         // Otherwise, show login screen
