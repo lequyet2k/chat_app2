@@ -97,7 +97,7 @@ if (Test-Path "pubspec.yaml") {
         Write-Host "⚠️  Missing packages detected!" -ForegroundColor Red
         Write-Host "Please add these to pubspec.yaml dependencies:" -ForegroundColor Yellow
         foreach ($pkg in $missingPackages) {
-            Write-Host "  $pkg: ^latest_version" -ForegroundColor White
+            Write-Host "  ${pkg}: ^latest_version" -ForegroundColor White
         }
         Write-Host ""
         Read-Host "Press Enter after adding packages to continue"
@@ -226,7 +226,7 @@ Write-Host "  3. Press Enter" -ForegroundColor White
 Write-Host ""
 Write-Host "Android Studio:" -ForegroundColor Yellow
 Write-Host "  1. File → Invalidate Caches / Restart" -ForegroundColor White
-Write-Host "  2. Click 'Invalidate and Restart'" -ForegroundColor White
+Write-Host "  2. Click Invalidate and Restart" -ForegroundColor White
 Write-Host ""
 
 if ($errors -eq 0) {
