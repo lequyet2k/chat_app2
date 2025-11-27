@@ -1,4 +1,3 @@
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/screens/signup_screen.dart';
@@ -44,21 +43,57 @@ class LoginPage extends State<Login> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  showLoginDialog(bool bol) {
-    if (bol == false) {
-      return AwesomeDialog(
-          context: context,
-          dialogType: DialogType.error,
-          animType: AnimType.rightSlide,
-          title: 'Log In Failed',
-          desc: 'The email address is badly formatted',
-          btnCancelText: 'Log In Again',
-          btnCancelIcon: Icons.arrow_back_ios,
-          btnCancelOnPress: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => Login()));
-          })
-        ..show();
-    }
+  void showLoginDialog(String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.error_outline, color: Colors.red[700], size: 28),
+            const SizedBox(width: 12),
+            Text(
+              'Login Failed',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[900],
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          errorMessage,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[700],
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                isLoading = false;
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.grey[800],
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            child: const Text('Try Again', style: TextStyle(fontSize: 15)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -186,7 +221,10 @@ class LoginPage extends State<Login> {
                                                           false);
                                               print("Login Successfull");
                                             } else {
-                                              showLoginDialog(false);
+                                              setState(() {
+                                                isLoading = false;
+                                              });
+                                              showLoginDialog('Google sign in failed or was cancelled.');
                                               print("Login Failed");
                                             }
                                           });
@@ -308,8 +346,8 @@ class LoginPage extends State<Login> {
                                           isLoading = true;
                                         });
                                         logIn(_email!.text, _password!.text)
-                                            .then((user) {
-                                          if (user != null) {
+                                            .then((result) {
+                                          if (result.isSuccess && result.user != null) {
                                             setState(() {
                                               isLoading = false;
                                             });
@@ -318,13 +356,13 @@ class LoginPage extends State<Login> {
                                                     MaterialPageRoute(
                                                         builder: (context) =>
                                                             HomeScreen(
-                                                                user: user)),
+                                                                user: result.user!)),
                                                     (Route<dynamic> route) =>
                                                         false);
                                             print("Login Successful");
                                           } else {
-                                            showLoginDialog(false);
-                                            print("Login Failed");
+                                            showLoginDialog(result.errorMessage ?? 'Login failed. Please try again.');
+                                            print("Login Failed: ${result.errorMessage}");
                                           }
                                         });
                                       } else {}

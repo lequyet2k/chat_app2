@@ -1,4 +1,3 @@
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/screens/auth_screen.dart';
 import 'package:my_porject/screens/login_screen.dart';
@@ -26,43 +25,117 @@ class _SignUpScreen extends State<SignUp> {
     });
   }
 
-  showRegisterDialog(int index) async {
-    if (index == 1) {
-      return AwesomeDialog(
-          context: context,
-          dialogType: DialogType.success,
-          animType: AnimType.rightSlide,
-          title: 'Register Success',
-          btnOkText: 'Log In',
-          btnOkOnPress: () {
-            Navigator.push(
+  void showRegisterSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.check_circle_outline, color: Colors.green[700], size: 28),
+            const SizedBox(width: 12),
+            Text(
+              'Success!',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[900],
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Account created successfully! Please login to continue.',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[700],
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (context) => Login(
                     email: email.text,
                     password: password.text,
                   ),
-                ));
-          })
-        ..show();
-    } else if (index == 2) {
-      return AwesomeDialog(
-          context: context,
-          dialogType: DialogType.error,
-          animType: AnimType.rightSlide,
-          title: 'Register Failed',
-          // desc: 'The email address or password is incorrect',
-          btnCancelText: 'Sign Up Again',
-          btnCancelIcon: Icons.arrow_back_ios,
-          btnCancelOnPress: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const SignUp(),
-                ));
-          })
-        ..show();
-    }
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green[700],
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            child: const Text('Login Now', style: TextStyle(fontSize: 15)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void showRegisterFailedDialog(String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.error_outline, color: Colors.red[700], size: 28),
+            const SizedBox(width: 12),
+            Text(
+              'Registration Failed',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[900],
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          errorMessage,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[700],
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                isLoading = false;
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.grey[800],
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            child: const Text('Try Again', style: TextStyle(fontSize: 15)),
+          ),
+        ],
+      ),
+    );
   }
 
   String? validatePassword(String value) {
@@ -217,7 +290,10 @@ class _SignUpScreen extends State<SignUp> {
                                                         false);
                                             print("Login Successfully");
                                           } else {
-                                            showRegisterDialog(2);
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                            showRegisterFailedDialog('Google sign in failed or was cancelled.');
                                             print("Login Failed");
                                           }
                                         });
@@ -400,16 +476,16 @@ class _SignUpScreen extends State<SignUp> {
                                       });
                                       createAccount(name.text, email.text,
                                               password.text)
-                                          .then((user) {
-                                        if (user != null) {
+                                          .then((result) {
+                                        if (result.isSuccess && result.user != null) {
                                           setState(() {
                                             isLoading = false;
                                           });
-                                          showRegisterDialog(1);
-                                          print("Login Successfull");
+                                          showRegisterSuccessDialog();
+                                          print("Registration Successful");
                                         } else {
-                                          showRegisterDialog(2);
-                                          print("Login Failed");
+                                          showRegisterFailedDialog(result.errorMessage ?? 'Registration failed. Please try again.');
+                                          print("Registration Failed: ${result.errorMessage}");
                                         }
                                       });
                                     }

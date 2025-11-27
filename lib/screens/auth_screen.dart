@@ -5,7 +5,45 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_porject/services/key_manager.dart';
 
-Future<User?> createAccount(String name, String email, String password) async {
+// Auth result class to return user and error message
+class AuthResult {
+  final User? user;
+  final String? errorMessage;
+  
+  AuthResult({this.user, this.errorMessage});
+  
+  bool get isSuccess => user != null;
+}
+
+// Helper function to get user-friendly error messages
+String getAuthErrorMessage(FirebaseAuthException e) {
+  switch (e.code) {
+    case 'user-not-found':
+      return 'No account found with this email. Please sign up first.';
+    case 'wrong-password':
+      return 'Incorrect password. Please try again.';
+    case 'email-already-in-use':
+      return 'This email is already registered. Please login instead.';
+    case 'invalid-email':
+      return 'Invalid email format. Please check and try again.';
+    case 'weak-password':
+      return 'Password is too weak. Use at least 6 characters.';
+    case 'user-disabled':
+      return 'This account has been disabled. Please contact support.';
+    case 'too-many-requests':
+      return 'Too many failed attempts. Please try again later.';
+    case 'operation-not-allowed':
+      return 'Email/password accounts are not enabled. Please contact support.';
+    case 'invalid-credential':
+      return 'Invalid credentials. Please check your email and password.';
+    case 'network-request-failed':
+      return 'Network error. Please check your internet connection.';
+    default:
+      return e.message ?? 'An error occurred. Please try again.';
+  }
+}
+
+Future<AuthResult> createAccount(String name, String email, String password) async {
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -28,14 +66,17 @@ Future<User?> createAccount(String name, String email, String password) async {
     await KeyManager.initializeKeys();
     print("✅ Encryption keys initialized");
 
-    return userCredential.user;
+    return AuthResult(user: userCredential.user);
+  } on FirebaseAuthException catch (e) {
+    print('Firebase Auth Error: ${e.code}');
+    return AuthResult(errorMessage: getAuthErrorMessage(e));
   } catch (e) {
-    print(e);
-    return null;
+    print('Unexpected error: $e');
+    return AuthResult(errorMessage: 'An unexpected error occurred. Please try again.');
   }
 }
 
-Future<User?> logIn(String email, String password) async {
+Future<AuthResult> logIn(String email, String password) async {
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -60,14 +101,17 @@ Future<User?> logIn(String email, String password) async {
       await KeyManager.initializeKeys();
       print("✅ Encryption keys ready");
 
-      return user;
+      return AuthResult(user: user);
     } else {
       print("Login Failed");
-      return user;
+      return AuthResult(errorMessage: 'Login failed. Please try again.');
     }
+  } on FirebaseAuthException catch (e) {
+    print('Firebase Auth Error: ${e.code}');
+    return AuthResult(errorMessage: getAuthErrorMessage(e));
   } catch (e) {
-    print(e);
-    return null;
+    print('Unexpected error: $e');
+    return AuthResult(errorMessage: 'An unexpected error occurred. Please try again.');
   }
 }
 
