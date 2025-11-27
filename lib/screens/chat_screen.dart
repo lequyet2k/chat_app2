@@ -18,6 +18,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:my_porject/models/user_model.dart';
 import 'package:my_porject/services/encrypted_chat_service.dart';
+import 'package:my_porject/screens/chat_settings_screen.dart';
 
 // ignore: must_be_immutable
 class ChatScreen extends StatefulWidget {
@@ -491,6 +492,23 @@ class _ChatScreenState extends State<ChatScreen> {
                     },
                     icon: const Icon(
                       Icons.video_call,
+                      color: Colors.blueAccent,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatSettingsScreen(
+                            chatRoomId: widget.chatRoomId,
+                            userMap: widget.userMap,
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.settings,
                       color: Colors.blueAccent,
                     ),
                   ),
