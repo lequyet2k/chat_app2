@@ -614,83 +614,129 @@ class _ChatScreenState extends State<ChatScreen> {
                     Column(
                       children: [
                         Container(
-                          padding: const EdgeInsets.only(top: 5, bottom: 10),
-                          height: size.height / 15,
-                          width: double.infinity,
-                          color: Colors.white,
-                          child: Row(
-                            children: <Widget>[
-                              IconButton(
-                                onPressed: () {
-                                  getImage();
-                                },
-                                icon: const Icon(
-                                  Icons.image_outlined,
-                                  color: Colors.blueAccent,
-                                  size: 27,
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  if (widget.isDeviceConnected == false) {
-                                    showDialogInternetCheck();
-                                  } else {
-                                    initLocationDoc();
-                                  }
-                                },
-                                icon: const Icon(
-                                  Icons.location_on,
-                                  color: Colors.blueAccent,
-                                  size: 27,
-                                ),
-                              ),
-                              // SizedBox(width: 15,),
-                              Expanded(
-                                child: TextField(
-                                  autofocus: true,
-                                  focusNode: focusNode,
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.grey.shade300,
-                                    // hintText: "Aa",
-                                    // hintStyle: TextStyle(color: Colors.white38),
-                                    // contentPadding: EdgeInsets.all(8.0),
-                                    prefixIcon: const Icon(
-                                      Icons.abc,
-                                      size: 30,
-                                    ),
-                                    suffixIcon: IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          focusNode.unfocus();
-                                          focusNode.canRequestFocus = false;
-                                          showEmoji = !showEmoji;
-                                        });
-                                      },
-                                      icon: const Icon(
-                                        Icons.emoji_emotions,
-                                        color: Colors.blueAccent,
-                                        size: 23,
-                                      ),
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(25),
-                                    ),
-                                  ),
-                                  controller: _message,
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  onSendMessage();
-                                },
-                                icon: const Icon(
-                                  Icons.send,
-                                  color: Colors.blueAccent,
-                                  size: 30,
-                                ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.2),
+                                spreadRadius: 1,
+                                blurRadius: 3,
+                                offset: const Offset(0, -1),
                               ),
                             ],
+                          ),
+                          child: SafeArea(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                IconButton(
+                                  onPressed: () {
+                                    getImage();
+                                  },
+                                  icon: const Icon(
+                                    Icons.image_outlined,
+                                    color: Colors.blueAccent,
+                                  ),
+                                  iconSize: 28,
+                                  padding: const EdgeInsets.all(8),
+                                  constraints: const BoxConstraints(),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    if (widget.isDeviceConnected == false) {
+                                      showDialogInternetCheck();
+                                    } else {
+                                      initLocationDoc();
+                                    }
+                                  },
+                                  icon: const Icon(
+                                    Icons.location_on,
+                                    color: Colors.blueAccent,
+                                  ),
+                                  iconSize: 28,
+                                  padding: const EdgeInsets.all(8),
+                                  constraints: const BoxConstraints(),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade200,
+                                      borderRadius: BorderRadius.circular(25),
+                                    ),
+                                    child: TextField(
+                                      autofocus: true,
+                                      focusNode: focusNode,
+                                      controller: _message,
+                                      decoration: InputDecoration(
+                                        hintText: "Type a message...",
+                                        hintStyle: TextStyle(color: Colors.grey.shade600),
+                                        filled: true,
+                                        fillColor: Colors.transparent,
+                                        contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 10,
+                                        ),
+                                        prefixIcon: const Icon(
+                                          Icons.abc,
+                                          color: Colors.grey,
+                                          size: 26,
+                                        ),
+                                        suffixIcon: IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              focusNode.unfocus();
+                                              focusNode.canRequestFocus = false;
+                                              showEmoji = !showEmoji;
+                                            });
+                                          },
+                                          icon: const Icon(
+                                            Icons.emoji_emotions,
+                                            color: Colors.blueAccent,
+                                          ),
+                                          iconSize: 26,
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(25),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(25),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(25),
+                                          borderSide: const BorderSide(
+                                            color: Colors.blueAccent,
+                                            width: 2,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  decoration: const BoxDecoration(
+                                    color: Colors.blueAccent,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: IconButton(
+                                    onPressed: () {
+                                      onSendMessage();
+                                    },
+                                    icon: const Icon(
+                                      Icons.send,
+                                      color: Colors.white,
+                                    ),
+                                    iconSize: 24,
+                                    padding: const EdgeInsets.all(10),
+                                    constraints: const BoxConstraints(),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
