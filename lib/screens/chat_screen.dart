@@ -708,7 +708,8 @@ class _ChatScreenState extends State<ChatScreen> {
       Map<String, dynamic> userMap,
       int index,
       int length,
-      BuildContext context) {
+      BuildContext context,
+      String messageId) {
     if (map['status'] == 'removed') {
       return Row(
         children: [
@@ -1620,9 +1621,6 @@ class ShowImage extends StatelessWidget {
               )
             : const CircularProgressIndicator(),
       ),
-    );
-  }
-}
     );
   }
 }
