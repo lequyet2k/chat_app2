@@ -4,10 +4,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:my_porject/screens/auth_screen.dart';
 import 'package:my_porject/screens/login_screen.dart';
 import 'package:uuid/uuid.dart';
 
@@ -61,8 +59,6 @@ class _SettingState extends State<Setting> {
         FirebaseStorage.instance.ref().child('images').child("$fileName.jpg");
 
     var uploadTask = await ref.putFile(imageFile!).catchError((error) async {
-      // await _firestore.collection('chatroom').doc(widget.chatRoomId).collection(
-      //     'chats').doc(fileName).delete();
       status = 0;
     });
 
@@ -108,24 +104,121 @@ class _SettingState extends State<Setting> {
   }
 
   Future<void> logOuttt() async {
-    await turnOffStatus();
-    logOut();
-    setState(() {
-      isLoading = false;
-    });
-    Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => Login()),
-        (Route<dynamic> route) => false);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.logout, color: Colors.red[700], size: 28),
+            const SizedBox(width: 12),
+            Text(
+              'Confirm Logout',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[900],
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to log out?',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[700],
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey[600], fontSize: 15),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              setState(() {
+                isLoading = true;
+              });
+              await turnOffStatus();
+              await logOut();
+              setState(() {
+                isLoading = false;
+              });
+              if (mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => Login()),
+                    (Route<dynamic> route) => false);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red[700],
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            ),
+            child: const Text('Logout', style: TextStyle(fontSize: 15)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> logOut() async {
+    await _auth.signOut();
   }
 
   showTurnOffStatus() {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
-              title: const Text("Tắt trạng thái hoạt động?"),
-              content: const Text("Are you sure to turn off? "),
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Row(
+                children: [
+                  Icon(Icons.visibility_off, color: Colors.grey[700], size: 28),
+                  const SizedBox(width: 12),
+                  Text(
+                    "Turn Off Status?",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[900],
+                    ),
+                  ),
+                ],
+              ),
+              content: Text(
+                "Your online status will be hidden from others.",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[700],
+                  height: 1.4,
+                ),
+              ),
               actions: <Widget>[
                 TextButton(
+                  onPressed: () async {
+                    Navigator.maybePop(context);
+                  },
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(color: Colors.grey[600], fontSize: 15),
+                  ),
+                ),
+                ElevatedButton(
                   onPressed: () async {
                     turnOffStatus();
                     setState(() {
@@ -133,13 +226,16 @@ class _SettingState extends State<Setting> {
                     });
                     Navigator.maybePop(context);
                   },
-                  child: const Text("Yes"),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    Navigator.maybePop(context);
-                  },
-                  child: const Text("No"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey[800],
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  ),
+                  child: const Text("Confirm", style: TextStyle(fontSize: 15)),
                 ),
               ],
             ));
@@ -181,9 +277,15 @@ class _SettingState extends State<Setting> {
         }
       });
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   turnOnStatus() async {
+    setState(() {
+      isLoading = true;
+    });
     await _firestore.collection('users').doc(_auth.currentUser?.uid).update({
       "isStatusLocked": false,
     });
@@ -216,27 +318,66 @@ class _SettingState extends State<Setting> {
         }
       });
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   showTurnOnStatus() {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
-              title: const Text("Bật trạng thái hoạt động?"),
-              content: const Text("Are you sure to turn on? "),
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Row(
+                children: [
+                  Icon(Icons.visibility, color: Colors.green[700], size: 28),
+                  const SizedBox(width: 12),
+                  Text(
+                    "Turn On Status?",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[900],
+                    ),
+                  ),
+                ],
+              ),
+              content: Text(
+                "Your online status will be visible to others.",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[700],
+                  height: 1.4,
+                ),
+              ),
               actions: <Widget>[
                 TextButton(
+                  onPressed: () async {
+                    Navigator.maybePop(context);
+                  },
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(color: Colors.grey[600], fontSize: 15),
+                  ),
+                ),
+                ElevatedButton(
                   onPressed: () async {
                     turnOnStatus();
                     Navigator.maybePop(context);
                   },
-                  child: const Text("Yes"),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    Navigator.maybePop(context);
-                  },
-                  child: const Text("No"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green[700],
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  ),
+                  child: const Text("Confirm", style: TextStyle(fontSize: 15)),
                 ),
               ],
             ));
@@ -246,6 +387,7 @@ class _SettingState extends State<Setting> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       body: isLoading
           ? Container(
               height: size.height,
@@ -253,327 +395,545 @@ class _SettingState extends State<Setting> {
               alignment: Alignment.center,
               child: const CircularProgressIndicator(),
             )
-          : Column(
-              children: [
-                SafeArea(
-                  child: Container(
-                    alignment: Alignment.center,
-                    padding:
-                        const EdgeInsets.only(left: 16, top: 10, right: 16),
-                    child: const Text(
-                      "Setting",
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: StreamBuilder<DocumentSnapshot>(
-                      stream: _firestore
-                          .collection('users')
-                          .doc(widget.user.uid.isNotEmpty
-                              ? widget.user.uid
-                              : "0")
-                          .snapshots(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<DocumentSnapshot> snapshot) {
-                        if (snapshot.data != null) {
-                          Map<String, dynamic> map =
-                              snapshot.data?.data() as Map<String, dynamic>;
-                          return Column(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              const SizedBox(
-                                height: 10,
+          : StreamBuilder<DocumentSnapshot>(
+              stream: _firestore
+                  .collection('users')
+                  .doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0")
+                  .snapshots(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<DocumentSnapshot> snapshot) {
+                if (snapshot.data != null) {
+                  Map<String, dynamic> map =
+                      snapshot.data?.data() as Map<String, dynamic>;
+                  return CustomScrollView(
+                    slivers: [
+                      // App Bar
+                      SliverAppBar(
+                        backgroundColor: Colors.white,
+                        elevation: 0,
+                        pinned: true,
+                        expandedHeight: 0,
+                        automaticallyImplyLeading: false,
+                        title: Text(
+                          "Profile",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[900],
+                          ),
+                        ),
+                        centerTitle: true,
+                      ),
+                      
+                      // Profile Content
+                      SliverToBoxAdapter(
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 20),
+                            
+                            // Profile Avatar Section
+                            Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 20),
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.1),
+                                    spreadRadius: 2,
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
-                              GestureDetector(
-                                onTap: () {
-                                  if (widget.isDeviceConnected == false) {
-                                    showDialogInternetCheck();
-                                  } else {
-                                    getImage();
-                                  }
-                                },
-                                child: SizedBox(
-                                  height: 100,
-                                  width: 100,
-                                  child: Stack(children: [
-                                    Container(
-                                      height: 110,
-                                      width: 110,
-                                      decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          image: DecorationImage(
-                                            image: CachedNetworkImageProvider(
-                                              map['avatar'] ??
-                                                  widget.user.photoURL,
-                                            ),
-                                            fit: BoxFit.cover,
-                                          )),
-                                    ),
-                                    Positioned(
-                                      top: 68,
-                                      left: 75,
-                                      child: Container(
-                                        width: 25,
-                                        height: 25,
-                                        decoration: BoxDecoration(
-                                            color: Colors.grey.shade500,
+                              child: Column(
+                                children: [
+                                  // Avatar with Edit Button
+                                  GestureDetector(
+                                    onTap: () {
+                                      if (widget.isDeviceConnected == false) {
+                                        showDialogInternetCheck();
+                                      } else {
+                                        getImage();
+                                      }
+                                    },
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Container(
+                                          width: 120,
+                                          height: 120,
+                                          decoration: BoxDecoration(
                                             shape: BoxShape.circle,
                                             border: Border.all(
-                                              color: Colors.grey.shade500,
-                                              width: 2,
-                                            )),
-                                        child: const Icon(
-                                          Icons.camera_alt,
-                                          color: Colors.black87,
-                                          size: 16,
+                                              color: Colors.grey[300]!,
+                                              width: 3,
+                                            ),
+                                            image: DecorationImage(
+                                              image: CachedNetworkImageProvider(
+                                                map['avatar'] ??
+                                                    widget.user.photoURL ??
+                                                    '',
+                                              ),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    )
-                                  ]),
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Text(
-                                map['name'],
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                    color: Colors.black),
-                              ),
-                              const SizedBox(
-                                height: 30,
-                              ),
-                              Container(
-                                margin:
-                                    const EdgeInsets.only(left: 20, right: 20),
-                                height: size.height / 6,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade300,
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      decoration: const BoxDecoration(
-                                          border: Border(
-                                              bottom: BorderSide(
-                                        color: Colors.black38,
-                                      ))),
-                                      height: size.height / 18,
-                                      child: Row(
-                                        children: [
-                                          const SizedBox(
-                                            width: 5,
+                                        Positioned(
+                                          bottom: 0,
+                                          right: 0,
+                                          child: Container(
+                                            width: 36,
+                                            height: 36,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[800],
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 3,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.grey
+                                                      .withOpacity(0.3),
+                                                  spreadRadius: 1,
+                                                  blurRadius: 4,
+                                                  offset: const Offset(0, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            child: const Icon(
+                                              Icons.camera_alt,
+                                              color: Colors.white,
+                                              size: 18,
+                                            ),
                                           ),
-                                          const Icon(Icons.perm_identity),
-                                          const SizedBox(
-                                            width: 7,
-                                          ),
-                                          const Text(
-                                            "Name :",
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14),
-                                          ),
-                                          const Spacer(),
-                                          Text(
-                                            map['name'],
-                                            style: const TextStyle(
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14),
-                                          ),
-                                          const SizedBox(width: 20),
-                                          // IconButton(
-                                          //     onPressed: (){},
-                                          //     icon: Icon(Icons.create_outlined,
-                                          //     ),
-                                          // ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
-                                    Container(
-                                      decoration: const BoxDecoration(
-                                          border: Border(
-                                              bottom: BorderSide(
-                                        color: Colors.black38,
-                                      ))),
-                                      height: size.height / 18,
-                                      child: Row(
-                                        children: [
-                                          const SizedBox(
-                                            width: 5,
-                                          ),
-                                          const Icon(Icons.email_outlined),
-                                          const SizedBox(
-                                            width: 7,
-                                          ),
-                                          const Text(
-                                            "Email :",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14),
-                                          ),
-                                          const Spacer(),
-                                          Text(
-                                            map['email'],
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14),
-                                          ),
-                                          const SizedBox(width: 20),
-                                          // IconButton(
-                                          //   onPressed: (){},
-                                          //   icon: Icon(Icons.create_outlined),
-                                          // ),
-                                        ],
-                                      ),
+                                  ),
+                                  
+                                  const SizedBox(height: 16),
+                                  
+                                  // User Name
+                                  Text(
+                                    map['name'] ?? 'User Name',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 24,
+                                      color: Colors.grey[900],
                                     ),
-                                    SizedBox(
-                                      height: size.height / 18,
-                                      child: Row(
-                                        children: [
-                                          const SizedBox(
-                                            width: 5,
-                                          ),
-                                          const Icon(Icons.online_prediction),
-                                          const SizedBox(
-                                            width: 7,
-                                          ),
-                                          const Text(
-                                            "Status :",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14),
-                                          ),
-                                          const Spacer(),
-                                          Text(
-                                            map['status'],
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14),
-                                          ),
-                                          const SizedBox(
-                                            width: 20,
-                                          ),
-                                        ],
-                                      ),
+                                  ),
+                                  
+                                  const SizedBox(height: 8),
+                                  
+                                  // Status Badge
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: map['status']
+                                              .toLowerCase()
+                                              .contains('online')
+                                          ? Colors.green.withOpacity(0.1)
+                                          : Colors.grey.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(20),
                                     ),
-                                  ],
-                                ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          width: 8,
+                                          height: 8,
+                                          decoration: BoxDecoration(
+                                            color: map['status']
+                                                    .toLowerCase()
+                                                    .contains('online')
+                                                ? Colors.green
+                                                : Colors.grey[400],
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          map['status'] ?? 'Offline',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                            color: map['status']
+                                                    .toLowerCase()
+                                                    .contains('online')
+                                                ? Colors.green[700]
+                                                : Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(
-                                height: 30,
+                            ),
+                            
+                            const SizedBox(height: 24),
+                            
+                            // Account Information Section
+                            Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 20),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.1),
+                                    spreadRadius: 2,
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
-                              Container(
-                                margin:
-                                    const EdgeInsets.only(left: 20, right: 20),
-                                height: size.height / 20,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade300,
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                child: Row(
-                                  children: const [
-                                    SizedBox(
-                                      width: 5,
-                                    ),
-                                    Icon(Icons.help_outline),
-                                    SizedBox(
-                                      width: 7,
-                                    ),
-                                    Text(
-                                      "Help",
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Text(
+                                      "Account Information",
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey[800],
+                                      ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  Divider(height: 1, color: Colors.grey[200]),
+                                  
+                                  // Name Row
+                                  _buildInfoRow(
+                                    icon: Icons.person_outline,
+                                    label: "Name",
+                                    value: map['name'] ?? 'N/A',
+                                    isLast: false,
+                                  ),
+                                  
+                                  // Email Row
+                                  _buildInfoRow(
+                                    icon: Icons.email_outlined,
+                                    label: "Email",
+                                    value: map['email'] ?? 'N/A',
+                                    isLast: false,
+                                  ),
+                                  
+                                  // Status Row with Toggle
+                                  _buildStatusRow(
+                                    map: map,
+                                  ),
+                                ],
                               ),
-                              const SizedBox(
-                                height: 30,
+                            ),
+                            
+                            const SizedBox(height: 24),
+                            
+                            // Settings Section
+                            Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 20),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.1),
+                                    spreadRadius: 2,
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
-                              GestureDetector(
-                                onTap: () {
+                              child: Column(
+                                children: [
+                                  // Help Option
+                                  _buildMenuOption(
+                                    icon: Icons.help_outline,
+                                    title: "Help & Support",
+                                    subtitle: "Get help and contact support",
+                                    onTap: () {
+                                      // Navigate to help screen
+                                    },
+                                    isLast: true,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 24),
+                            
+                            // Logout Button
+                            Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 20),
+                              child: ElevatedButton(
+                                onPressed: () {
                                   if (widget.isDeviceConnected == false) {
                                     showDialogInternetCheck();
                                   } else {
                                     logOuttt();
                                   }
                                 },
-                                child: Container(
-                                  margin: const EdgeInsets.only(
-                                      left: 20, right: 20),
-                                  height: size.height / 20,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade500,
-                                    borderRadius: BorderRadius.circular(15),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red[50],
+                                  foregroundColor: Colors.red[700],
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    side: BorderSide(color: Colors.red[200]!),
                                   ),
-                                  child: Container(
-                                    alignment: Alignment.centerLeft,
-                                    child: Row(
-                                      children: const [
-                                        SizedBox(
-                                          width: 5,
-                                        ),
-                                        Icon(
-                                          Icons.logout_outlined,
-                                          color: Colors.redAccent,
-                                        ),
-                                        SizedBox(
-                                          width: 7,
-                                        ),
-                                        Text(
-                                          "Log Out",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14),
-                                        ),
-                                      ],
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  minimumSize: const Size(double.infinity, 56),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.logout, color: Colors.red[700]),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      "Log Out",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.red[700],
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          );
-                        } else {
-                          return Container();
-                        }
-                      }),
-                ),
-              ],
-            ),
+                            ),
+                            
+                            const SizedBox(height: 40),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                } else {
+                  return Container();
+                }
+              }),
     );
   }
 
-  showDialogInternetCheck() => showCupertinoDialog<String>(
-      context: context,
-      builder: (BuildContext context) => CupertinoAlertDialog(
-            title: const Text(
-              'No Connection',
-              style: TextStyle(
-                letterSpacing: 0.5,
+  Widget _buildInfoRow({
+    required IconData icon,
+    required String label,
+    required String value,
+    required bool isLast,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      decoration: BoxDecoration(
+        border: isLast
+            ? null
+            : Border(
+                bottom: BorderSide(color: Colors.grey[200]!, width: 1),
+              ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: Colors.grey[700], size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[900],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusRow({required Map<String, dynamic> map}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(Icons.online_prediction_outlined,
+                color: Colors.grey[700], size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Online Status",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  map['isStatusLocked'] == true ? "Hidden" : "Visible",
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[900],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: map['isStatusLocked'] != true,
+            onChanged: (value) {
+              if (value) {
+                showTurnOnStatus();
+              } else {
+                showTurnOffStatus();
+              }
+            },
+            activeColor: Colors.green[600],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMenuOption({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    required bool isLast,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: isLast
+              ? null
+              : Border(
+                  bottom: BorderSide(color: Colors.grey[200]!, width: 1),
+                ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: Colors.blue[700], size: 24),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[900],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
               ),
             ),
-            content: const Text(
-              'Please check your internet connectivity',
-              style: TextStyle(letterSpacing: 0.5, fontSize: 12),
+            Icon(Icons.arrow_forward_ios,
+                color: Colors.grey[400], size: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  showDialogInternetCheck() => showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Row(
+              children: [
+                Icon(Icons.wifi_off, color: Colors.grey[700], size: 28),
+                const SizedBox(width: 12),
+                Text(
+                  'No Connection',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[900],
+                  ),
+                ),
+              ],
+            ),
+            content: Text(
+              'Please check your internet connectivity and try again.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[700],
+                height: 1.4,
+              ),
             ),
             actions: <Widget>[
-              TextButton(
-                  onPressed: () async {
-                    Navigator.pop(context, 'Cancel');
-                  },
-                  child: const Text(
-                    'OK',
-                    style: TextStyle(letterSpacing: 0.5, fontSize: 15),
-                  ))
+              ElevatedButton(
+                onPressed: () async {
+                  Navigator.pop(context, 'OK');
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[800],
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+                child: const Text('OK', style: TextStyle(fontSize: 15)),
+              ),
             ],
           ));
 }
