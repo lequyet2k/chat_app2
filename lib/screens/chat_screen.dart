@@ -123,28 +123,50 @@ class _ChatScreenState extends State<ChatScreen> {
     return map['message'] ?? '';
   }
 
-  showDialogInternetCheck() => showCupertinoDialog<String>(
+  showDialogInternetCheck() => showDialog<String>(
       context: context,
-      builder: (BuildContext context) => CupertinoAlertDialog(
-            title: const Text(
-              'No Connection',
+      builder: (BuildContext context) => AlertDialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Row(
+              children: [
+                Icon(Icons.wifi_off, color: Colors.grey[700], size: 28),
+                const SizedBox(width: 12),
+                Text(
+                  'No Connection',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[900],
+                  ),
+                ),
+              ],
+            ),
+            content: Text(
+              'Please check your internet connectivity and try again.',
               style: TextStyle(
-                letterSpacing: 0.5,
+                fontSize: 14,
+                color: Colors.grey[700],
+                height: 1.4,
               ),
             ),
-            content: const Text(
-              'Please check your internet connectivity',
-              style: TextStyle(letterSpacing: 0.5, fontSize: 12),
-            ),
             actions: <Widget>[
-              TextButton(
-                  onPressed: () async {
-                    Navigator.pop(context, 'Cancel');
-                  },
-                  child: const Text(
-                    'OK',
-                    style: TextStyle(letterSpacing: 0.5, fontSize: 15),
-                  ))
+              ElevatedButton(
+                onPressed: () async {
+                  Navigator.pop(context, 'OK');
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[800],
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+                child: const Text('OK', style: TextStyle(fontSize: 15)),
+              ),
             ],
           ));
 
@@ -1357,27 +1379,83 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void showTurnOnLocation() {
     showModalBottomSheet(
-        backgroundColor: Colors.grey,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
+        backgroundColor: Colors.transparent,
         context: context,
         builder: (BuildContext context) {
-          return GestureDetector(
-            onTap: () {
-              turnOnLocation();
-              Navigator.pop(context);
-            },
-            child: Container(
-              height: 70,
-              alignment: Alignment.center,
-              width: MediaQuery.of(context).size.width,
-              child: const Text(
-                "Share your location",
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 18,
-                ),
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  GestureDetector(
+                    onTap: () {
+                      turnOnLocation();
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.location_on,
+                              color: Colors.blue[700],
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Share your location",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                    color: Colors.grey[900],
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  "Send your current location to chat",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 16),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
               ),
             ),
           );
@@ -1490,28 +1568,83 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void showTurnOffLocation() {
     showModalBottomSheet(
-        backgroundColor: Colors.grey,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
+        backgroundColor: Colors.transparent,
         context: context,
         builder: (BuildContext context) {
-          return GestureDetector(
-            onTap: () {
-              turnOffLocation();
-              Navigator.pop(context);
-            },
-            child: Container(
-              height: 70,
-              alignment: Alignment.center,
-              width: MediaQuery.of(context).size.width,
-              child: const Text(
-                "Turn off locationed",
-                style: TextStyle(
-                  color: Colors.redAccent,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 18,
-                ),
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  GestureDetector(
+                    onTap: () {
+                      turnOffLocation();
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.location_off,
+                              color: Colors.red[700],
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Stop sharing location",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                    color: Colors.red[700],
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  "Your location will no longer be shared",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 16),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
               ),
             ),
           );
@@ -1550,61 +1683,120 @@ class _ChatScreenState extends State<ChatScreen> {
   void changeMessage(
       int index, int length, String message, String messageType) {
     showModalBottomSheet(
-        backgroundColor: Colors.grey,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
+        backgroundColor: Colors.transparent,
         context: context,
         builder: (BuildContext context) {
-          return SizedBox(
-            height: messageType == 'text' ? 100 : 70,
-            child: Column(
-              children: [
-                Expanded(
-                  child: GestureDetector(
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    child: Text(
+                      "Message Options",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[800],
+                      ),
+                    ),
+                  ),
+                  Divider(height: 1, color: Colors.grey[200]),
+                  GestureDetector(
                     onTap: () {
                       removeMessage(index, length);
                       Navigator.pop(context);
                     },
                     child: Container(
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width,
-                      child: const Text(
-                        "Remove message",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                messageType == 'text'
-                    ? Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            showEditForm(index, length, message);
-                          },
-                          child: Container(
-                            decoration: const BoxDecoration(
-                                border: Border(
-                                    top: BorderSide(
-                                        color: Colors.black26, width: 1.5))),
-                            alignment: Alignment.center,
-                            width: MediaQuery.of(context).size.width,
-                            child: const Text(
-                              "Edit message",
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.delete_outline,
+                              color: Colors.red[700],
+                              size: 22,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Text(
+                              "Delete message",
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
-                                fontSize: 18,
+                                fontSize: 15,
+                                color: Colors.red[700],
                               ),
                             ),
                           ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (messageType == 'text') ...[
+                    Divider(height: 1, color: Colors.grey[200]),
+                    GestureDetector(
+                      onTap: () {
+                        showEditForm(index, length, message);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.edit_outlined,
+                                color: Colors.grey[700],
+                                size: 22,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                "Edit message",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 15,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      )
-                    : Container(),
-              ],
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                ],
+              ),
             ),
           );
         });
@@ -1619,13 +1811,84 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       builder: (_) {
         return AlertDialog(
-            content: TextField(
-          controller: _controller,
-          onSubmitted: (text) {
-            editMessage(index, length, text);
-            Navigator.pop(context);
-          },
-        ));
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.edit_outlined, color: Colors.grey[700], size: 24),
+              const SizedBox(width: 12),
+              Text(
+                "Edit Message",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[900],
+                ),
+              ),
+            ],
+          ),
+          content: TextField(
+            controller: _controller,
+            autofocus: true,
+            maxLines: 3,
+            style: TextStyle(
+              fontSize: 15,
+              color: Colors.grey[900],
+            ),
+            decoration: InputDecoration(
+              hintText: "Enter your message...",
+              hintStyle: TextStyle(color: Colors.grey[400]),
+              filled: true,
+              fillColor: Colors.grey[50],
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey[600]!, width: 2),
+              ),
+            ),
+            onSubmitted: (text) {
+              if (text.trim().isNotEmpty) {
+                editMessage(index, length, text);
+                Navigator.pop(context);
+              }
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                "Cancel",
+                style: TextStyle(color: Colors.grey[600], fontSize: 15),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (_controller.text.trim().isNotEmpty) {
+                  editMessage(index, length, _controller.text);
+                  Navigator.pop(context);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey[800],
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              ),
+              child: const Text("Save", style: TextStyle(fontSize: 15)),
+            ),
+          ],
+        );
       },
     );
   }
