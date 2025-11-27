@@ -79,61 +79,66 @@ class LoginPage extends State<Login> {
           : GestureDetector(
               onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
               child: Scaffold(
-                body: SizedBox(
-                  width: size.width,
-                  height: size.height,
-                  child: Stack(
-                    children: [
-                      const Upside(
-                        imgUrl: "assets/images/logo.png",
-                      ),
-                      Positioned(
-                        top: 230,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          width: double.infinity,
-                          height: 100,
-                          decoration: const BoxDecoration(
-                              color: Color(0xfffeeeee4),
-                              borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(50),
-                                topLeft: Radius.circular(50),
-                              )),
-                          child: Column(
-                            children: [
-                              Container(
-                                margin: const EdgeInsets.only(top: 15),
-                                child: const Text(
-                                  "Login to your account",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontFamily: 'OpenSans',
-                                    fontSize: 17,
-                                    letterSpacing: 1,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xfff575861),
+                resizeToAvoidBottomInset: true,
+                body: SingleChildScrollView(
+                  child: SizedBox(
+                    width: size.width,
+                    height: size.height,
+                    child: Stack(
+                      children: [
+                        const Upside(
+                          imgUrl: "assets/images/logo.png",
+                        ),
+                        Positioned(
+                          top: 230,
+                          left: 0,
+                          right: 0,
+                          child: Container(
+                            width: double.infinity,
+                            height: 100,
+                            decoration: const BoxDecoration(
+                                color: Color(0xfffeeeee4),
+                                borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(50),
+                                  topLeft: Radius.circular(50),
+                                )),
+                            child: Column(
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.only(top: 15),
+                                  child: const Text(
+                                    "Login to your account",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontFamily: 'OpenSans',
+                                      fontSize: 17,
+                                      letterSpacing: 1,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xfff575861),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      Positioned(
-                        top: 280,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          width: double.infinity,
-                          height: 600,
-                          decoration: const BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(50),
-                                topLeft: Radius.circular(50),
-                              )),
-                          child: Column(
+                        Positioned(
+                          top: 280,
+                          left: 0,
+                          right: 0,
+                          child: SingleChildScrollView(
+                            child: Container(
+                              width: double.infinity,
+                              constraints: BoxConstraints(
+                                minHeight: size.height - 280,
+                              ),
+                              decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(50),
+                                    topLeft: Radius.circular(50),
+                                  )),
+                              child: Column(
                             children: [
                               const SizedBox(
                                 height: 20,
@@ -376,8 +381,10 @@ class LoginPage extends State<Login> {
                             ],
                           ),
                         ),
-                      ),
-                    ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
