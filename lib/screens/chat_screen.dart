@@ -421,8 +421,11 @@ class _ChatScreenState extends State<ChatScreen> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
+        backgroundColor: Colors.grey[50],
         appBar: AppBar(
           backgroundColor: Colors.white,
+          elevation: 1,
+          shadowColor: Colors.grey[200],
           flexibleSpace: SafeArea(
             child: Container(
               padding: const EdgeInsets.only(right: 10),
@@ -432,9 +435,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     onPressed: () async {
                       Navigator.pop(context);
                     },
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.arrow_back_ios,
-                      color: Colors.blueAccent,
+                      color: Colors.grey[800],
                     ),
                   ),
                   const SizedBox(
@@ -455,11 +458,13 @@ class _ChatScreenState extends State<ChatScreen> {
                       children: <Widget>[
                         Text(
                           widget.userMap['name'],
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              fontSize: 17, 
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[900]),
                         ),
                         const SizedBox(
-                          height: 6,
+                          height: 4,
                         ),
                         StreamBuilder<DocumentSnapshot>(
                           stream: _firestore
@@ -468,15 +473,30 @@ class _ChatScreenState extends State<ChatScreen> {
                               .snapshots(),
                           builder: (context, snapshot) {
                             if (snapshot.data != null) {
-                              return Text(
-                                snapshot.data!['status'],
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 13,
-                                ),
+                              return Row(
+                                children: [
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: snapshot.data!['status'].toLowerCase().contains('online') 
+                                          ? Colors.green 
+                                          : Colors.grey[400],
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    snapshot.data!['status'],
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
                               );
                             } else {
-                              return const Text('null');
+                              return const Text('');
                             }
                           },
                         )
@@ -495,15 +515,17 @@ class _ChatScreenState extends State<ChatScreen> {
                         //   context: context,
                         // );
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text(
-                                  'Video call feature temporarily disabled')),
+                          SnackBar(
+                            content: const Text('Video call feature temporarily disabled'),
+                            backgroundColor: Colors.grey[700],
+                          ),
                         );
                       }
                     },
-                    icon: const Icon(
-                      Icons.video_call,
-                      color: Colors.blueAccent,
+                    icon: Icon(
+                      Icons.video_call_outlined,
+                      color: Colors.grey[700],
+                      size: 28,
                     ),
                   ),
                   IconButton(
@@ -518,9 +540,10 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                       );
                     },
-                    icon: const Icon(
-                      Icons.settings,
-                      color: Colors.blueAccent,
+                    icon: Icon(
+                      Icons.settings_outlined,
+                      color: Colors.grey[700],
+                      size: 26,
                     ),
                   ),
                 ],
@@ -545,14 +568,24 @@ class _ChatScreenState extends State<ChatScreen> {
                         ? Container(
                             alignment: Alignment.center,
                             width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height / 30,
-                            // color: Colors.red,
-                            child: const Text(
-                              'No Internet Connection',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                              ),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.wifi_off, color: Colors.grey[700], size: 16),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'No Internet Connection',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                              ],
                             ),
                           )
                         : Container(),
@@ -583,12 +616,20 @@ class _ChatScreenState extends State<ChatScreen> {
                               groupSeparatorBuilder: (String groupByValue) =>
                                   Container(
                                 alignment: Alignment.center,
-                                height: 30,
-                                child: Text(
-                                  "${groupByValue.substring(11, 16)}, ${groupByValue.substring(0, 10)}",
-                                  style: TextStyle(
-                                      color: Colors.grey.shade600,
-                                      fontWeight: FontWeight.bold),
+                                margin: const EdgeInsets.symmetric(vertical: 12),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    "${groupByValue.substring(11, 16)}, ${groupByValue.substring(0, 10)}",
+                                    style: TextStyle(
+                                        color: Colors.grey[700],
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500),
+                                  ),
                                 ),
                               ),
                               indexedItemBuilder: (context, element, index) {
@@ -614,17 +655,12 @@ class _ChatScreenState extends State<ChatScreen> {
                     Column(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.2),
-                                spreadRadius: 1,
-                                blurRadius: 3,
-                                offset: const Offset(0, -1),
-                              ),
-                            ],
+                            border: Border(
+                              top: BorderSide(color: Colors.grey[300]!, width: 1),
+                            ),
                           ),
                           child: SafeArea(
                             child: Row(
@@ -634,11 +670,11 @@ class _ChatScreenState extends State<ChatScreen> {
                                   onPressed: () {
                                     getImage();
                                   },
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.image_outlined,
-                                    color: Colors.blueAccent,
+                                    color: Colors.grey[700],
                                   ),
-                                  iconSize: 28,
+                                  iconSize: 26,
                                   padding: const EdgeInsets.all(8),
                                   constraints: const BoxConstraints(),
                                 ),
@@ -650,38 +686,44 @@ class _ChatScreenState extends State<ChatScreen> {
                                       initLocationDoc();
                                     }
                                   },
-                                  icon: const Icon(
-                                    Icons.location_on,
-                                    color: Colors.blueAccent,
+                                  icon: Icon(
+                                    Icons.location_on_outlined,
+                                    color: Colors.grey[700],
                                   ),
-                                  iconSize: 28,
+                                  iconSize: 26,
                                   padding: const EdgeInsets.all(8),
                                   constraints: const BoxConstraints(),
                                 ),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: 6),
                                 Expanded(
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      color: Colors.grey.shade200,
-                                      borderRadius: BorderRadius.circular(25),
+                                      color: Colors.grey[100],
+                                      borderRadius: BorderRadius.circular(24),
+                                      border: Border.all(
+                                        color: Colors.grey[300]!,
+                                        width: 1,
+                                      ),
                                     ),
                                     child: TextField(
                                       autofocus: true,
                                       focusNode: focusNode,
                                       controller: _message,
+                                      style: TextStyle(
+                                        color: Colors.grey[900],
+                                        fontSize: 15,
+                                      ),
                                       decoration: InputDecoration(
                                         hintText: "Type a message...",
-                                        hintStyle: TextStyle(color: Colors.grey.shade600),
+                                        hintStyle: TextStyle(
+                                          color: Colors.grey[500],
+                                          fontSize: 15,
+                                        ),
                                         filled: true,
                                         fillColor: Colors.transparent,
                                         contentPadding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
+                                          horizontal: 18,
                                           vertical: 10,
-                                        ),
-                                        prefixIcon: const Icon(
-                                          Icons.abc,
-                                          color: Colors.grey,
-                                          size: 26,
                                         ),
                                         suffixIcon: IconButton(
                                           onPressed: () {
@@ -691,36 +733,44 @@ class _ChatScreenState extends State<ChatScreen> {
                                               showEmoji = !showEmoji;
                                             });
                                           },
-                                          icon: const Icon(
-                                            Icons.emoji_emotions,
-                                            color: Colors.blueAccent,
+                                          icon: Icon(
+                                            Icons.emoji_emotions_outlined,
+                                            color: Colors.grey[600],
                                           ),
-                                          iconSize: 26,
+                                          iconSize: 24,
                                         ),
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(25),
+                                          borderRadius: BorderRadius.circular(24),
                                           borderSide: BorderSide.none,
                                         ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(25),
+                                          borderRadius: BorderRadius.circular(24),
                                           borderSide: BorderSide.none,
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(25),
-                                          borderSide: const BorderSide(
-                                            color: Colors.blueAccent,
-                                            width: 2,
+                                          borderRadius: BorderRadius.circular(24),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey[400]!,
+                                            width: 1.5,
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: 6),
                                 Container(
-                                  decoration: const BoxDecoration(
-                                    color: Colors.blueAccent,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[800],
                                     shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.3),
+                                        spreadRadius: 1,
+                                        blurRadius: 3,
+                                        offset: const Offset(0, 1),
+                                      ),
+                                    ],
                                   ),
                                   child: IconButton(
                                     onPressed: () {
@@ -730,7 +780,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                       Icons.send,
                                       color: Colors.white,
                                     ),
-                                    iconSize: 24,
+                                    iconSize: 22,
                                     padding: const EdgeInsets.all(10),
                                     constraints: const BoxConstraints(),
                                   ),
@@ -837,23 +887,45 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: Container(
                   constraints: BoxConstraints(maxWidth: size.width / 1.5),
                   padding:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
                   margin:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                      const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: map['encrypted'] == true
-                        ? Colors.green
-                        : Colors.blueAccent,
+                    borderRadius: map['sendBy'] == widget.user.displayName
+                        ? const BorderRadius.only(
+                            topLeft: Radius.circular(18),
+                            topRight: Radius.circular(18),
+                            bottomLeft: Radius.circular(18),
+                            bottomRight: Radius.circular(4),
+                          )
+                        : const BorderRadius.only(
+                            topLeft: Radius.circular(18),
+                            topRight: Radius.circular(18),
+                            bottomLeft: Radius.circular(4),
+                            bottomRight: Radius.circular(18),
+                          ),
+                    color: map['sendBy'] == widget.user.displayName
+                        ? Colors.grey[800]
+                        : Colors.grey[200],
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.15),
+                        spreadRadius: 1,
+                        blurRadius: 3,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
                   ),
                   child: FutureBuilder<String>(
                     future: _getMessageText(map, messageId),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Text(
+                        return Text(
                           'Decrypting...',
                           style: TextStyle(
-                              color: Colors.white70,
+                              color: map['sendBy'] == widget.user.displayName
+                                  ? Colors.white70
+                                  : Colors.grey[600],
                               fontSize: 15,
                               fontStyle: FontStyle.italic),
                         );
@@ -862,16 +934,22 @@ class _ChatScreenState extends State<ChatScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (map['encrypted'] == true)
-                            const Padding(
-                              padding: EdgeInsets.only(right: 6),
-                              child: Icon(Icons.lock,
-                                  color: Colors.white, size: 14),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 6),
+                              child: Icon(Icons.lock_outline,
+                                  color: map['sendBy'] == widget.user.displayName
+                                      ? Colors.green[300]
+                                      : Colors.green[600],
+                                  size: 14),
                             ),
                           Flexible(
                             child: Text(
                               snapshot.data ?? map['message'] ?? '',
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 17),
+                              style: TextStyle(
+                                  color: map['sendBy'] == widget.user.displayName
+                                      ? Colors.white
+                                      : Colors.grey[900],
+                                  fontSize: 16),
                             ),
                           ),
                         ],
