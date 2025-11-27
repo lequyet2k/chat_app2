@@ -53,6 +53,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   bool isLoading = false;
 
+  // Cache for decrypted messages to prevent re-decryption
+  final Map<String, String> _decryptedMessagesCache = {};
+
   @override
   void initState() {
     getConnectivity();
@@ -104,10 +107,18 @@ class _ChatScreenState extends State<ChatScreen> {
   late String lat;
   late String long;
 
-  // Helper method to get decrypted message text
-  Future<String> _getMessageText(Map<String, dynamic> map) async {
+  // Helper method to get decrypted message text with caching
+  Future<String> _getMessageText(Map<String, dynamic> map, String messageId) async {
     if (map['encrypted'] == true) {
-      return await EncryptedChatService.decryptMessage(map);
+      // Check cache first
+      if (_decryptedMessagesCache.containsKey(messageId)) {
+        return _decryptedMessagesCache[messageId]!;
+      }
+      
+      // Decrypt and cache
+      final decryptedText = await EncryptedChatService.decryptMessage(map);
+      _decryptedMessagesCache[messageId] = decryptedText;
+      return decryptedText;
     }
     return map['message'] ?? '';
   }
@@ -588,7 +599,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                     widget.userMap,
                                     index,
                                     snapshot.data?.docs.length as int,
-                                    context);
+                                    context,
+                                    element.id); // Pass document ID for caching
                               },
                               controller: controller,
                             );
@@ -787,7 +799,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         : Colors.blueAccent,
                   ),
                   child: FutureBuilder<String>(
-                    future: _getMessageText(map),
+                    future: _getMessageText(map, messageId),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Text(
@@ -1608,6 +1620,9 @@ class ShowImage extends StatelessWidget {
               )
             : const CircularProgressIndicator(),
       ),
+    );
+  }
+}
     );
   }
 }
