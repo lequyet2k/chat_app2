@@ -1030,27 +1030,83 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
 
   void showTurnOnLocation() {
     showModalBottomSheet(
-        backgroundColor: Colors.grey,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
+        backgroundColor: Colors.transparent,
         context: context,
         builder: (BuildContext context) {
-          return GestureDetector(
-            onTap: () {
-              turnOnLocation();
-              Navigator.pop(context);
-            },
-            child: Container(
-              height: 70,
-              alignment: Alignment.center,
-              width: MediaQuery.of(context).size.width,
-              child: const Text(
-                "Share your location",
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 18,
-                ),
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(height: 12),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  GestureDetector(
+                    onTap: () {
+                      turnOnLocation();
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.location_on,
+                              color: Colors.blue[700],
+                              size: 24,
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Share your location",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                    color: Colors.grey[900],
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  "Send your current location to group",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 16),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                ],
               ),
             ),
           );
@@ -1137,28 +1193,83 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
 
   void showTurnOffLocation() {
     showModalBottomSheet(
-        backgroundColor: Colors.grey,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
+        backgroundColor: Colors.transparent,
         context: context,
         builder: (BuildContext context) {
-          return GestureDetector(
-            onTap: () {
-              turnOffLocation();
-              Navigator.pop(context);
-            },
-            child: Container(
-              height: 70,
-              alignment: Alignment.center,
-              width: MediaQuery.of(context).size.width,
-              child: const Text(
-                "Turn off locationed",
-                style: TextStyle(
-                  color: Colors.redAccent,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 18,
-                ),
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(height: 12),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  GestureDetector(
+                    onTap: () {
+                      turnOffLocation();
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.location_off,
+                              color: Colors.red[700],
+                              size: 24,
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Stop sharing location",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                    color: Colors.red[700],
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  "Turn off location sharing",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 16),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                ],
               ),
             ),
           );
@@ -1197,60 +1308,96 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
   void changeMessage(
       int index, int length, String message, String messageType) {
     showModalBottomSheet(
-        backgroundColor: Colors.grey,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
+        backgroundColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         context: context,
         builder: (BuildContext context) {
-          return SizedBox(
-            height: messageType == 'text' ? 100 : 70,
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: GestureDetector(
+                // Drag handle
+                Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                // Remove message option
+                Card(
+                  elevation: 0,
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: Colors.grey[200]!, width: 1),
+                  ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
+                    leading: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.red[50],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.delete_outline,
+                          color: Colors.red[700]),
+                    ),
+                    title: const Text('Remove message',
+                        style: TextStyle(fontWeight: FontWeight.w600)),
+                    subtitle: Text('Delete this message for everyone',
+                        style: TextStyle(
+                            color: Colors.grey[600], fontSize: 13)),
                     onTap: () {
                       removeMessage(index, length);
                       Navigator.pop(context);
                     },
-                    child: Container(
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width,
-                      child: const Text(
-                        "Remove message",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
                   ),
                 ),
-                messageType == 'text'
-                    ? Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            showEditForm(index, length, message);
-                          },
-                          child: Container(
-                            decoration: const BoxDecoration(
-                                border: Border(
-                                    top: BorderSide(
-                                        color: Colors.black26, width: 1.5))),
-                            alignment: Alignment.center,
-                            width: MediaQuery.of(context).size.width,
-                            child: const Text(
-                              "Edit message",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
+                if (messageType == 'text') ...[
+                  const SizedBox(height: 8),
+                  Card(
+                    elevation: 0,
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: Colors.grey[200]!, width: 1),
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      leading: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.blue[50],
+                          shape: BoxShape.circle,
                         ),
-                      )
-                    : Container(),
+                        child: Icon(Icons.edit_outlined,
+                            color: Colors.blue[700]),
+                      ),
+                      title: const Text('Edit message',
+                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      subtitle: Text('Modify your message',
+                          style: TextStyle(
+                              color: Colors.grey[600], fontSize: 13)),
+                      onTap: () {
+                        showEditForm(index, length, message);
+                      },
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 10),
               ],
             ),
           );
