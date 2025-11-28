@@ -1140,199 +1140,252 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         );
       } else if (map['type'] == 'location') {
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            const SizedBox(
-              width: 2,
-            ),
-            map['sendBy'] != widget.user.displayName
-                ? Container(
-                    margin: const EdgeInsets.only(bottom: 5),
-                    height: size.width / 13,
-                    width: size.width / 13,
-                    child: CircleAvatar(
-                      backgroundImage:
-                          CachedNetworkImageProvider(userMap['avatar']),
-                      maxRadius: 30,
-                    ),
-                  )
-                : Container(),
-            GestureDetector(
-              onLongPress: () {
-                if (map['sendBy'] == widget.user.displayName) {
-                  changeMessage(index, length, map['message'], map['type']);
-                }
-              },
-              child: Container(
-                width: map['sendBy'] == widget.user.displayName
-                    ? size.width * 0.98
-                    : size.width * 0.77,
-                alignment: map['sendBy'] == widget.user.displayName
-                    ? Alignment.centerRight
-                    : Alignment.centerLeft,
-                child: Container(
-                  width: size.width / 2,
-                  // constraints: BoxConstraints( maxWidth: size.width / 1.5),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+        bool isMe = map['sendBy'] == widget.user.displayName;
+        return Container(
+          margin: EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            children: [
+              if (!isMe) ...[
+                Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: Colors.grey.shade800,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.grey.shade300,
+                      width: 2,
+                    ),
                   ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(4.0),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
-                              color: Colors.blueAccent,
-                            ),
-                            child: const Icon(
-                              Icons.location_on_outlined,
-                              color: Colors.white70,
-                              size: 18,
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 0,
-                          ),
-                          Expanded(
-                            child: Column(
-                              children: [
-                                const Text(
-                                  "Vị trí trực tiếp",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white70,
-                                  ),
+                  child: CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider(userMap['avatar']),
+                    radius: 16,
+                  ),
+                ),
+                SizedBox(width: 8),
+              ],
+              Flexible(
+                child: GestureDetector(
+                  onLongPress: () {
+                    if (isMe) {
+                      changeMessage(index, length, map['message'], map['type']);
+                    }
+                  },
+                  child: Container(
+                    constraints: BoxConstraints(maxWidth: size.width * 0.65),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: isMe ? Colors.blue : Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: isMe 
+                                      ? Colors.white.withValues(alpha: 0.2)
+                                      : Colors.blue.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
                                 ),
+                                child: Icon(
+                                  Icons.my_location,
+                                  color: isMe ? Colors.white : Colors.blue,
+                                  size: 18,
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Live Location",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14,
+                                        color: isMe ? Colors.white : Colors.grey[800],
+                                      ),
+                                    ),
+                                    SizedBox(height: 2),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 6,
+                                          height: 6,
+                                          decoration: BoxDecoration(
+                                            color: Colors.green,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          "Sharing now",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: isMe ? Colors.white.withValues(alpha: 0.8) : Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            if (isMe) {
+                              openMap(lat, long);
+                            } else {
+                              takeUserLocation();
+                            }
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              color: isMe 
+                                  ? Colors.white.withValues(alpha: 0.15)
+                                  : Colors.blue.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(16),
+                                bottomRight: Radius.circular(16),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.map_outlined,
+                                  size: 16,
+                                  color: isMe ? Colors.white : Colors.blue,
+                                ),
+                                SizedBox(width: 6),
                                 Text(
-                                  // int.parse(map['timeSpend'].toString()) < 60 ?
-                                  "Đã bắt đầu chia sẻ",
-                                  // : (map['timeSpend'] / 60).toString() + "p "+ (map['timeSpend'] % 60).toString() + "s",
+                                  "View Location",
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: Colors.grey.shade300,
+                                    fontWeight: FontWeight.w600,
+                                    color: isMe ? Colors.white : Colors.blue,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          if (map['sendBy'] == widget.user.displayName) {
-                            openMap(lat, long);
-                          } else {
-                            takeUserLocation();
-                          }
-                        },
-                        child: Container(
-                          // margin: EdgeInsets.only(right: 5,left: 0),
-                          width: size.width,
-                          height: 25,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: Colors.grey.shade400,
-                          ),
-                          child: Container(
-                            alignment: Alignment.center,
-                            child: const Text("Xem vi tri"),
-                          ),
                         ),
-                      )
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       } else if (map['type'] == 'locationed') {
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            const SizedBox(
-              width: 2,
-            ),
-            map['sendBy'] != widget.user.displayName
-                ? Container(
-                    margin: const EdgeInsets.only(bottom: 5),
-                    height: size.width / 13,
-                    width: size.width / 13,
-                    child: CircleAvatar(
-                      backgroundImage: NetworkImage(userMap['avatar']),
-                      maxRadius: 30,
-                    ),
-                  )
-                : Container(),
-            GestureDetector(
-              onLongPress: () {
-                if (map['sendBy'] == widget.user.displayName) {
-                  changeMessage(index, length, map['message'], map['type']);
-                }
-              },
-              child: Container(
-                width: map['sendBy'] == widget.user.displayName
-                    ? size.width * 0.98
-                    : size.width * 0.77,
-                alignment: map['sendBy'] == widget.user.displayName
-                    ? Alignment.centerRight
-                    : Alignment.centerLeft,
-                child: Container(
-                  width: size.width / 1.8,
-                  // constraints: BoxConstraints( maxWidth: size.width / 1.5),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+        bool isMe = map['sendBy'] == widget.user.displayName;
+        return Container(
+          margin: EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            children: [
+              if (!isMe) ...[
+                Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: Colors.grey.shade700,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.grey.shade300,
+                      width: 2,
+                    ),
                   ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(4.0),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
-                              color: Colors.blueAccent,
-                            ),
-                            child: const Icon(
-                              Icons.location_on_outlined,
-                              color: Colors.white70,
-                              size: 18,
-                            ),
+                  child: CircleAvatar(
+                    backgroundImage: NetworkImage(userMap['avatar']),
+                    radius: 16,
+                  ),
+                ),
+                SizedBox(width: 8),
+              ],
+              Flexible(
+                child: GestureDetector(
+                  onLongPress: () {
+                    if (isMe) {
+                      changeMessage(index, length, map['message'], map['type']);
+                    }
+                  },
+                  child: Container(
+                    constraints: BoxConstraints(maxWidth: size.width * 0.65),
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: isMe ? Colors.blue : Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isMe 
+                                ? Colors.white.withValues(alpha: 0.2)
+                                : Colors.grey.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
                           ),
-                          const SizedBox(
-                            width: 10,
+                          child: Icon(
+                            Icons.location_off_outlined,
+                            color: isMe ? Colors.white : Colors.grey[600],
+                            size: 18,
                           ),
-                          const Text(
-                            "Chia sẻ vị trí đã kết thúc",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white70,
-                            ),
+                        ),
+                        SizedBox(width: 10),
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Location Sharing Ended",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: isMe ? Colors.white : Colors.grey[800],
+                                ),
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                "No longer available",
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: isMe ? Colors.white.withValues(alpha: 0.7) : Colors.grey[600],
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       } else {
         return Container();
