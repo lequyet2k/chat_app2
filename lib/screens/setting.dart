@@ -440,7 +440,7 @@ class _SettingState extends State<Setting> {
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.grey.withOpacity(0.1),
+                                    color: Colors.grey.withValues(alpha: 0.1),
                                     spreadRadius: 2,
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
@@ -496,7 +496,7 @@ class _SettingState extends State<Setting> {
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: Colors.grey
-                                                      .withOpacity(0.3),
+                                                      .withValues(alpha: 0.3),
                                                   spreadRadius: 1,
                                                   blurRadius: 4,
                                                   offset: const Offset(0, 2),
@@ -536,8 +536,8 @@ class _SettingState extends State<Setting> {
                                       color: map['status']
                                               .toLowerCase()
                                               .contains('online')
-                                          ? Colors.green.withOpacity(0.1)
-                                          : Colors.grey.withOpacity(0.1),
+                                          ? Colors.green.withValues(alpha: 0.1)
+                                          : Colors.grey.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Row(
@@ -585,7 +585,7 @@ class _SettingState extends State<Setting> {
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.grey.withOpacity(0.1),
+                                    color: Colors.grey.withValues(alpha: 0.1),
                                     spreadRadius: 2,
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
@@ -642,7 +642,7 @@ class _SettingState extends State<Setting> {
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.grey.withOpacity(0.1),
+                                    color: Colors.grey.withValues(alpha: 0.1),
                                     spreadRadius: 2,
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
@@ -821,7 +821,8 @@ class _SettingState extends State<Setting> {
                 showTurnOffStatus();
               }
             },
-            activeColor: Colors.green[600],
+            activeTrackColor: Colors.green[600],
+            activeThumbColor: Colors.white,
           ),
         ],
       ),
@@ -852,7 +853,7 @@ class _SettingState extends State<Setting> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.1),
+                color: Colors.blue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: Colors.blue[700], size: 24),

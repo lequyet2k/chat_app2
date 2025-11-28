@@ -106,10 +106,10 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isSelected
-              ? Colors.blue.withOpacity(0.1)
-              : Colors.grey.withOpacity(0.05),
+              ? Colors.blue.withValues(alpha: 0.1)
+              : Colors.grey.withValues(alpha: 0.05),
           border: Border.all(
-            color: isSelected ? Colors.blue : Colors.grey.withOpacity(0.3),
+            color: isSelected ? Colors.blue : Colors.grey.withValues(alpha: 0.3),
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12),
@@ -185,7 +185,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                       children: [
                         CircleAvatar(
                           radius: 24,
-                          backgroundColor: Colors.blue.withOpacity(0.1),
+                          backgroundColor: Colors.blue.withValues(alpha: 0.1),
                           child: const Icon(
                             Icons.auto_delete,
                             color: Colors.blue,
@@ -223,10 +223,10 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.05),
+                        color: Colors.blue.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.blue.withOpacity(0.2),
+                          color: Colors.blue.withValues(alpha: 0.2),
                         ),
                       ),
                       child: Row(
@@ -275,7 +275,8 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                               });
                               _saveSettings();
                             },
-                            activeColor: Colors.blue,
+                            activeTrackColor: Colors.blue,
+                            activeThumbColor: Colors.white,
                           ),
                         ],
                       ),
@@ -314,10 +315,10 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.amber.withOpacity(0.1),
+                        color: Colors.amber.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.amber.withOpacity(0.3),
+                          color: Colors.amber.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
@@ -363,10 +364,10 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
+                        color: Colors.green.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.green.withOpacity(0.3),
+                          color: Colors.green.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
