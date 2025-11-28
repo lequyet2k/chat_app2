@@ -623,12 +623,19 @@ class _ChatScreenState extends State<ChatScreen> {
                             .snapshots(),
                         builder: (BuildContext context,
                             AsyncSnapshot<QuerySnapshot> snapshot) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (controller.hasClients) {
-                              controller
-                                  .jumpTo(controller.position.maxScrollExtent);
-                            }
-                          });
+                          // Only auto-scroll when messages change, not on every rebuild
+                          if (snapshot.hasData) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (controller.hasClients && 
+                                  controller.position.pixels < controller.position.maxScrollExtent - 100) {
+                                controller.animateTo(
+                                  controller.position.maxScrollExtent,
+                                  duration: const Duration(milliseconds: 200),
+                                  curve: Curves.easeOut,
+                                );
+                              }
+                            });
+                          }
                           if (snapshot.data != null) {
                             return GroupedListView<
                                 QueryDocumentSnapshot<Object?>, String>(
@@ -679,18 +686,16 @@ class _ChatScreenState extends State<ChatScreen> {
                     Column(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             border: Border(
                               top: BorderSide(color: Colors.grey[200]!, width: 0.5),
                             ),
                           ),
-                          child: SafeArea(
-                            bottom: true,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: <Widget>[
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: <Widget>[
                                 // Attachment menu button
                                 IconButton(
                                   onPressed: () {
@@ -816,7 +821,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ),
                               ],
                             ),
-                          ),
                         ),
                       ],
                     ),
