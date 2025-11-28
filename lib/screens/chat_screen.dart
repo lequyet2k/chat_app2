@@ -679,7 +679,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     Column(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             border: Border(
@@ -700,24 +700,24 @@ class _ChatScreenState extends State<ChatScreen> {
                                     Icons.add_circle_outline,
                                     color: Colors.grey[600],
                                   ),
-                                  iconSize: 26,
-                                  padding: const EdgeInsets.all(6),
+                                  iconSize: 24,
+                                  padding: const EdgeInsets.all(4),
                                   constraints: const BoxConstraints(
-                                    minWidth: 38,
-                                    minHeight: 38,
+                                    minWidth: 32,
+                                    minHeight: 32,
                                   ),
                                 ),
-                                const SizedBox(width: 4),
+                                const SizedBox(width: 2),
                                 // Text input field
                                 Expanded(
                                   child: Container(
                                     constraints: const BoxConstraints(
-                                      minHeight: 40,
+                                      minHeight: 36,
                                       maxHeight: 100,
                                     ),
                                     decoration: BoxDecoration(
                                       color: Colors.grey[50],
-                                      borderRadius: BorderRadius.circular(20),
+                                      borderRadius: BorderRadius.circular(18),
                                       border: Border.all(
                                         color: Colors.grey[300]!,
                                         width: 0.5,
@@ -735,7 +735,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                             style: TextStyle(
                                               color: Colors.grey[900],
                                               fontSize: 15,
-                                              height: 1.4,
+                                              height: 1.3,
                                             ),
                                             decoration: InputDecoration(
                                               hintText: "Message",
@@ -746,12 +746,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                               filled: true,
                                               fillColor: Colors.transparent,
                                               contentPadding: const EdgeInsets.symmetric(
-                                                horizontal: 14,
-                                                vertical: 10,
+                                                horizontal: 12,
+                                                vertical: 8,
                                               ),
                                               border: InputBorder.none,
                                               enabledBorder: InputBorder.none,
                                               focusedBorder: InputBorder.none,
+                                              isDense: true,
                                             ),
                                           ),
                                         ),
@@ -770,25 +771,25 @@ class _ChatScreenState extends State<ChatScreen> {
                                               : Icons.emoji_emotions_outlined,
                                             color: Colors.grey[600],
                                           ),
-                                          iconSize: 22,
-                                          padding: const EdgeInsets.all(6),
+                                          iconSize: 20,
+                                          padding: const EdgeInsets.all(4),
                                           constraints: const BoxConstraints(
-                                            minWidth: 32,
-                                            minHeight: 32,
+                                            minWidth: 28,
+                                            minHeight: 28,
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 4),
+                                const SizedBox(width: 2),
                                 // Voice/Send button with ValueListenableBuilder to prevent flickering
                                 ValueListenableBuilder<TextEditingValue>(
                                   valueListenable: _message,
                                   builder: (context, value, child) {
                                     return Container(
-                                      width: 40,
-                                      height: 40,
+                                      width: 36,
+                                      height: 36,
                                       decoration: BoxDecoration(
                                         color: Colors.grey[800],
                                         shape: BoxShape.circle,
@@ -807,7 +808,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                             : Icons.mic,
                                           color: Colors.white,
                                         ),
-                                        iconSize: 20,
+                                        iconSize: 18,
                                         padding: EdgeInsets.zero,
                                       ),
                                     );
