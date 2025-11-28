@@ -206,33 +206,60 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
+        backgroundColor: Colors.grey[50],
         body: appBar(_selectedIndex),
-        bottomNavigationBar: BottomNavigationBar(
-          selectedItemColor: Colors.blueAccent,
-          unselectedItemColor: Colors.grey.shade600,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
-          type: BottomNavigationBarType.fixed,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.messenger),
-              label: "Message",
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withValues(alpha: 0.1),
+                blurRadius: 10,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            child: BottomNavigationBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              selectedItemColor: Colors.grey[900],
+              unselectedItemColor: Colors.grey[400],
+              selectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 12,
+              ),
+              type: BottomNavigationBarType.fixed,
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.chat_bubble_outline),
+                  activeIcon: Icon(Icons.chat_bubble),
+                  label: "Chats",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.group_outlined),
+                  activeIcon: Icon(Icons.group),
+                  label: "Groups",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.call_outlined),
+                  activeIcon: Icon(Icons.call),
+                  label: "Calls",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.settings_outlined),
+                  activeIcon: Icon(Icons.settings),
+                  label: "Settings",
+                ),
+              ],
+              currentIndex: _selectedIndex,
+              onTap: _onItemTapped,
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.group),
-              label: "Group",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.call),
-              label: "Calls",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: "Setting",
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
+          ),
         ),
       ),
     );
@@ -243,13 +270,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          margin: const EdgeInsets.only(top: 15, left: 15),
-          child: const Text('Recent Chats',
+          margin: const EdgeInsets.only(top: 8, left: 20, bottom: 8),
+          child: Text('Recent',
               style: TextStyle(
-                color: Colors.black54,
-                fontSize: 13,
+                color: Colors.grey[600],
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
-                letterSpacing: 0.5,
+                letterSpacing: 0.3,
               )),
         ),
         Expanded(
@@ -295,13 +322,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       children: <Widget>[
         SafeArea(
           child: Padding(
-            padding: const EdgeInsets.only(left: 16, top: 10, right: 16),
+            padding: const EdgeInsets.only(left: 20, top: 16, right: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                const Text(
-                  "Conversations",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                Text(
+                  "Messages",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[900],
+                    letterSpacing: -0.5,
+                  ),
                 ),
                 GestureDetector(
                   onTap: () {
@@ -318,29 +350,28 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     }
                   },
                   child: Container(
-                    padding: const EdgeInsets.only(
-                        left: 8, right: 8, top: 2, bottom: 2),
-                    height: 30,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: Colors.pink[50],
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.grey[900],
                     ),
                     child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        Tab(
-                          icon: Image.asset(
-                            //        <-- Image
-                            'assets/icons/chatbot-icon.png',
-                            height: 25,
-                            fit: BoxFit.cover,
+                        Icon(
+                          Icons.smart_toy_outlined,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 6),
+                        const Text(
+                          "AI Bot",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
                           ),
                         ),
-                        const Text(
-                          "ChatBot",
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(width: 5),
                       ],
                     ),
                   ),
@@ -350,24 +381,36 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
         ),
         Container(
-          padding: const EdgeInsets.only(top: 16, right: 16, left: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: TextField(
             autofocus: false,
+            style: TextStyle(color: Colors.grey[900], fontSize: 15),
             decoration: InputDecoration(
-              hintText: "Search..",
-              hintStyle: TextStyle(color: Colors.grey.shade600),
+              hintText: "Search messages...",
+              hintStyle: TextStyle(color: Colors.grey[400], fontSize: 15),
               prefixIcon: Icon(
                 Icons.search,
-                color: Colors.grey.shade600,
-                size: 20,
+                color: Colors.grey[400],
+                size: 22,
               ),
               filled: true,
-              fillColor: Colors.grey.shade100,
-              contentPadding: const EdgeInsets.all(8.0),
+              fillColor: Colors.grey[100],
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+              ),
               enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(
-                    color: Colors.grey.shade100,
+                    color: Colors.grey[200]!,
+                    width: 1,
+                  )),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Colors.grey[400]!,
+                    width: 1.5,
                   )),
             ),
             controller: _search,
