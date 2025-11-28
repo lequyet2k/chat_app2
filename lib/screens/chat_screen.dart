@@ -66,6 +66,10 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       }
     });
+    // Add listener to update send/mic button
+    _message.addListener(() {
+      setState(() {});
+    });
     updateIsReadMessage();
     getUserInfo();
     super.initState();
@@ -677,77 +681,84 @@ class _ChatScreenState extends State<ChatScreen> {
                     Column(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             border: Border(
-                              top: BorderSide(color: Colors.grey[300]!, width: 1),
+                              top: BorderSide(color: Colors.grey[200]!, width: 0.5),
                             ),
                           ),
                           child: SafeArea(
+                            bottom: true,
                             child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: <Widget>[
+                                // Attachment menu button
                                 IconButton(
                                   onPressed: () {
-                                    getImage();
+                                    _showAttachmentMenu();
                                   },
                                   icon: Icon(
-                                    Icons.image_outlined,
-                                    color: Colors.grey[700],
+                                    Icons.add_circle_outline,
+                                    color: Colors.grey[600],
                                   ),
                                   iconSize: 26,
-                                  padding: const EdgeInsets.all(8),
-                                  constraints: const BoxConstraints(),
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    if (widget.isDeviceConnected == false) {
-                                      showDialogInternetCheck();
-                                    } else {
-                                      initLocationDoc();
-                                    }
-                                  },
-                                  icon: Icon(
-                                    Icons.location_on_outlined,
-                                    color: Colors.grey[700],
+                                  padding: const EdgeInsets.all(6),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 38,
+                                    minHeight: 38,
                                   ),
-                                  iconSize: 26,
-                                  padding: const EdgeInsets.all(8),
-                                  constraints: const BoxConstraints(),
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 4),
+                                // Text input field
                                 Expanded(
                                   child: Container(
+                                    constraints: const BoxConstraints(
+                                      minHeight: 40,
+                                      maxHeight: 100,
+                                    ),
                                     decoration: BoxDecoration(
-                                      color: Colors.grey[100],
-                                      borderRadius: BorderRadius.circular(24),
+                                      color: Colors.grey[50],
+                                      borderRadius: BorderRadius.circular(20),
                                       border: Border.all(
                                         color: Colors.grey[300]!,
-                                        width: 1,
+                                        width: 0.5,
                                       ),
                                     ),
-                                    child: TextField(
-                                      autofocus: true,
-                                      focusNode: focusNode,
-                                      controller: _message,
-                                      style: TextStyle(
-                                        color: Colors.grey[900],
-                                        fontSize: 15,
-                                      ),
-                                      decoration: InputDecoration(
-                                        hintText: "Type a message...",
-                                        hintStyle: TextStyle(
-                                          color: Colors.grey[500],
-                                          fontSize: 15,
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Expanded(
+                                          child: TextField(
+                                            focusNode: focusNode,
+                                            controller: _message,
+                                            maxLines: null,
+                                            textInputAction: TextInputAction.newline,
+                                            style: TextStyle(
+                                              color: Colors.grey[900],
+                                              fontSize: 15,
+                                              height: 1.4,
+                                            ),
+                                            decoration: InputDecoration(
+                                              hintText: "Message",
+                                              hintStyle: TextStyle(
+                                                color: Colors.grey[400],
+                                                fontSize: 15,
+                                              ),
+                                              filled: true,
+                                              fillColor: Colors.transparent,
+                                              contentPadding: const EdgeInsets.symmetric(
+                                                horizontal: 14,
+                                                vertical: 10,
+                                              ),
+                                              border: InputBorder.none,
+                                              enabledBorder: InputBorder.none,
+                                              focusedBorder: InputBorder.none,
+                                            ),
+                                          ),
                                         ),
-                                        filled: true,
-                                        fillColor: Colors.transparent,
-                                        contentPadding: const EdgeInsets.symmetric(
-                                          horizontal: 18,
-                                          vertical: 10,
-                                        ),
-                                        suffixIcon: IconButton(
+                                        // Emoji button
+                                        IconButton(
                                           onPressed: () {
                                             setState(() {
                                               focusNode.unfocus();
@@ -756,55 +767,47 @@ class _ChatScreenState extends State<ChatScreen> {
                                             });
                                           },
                                           icon: Icon(
-                                            Icons.emoji_emotions_outlined,
+                                            showEmoji 
+                                              ? Icons.keyboard_outlined
+                                              : Icons.emoji_emotions_outlined,
                                             color: Colors.grey[600],
                                           ),
-                                          iconSize: 24,
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(24),
-                                          borderSide: BorderSide.none,
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(24),
-                                          borderSide: BorderSide.none,
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(24),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey[400]!,
-                                            width: 1.5,
+                                          iconSize: 22,
+                                          padding: const EdgeInsets.all(6),
+                                          constraints: const BoxConstraints(
+                                            minWidth: 32,
+                                            minHeight: 32,
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 4),
+                                // Voice/Send button
                                 Container(
+                                  width: 40,
+                                  height: 40,
                                   decoration: BoxDecoration(
                                     color: Colors.grey[800],
                                     shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.3),
-                                        spreadRadius: 1,
-                                        blurRadius: 3,
-                                        offset: const Offset(0, 1),
-                                      ),
-                                    ],
                                   ),
                                   child: IconButton(
                                     onPressed: () {
-                                      onSendMessage();
+                                      if (_message.text.trim().isNotEmpty) {
+                                        onSendMessage();
+                                      } else {
+                                        _showVoiceRecording();
+                                      }
                                     },
-                                    icon: const Icon(
-                                      Icons.send,
+                                    icon: Icon(
+                                      _message.text.trim().isNotEmpty
+                                        ? Icons.send
+                                        : Icons.mic,
                                       color: Colors.white,
                                     ),
-                                    iconSize: 22,
-                                    padding: const EdgeInsets.all(10),
-                                    constraints: const BoxConstraints(),
+                                    iconSize: 20,
+                                    padding: EdgeInsets.zero,
                                   ),
                                 ),
                               ],
@@ -1375,6 +1378,200 @@ class _ChatScreenState extends State<ChatScreen> {
         return showTurnOnLocation();
       }
     }
+  }
+
+  // Attachment menu bottom sheet
+  void _showAttachmentMenu() {
+    showModalBottomSheet(
+      backgroundColor: Colors.transparent,
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: [
+                      // Photo & Video
+                      _buildAttachmentOption(
+                        icon: Icons.photo_library_outlined,
+                        label: 'Photo & Video',
+                        color: Colors.purple,
+                        onTap: () {
+                          Navigator.pop(context);
+                          getImage();
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      // Document
+                      _buildAttachmentOption(
+                        icon: Icons.insert_drive_file_outlined,
+                        label: 'Document',
+                        color: Colors.blue,
+                        onTap: () {
+                          Navigator.pop(context);
+                          _pickDocument();
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      // Location
+                      _buildAttachmentOption(
+                        icon: Icons.location_on_outlined,
+                        label: 'Location',
+                        color: Colors.green,
+                        onTap: () {
+                          Navigator.pop(context);
+                          if (widget.isDeviceConnected == false) {
+                            showDialogInternetCheck();
+                          } else {
+                            initLocationDoc();
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      // Camera
+                      _buildAttachmentOption(
+                        icon: Icons.camera_alt_outlined,
+                        label: 'Camera',
+                        color: Colors.red,
+                        onTap: () {
+                          Navigator.pop(context);
+                          _openCamera();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAttachmentOption({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.grey[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey[200]!),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            const SizedBox(width: 16),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[900],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Pick document (placeholder - requires file_picker package)
+  void _pickDocument() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.info_outline, color: Colors.white),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text('Document sharing feature coming soon!'),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.grey[800],
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
+  // Open camera (placeholder)
+  void _openCamera() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.info_outline, color: Colors.white),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text('Camera feature coming soon!'),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.grey[800],
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
+  // Voice recording (placeholder)
+  void _showVoiceRecording() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.mic, color: Colors.white),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text('Voice message feature coming soon!'),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.grey[800],
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   void showTurnOnLocation() {
