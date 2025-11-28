@@ -102,46 +102,70 @@ class _CallLogListContainerState extends State<CallLogListContainer> {
                           // );
                         },
                         child: Container(
-                          padding: const EdgeInsets.only(left: 16, right: 16, top : 10, bottom: 10),
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundImage: hasDialled  ? CachedNetworkImageProvider(_log.receiverPic!) : CachedNetworkImageProvider(_log.callerPic!)  ,
-                                maxRadius: 25,
-                              ),
-                              const SizedBox(width: 12,),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    hasDialled ? _log.receiverName! : _log.callerName!,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                    )
-                                  ),
-                                  const SizedBox(height: 5,),
-                                  Row(
-                                    children: [
-                                      getIcon(_log.callStatus),
-                                      const SizedBox(width: 5,),
-                                      Text(
-                                        _log.timeStamp!.substring(11,16),
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                      const Text(" - "),
-                                      Text(
-                                        _log.timeStamp!.substring(0,10),
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                ],
+                          margin: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.03),
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
                               ),
                             ],
+                          ),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            leading: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.grey.shade300,
+                                  width: 2,
+                                ),
+                              ),
+                              child: CircleAvatar(
+                                backgroundImage: hasDialled
+                                    ? CachedNetworkImageProvider(_log.receiverPic!)
+                                    : CachedNetworkImageProvider(_log.callerPic!),
+                                radius: 24,
+                              ),
+                            ),
+                            title: Text(
+                              hasDialled ? _log.receiverName! : _log.callerName!,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                              ),
+                            ),
+                            subtitle: Padding(
+                              padding: EdgeInsets.only(top: 4),
+                              child: Row(
+                                children: [
+                                  getIcon(_log.callStatus),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    '${_log.timeStamp!.substring(11, 16)} • ${_log.timeStamp!.substring(0, 10)}',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            trailing: Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.withValues(alpha: 0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.phone,
+                                color: Colors.blue,
+                                size: 20,
+                              ),
+                            ),
                           ),
                         ),
                       );
@@ -150,7 +174,38 @@ class _CallLogListContainerState extends State<CallLogListContainer> {
               }
               return Container();
             }
-            return const Text("No Call Logs");
+            return Center(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.call_outlined,
+                      size: 64,
+                      color: Colors.grey[400],
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'No Call Logs',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[800],
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Your call history will appear here',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
           },
         ),
       ),
