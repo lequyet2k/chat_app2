@@ -79,103 +79,111 @@ class _ConversationListState extends State<ConversationList> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.only(left: 16, top :10, bottom: 10),
-        child: Row(
-          children: <Widget>[
-            Expanded(
-                child: Row(
+        margin: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Row(
+            children: <Widget>[
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: widget.chatHistory['isRead'] == false 
+                        ? Colors.blue 
+                        : Colors.grey.shade300,
+                    width: 2,
+                  ),
+                ),
+                child: CircleAvatar(
+                  backgroundImage: CachedNetworkImageProvider(widget.chatHistory['avatar']),
+                  radius: 28,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    CircleAvatar(
-                      backgroundImage: CachedNetworkImageProvider(widget.chatHistory['avatar']),
-                      maxRadius: 30,
-                    ),
-                    const SizedBox(width: 16,),
-                    Expanded(
-                        child: Container(
-                          color: Colors.transparent,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              // Text(widget.chatHistory['name'] == null ?  "UserName" : widget.chatHistory['name'],style: TextStyle(fontSize: 16),),
-                              Row(
-                                children: [
-                                  widget.chatHistory['name'].toString().length >= 25
-                                      ? Text(
-                                      '${widget.chatHistory['name'].toString().substring(0, 25)}...',
-                                      style: TextStyle(
-                                        fontWeight: widget.chatHistory['isRead'] == false ? FontWeight.bold : FontWeight.normal,
-                                        fontSize: 16,
-                                      )
-                                  )
-                                      : Text(widget.chatHistory['name'], style: TextStyle(
-                                    fontWeight: widget.chatHistory['isRead'] == false ? FontWeight.bold : FontWeight.normal,
-                                    fontSize: 16,
-                                  )
-                                  ),
-                                  const SizedBox(width: 10,),
-                                  widget.chatHistory['isRead'] == false ?
-                                  Container(
-                                    width: 10,
-                                    height: 10,
-                                    decoration: BoxDecoration(
-                                        color: Colors.blueAccent,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.blueAccent,
-                                          width: 3,
-                                        )
-                                    ),
-                                  ) : Container(),
-                                ],
-                              ),
-                              const SizedBox(height: 6,),
-                              Row(
-                                children: [
-                                  Container(
-                                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 2.1,),
-                                    child: widget.chatHistory['lastMessage'].toString().length >= 21
-                                        ? Text(
-                                      '${widget.chatHistory['lastMessage'].toString().substring(0, 21)}...',
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: widget.chatHistory['isRead'] == false ? FontWeight.bold : FontWeight.normal,
-                                          color: Colors.grey.shade700,)
-                                    )
-                                        : Text(widget.chatHistory['lastMessage'], style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: widget.chatHistory['isRead'] == false ? FontWeight.bold : FontWeight.normal,
-                                      color: Colors.grey.shade700,)
-                                    )
-                    ),
-                                  const SizedBox(width: 10,),
-                                  Text(
-                                    widget.chatHistory['time'].toString().substring(11, 16),
-                                    //widget.chatHistory['time'],
-                                    style: const TextStyle(
-                                      fontSize:   12,
-                                      //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal,
-                                    ),
-                                  ),
-                                  const Text(" - "),
-                                  Text(
-                                    widget.chatHistory['time'].toString().substring(0, 10),
-                                    //widget.chatHistory['time'],
-                                    style: const TextStyle(
-                                      fontSize:   12,
-                                      //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            widget.chatHistory['name'].toString().length >= 25
+                                ? '${widget.chatHistory['name'].toString().substring(0, 25)}...'
+                                : widget.chatHistory['name'],
+                            style: TextStyle(
+                              fontWeight: widget.chatHistory['isRead'] == false 
+                                  ? FontWeight.w700 
+                                  : FontWeight.w600,
+                              fontSize: 15,
+                              color: Colors.grey[800],
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        if (widget.chatHistory['isRead'] == false) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            widget.chatHistory['lastMessage'].toString().length >= 30
+                                ? '${widget.chatHistory['lastMessage'].toString().substring(0, 30)}...'
+                                : widget.chatHistory['lastMessage'],
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: widget.chatHistory['isRead'] == false 
+                                  ? FontWeight.w600 
+                                  : FontWeight.normal,
+                              color: widget.chatHistory['isRead'] == false 
+                                  ? Colors.grey[700]
+                                  : Colors.grey[600],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${widget.chatHistory['time'].toString().substring(11, 16)}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey[500],
+                            fontWeight: widget.chatHistory['isRead'] == false 
+                                ? FontWeight.w600 
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-            ),
-            const SizedBox(width: 10,),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );

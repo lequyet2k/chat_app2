@@ -35,14 +35,16 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          margin: const EdgeInsets.only(top: 15, left: 15),
-          child: const Text('Groups',
-              style: TextStyle(
-                color: Colors.black54,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.5,
-              )),
+          margin: EdgeInsets.only(top: 16, left: 16, bottom: 8),
+          child: Text(
+            'My Groups',
+            style: TextStyle(
+              color: Colors.grey[800],
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.3,
+            ),
+          ),
         ),
         Expanded(
           child: Stack(
@@ -121,67 +123,119 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                     )));
       },
       child: Container(
-        padding:
-            const EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
-        child: Row(
-          children: <Widget>[
-            const CircleAvatar(
-              backgroundImage: CachedNetworkImageProvider(
-                  "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98"),
-              maxRadius: 30,
+        margin: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 4,
+              offset: Offset(0, 2),
             ),
-            const SizedBox(
-              width: 16,
-            ),
-            Expanded(
-              child: Container(
-                color: Colors.transparent,
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Row(
+            children: <Widget>[
+              Stack(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.grey.shade300,
+                        width: 2,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      backgroundImage: CachedNetworkImageProvider(
+                          "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98"),
+                      radius: 28,
+                    ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 2,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.group,
+                        size: 12,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 12),
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    // Text(map['name'],style: TextStyle(fontSize: 16),),
-                    map['name'].toString().length >= 30
-                        ? Text('${map['name'].toString().substring(0, 30)}...',
-                            style: const TextStyle(
-                              fontSize: 16,
-                            ))
-                        : Text(map['name'],
-                            style: const TextStyle(
-                              fontSize: 16,
-                            )),
-                    const SizedBox(
-                      height: 6,
-                    ),
-                    Container(
-                      constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width / 2.1,
+                    Text(
+                      map['name'].toString().length >= 30
+                          ? '${map['name'].toString().substring(0, 30)}...'
+                          : map['name'],
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[800],
                       ),
-                      child: StreamBuilder<DocumentSnapshot>(
-                        stream: _firestore
-                            .collection('groups')
-                            .doc(map['id'])
-                            .snapshots(),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<DocumentSnapshot> snapshots) {
-                          if (snapshots.hasData) {
-                            List length = snapshots.data!['members'];
-                            return Text('Members: ${length.length}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    StreamBuilder<DocumentSnapshot>(
+                      stream: _firestore
+                          .collection('groups')
+                          .doc(map['id'])
+                          .snapshots(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<DocumentSnapshot> snapshots) {
+                        if (snapshots.hasData) {
+                          List length = snapshots.data!['members'];
+                          return Row(
+                            children: [
+                              Icon(
+                                Icons.people_outline,
+                                size: 14,
+                                color: Colors.grey[600],
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                '${length.length} members',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: Colors.grey.shade600,
-                                ));
-                          } else {
-                            return Container();
-                          }
-                        },
-                        //fontWeight: widget.isMessageRead?FontWeight.bold:FontWeight.normal),
-                      ),
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return Container();
+                        }
+                      },
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+              Icon(
+                Icons.chevron_right,
+                color: Colors.grey[400],
+                size: 24,
+              ),
+            ],
+          ),
         ),
       ),
     );
