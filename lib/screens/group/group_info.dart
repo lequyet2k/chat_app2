@@ -225,75 +225,114 @@ class _GroupInfoState extends State<GroupInfo> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
 
-    return SafeArea(
-      child: Scaffold(
-        body: isLoading
-            ? Container(
-                height: size.height,
-                width: size.width,
-                alignment: Alignment.center,
-                child: const CircularProgressIndicator(),
-              )
-            : SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: BackButton(),
-                    ),
-                    SizedBox(
-                      height: size.height / 8,
-                      width: size.width / 1.1,
-                      child: Row(
-                        children: [
-                          Container(
-                              height: size.height / 5,
-                              width: size.width / 5,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.grey,
-                              ),
-                              child: const CircleAvatar(
-                                backgroundImage: CachedNetworkImageProvider(
-                                    "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98"),
-                                maxRadius: 30,
-                              )),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          Container(
-                            child: widget.groupName.length >= 17
-                                ? Text(
-                                    '${widget.groupName.substring(0, 17)}...',
-                                    style: TextStyle(
-                                        fontSize: size.width / 16,
-                                        fontWeight: FontWeight.w500))
-                                : Text(widget.groupName,
-                                    style: TextStyle(
-                                        fontSize: size.width / 16,
-                                        fontWeight: FontWeight.w500)),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    SizedBox(
-                      width: size.width / 1.1,
-                      child: Text(
-                        " ${membersList.length} Members",
-                        style: TextStyle(
-                          fontSize: size.width / 20,
-                          fontWeight: FontWeight.w500,
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        backgroundColor: Colors.grey[900],
+        elevation: 2,
+        shadowColor: Colors.black.withAlpha(76),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: Colors.grey[100], size: 22),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Group Info',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[100],
+          ),
+        ),
+      ),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator(color: Colors.grey[900]))
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Group Header Card
+                  Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withValues(alpha: 0.1),
+                          spreadRadius: 1,
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
                         ),
-                      ),
+                      ],
                     ),
-                    const SizedBox(
-                      height: 10,
+                    child: Column(
+                      children: [
+                        // Group Avatar
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.grey[300]!, width: 2),
+                          ),
+                          child: const CircleAvatar(
+                            backgroundImage: CachedNetworkImageProvider(
+                              "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98",
+                            ),
+                            radius: 38,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Group Name
+                        Text(
+                          widget.groupName.length >= 25
+                              ? '${widget.groupName.substring(0, 25)}...'
+                              : widget.groupName,
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.grey[900],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        // Member Count
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '${membersList.length} Members',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    ListTile(
+                  ),
+
+                  // Add Member Button
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withValues(alpha: 0.1),
+                          spreadRadius: 1,
+                          blurRadius: 4,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
                       onTap: () {
                         if (widget.isDeviceConnected == false) {
                           showDialogInternetCheck();
@@ -301,62 +340,169 @@ class _GroupInfoState extends State<GroupInfo> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => AddMemberInGroup(
-                                      groupName: widget.groupName,
-                                      groupId: widget.groupId,
-                                      membersList: membersList,
-                                      user: widget.user,
-                                    )),
+                              builder: (context) => AddMemberInGroup(
+                                groupName: widget.groupName,
+                                groupId: widget.groupId,
+                                membersList: membersList,
+                                user: widget.user,
+                              ),
+                            ),
                           );
                         }
                       },
-                      leading: const Icon(
-                        Icons.add,
+                      leading: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: Colors.blue[50],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.person_add_outlined, color: Colors.blue[700], size: 22),
                       ),
                       title: Text(
-                        "Add member",
+                        'Add Member',
                         style: TextStyle(
-                          fontSize: size.width / 22,
+                          fontSize: 16,
                           fontWeight: FontWeight.w500,
+                          color: Colors.grey[900],
                         ),
                       ),
+                      trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
                     ),
-                    Flexible(
-                        child: ListView.builder(
-                      itemCount: membersList.length,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          onTap: () {
-                            if (widget.isDeviceConnected == false) {
-                              showDialogInternetCheck();
-                            } else {
-                              showRemoveDialog(index);
-                            }
-                          },
-                          leading: CircleAvatar(
-                            backgroundImage: CachedNetworkImageProvider(
-                                membersList[index]['avatar']),
-                            maxRadius: 20,
-                          ),
-                          title: Text(
-                            membersList[index]['name'],
+                  ),
+
+                  // Members List Section
+                  Container(
+                    margin: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withValues(alpha: 0.1),
+                          spreadRadius: 1,
+                          blurRadius: 4,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Text(
+                            'Members',
                             style: TextStyle(
-                              fontSize: size.width / 22,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[800],
                             ),
                           ),
-                          subtitle: Text(membersList[index]['email']),
-                          trailing: Text(
-                              membersList[index]['isAdmin'] ? "Admin" : ""),
-                        );
-                      },
-                    )),
-                    const SizedBox(
-                      height: 5,
+                        ),
+                        Divider(height: 1, color: Colors.grey[200]),
+                        ListView.builder(
+                          itemCount: membersList.length,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            bool isAdmin = membersList[index]['isAdmin'] ?? false;
+                            bool isCurrentUser = membersList[index]['uid'] == _auth.currentUser!.uid;
+                            
+                            return ListTile(
+                              onTap: () {
+                                if (widget.isDeviceConnected == false) {
+                                  showDialogInternetCheck();
+                                } else if (checkAdmin() && !isCurrentUser) {
+                                  showRemoveDialog(index);
+                                }
+                              },
+                              leading: Stack(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundImage: CachedNetworkImageProvider(
+                                      membersList[index]['avatar'],
+                                    ),
+                                    radius: 22,
+                                  ),
+                                  if (isAdmin)
+                                    Positioned(
+                                      bottom: 0,
+                                      right: 0,
+                                      child: Container(
+                                        width: 16,
+                                        height: 16,
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue[700],
+                                          shape: BoxShape.circle,
+                                          border: Border.all(color: Colors.white, width: 2),
+                                        ),
+                                        child: const Icon(
+                                          Icons.star,
+                                          color: Colors.white,
+                                          size: 10,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              title: Text(
+                                membersList[index]['name'],
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey[900],
+                                ),
+                              ),
+                              subtitle: Text(
+                                membersList[index]['email'],
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              trailing: isAdmin
+                                  ? Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue[50],
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        'Admin',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.blue[700],
+                                        ),
+                                      ),
+                                    )
+                                  : (checkAdmin() && !isCurrentUser)
+                                      ? Icon(Icons.more_vert, color: Colors.grey[400], size: 20)
+                                      : null,
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                    ListTile(
+                  ),
+
+                  // Leave Group Button
+                  Container(
+                    margin: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withValues(alpha: 0.1),
+                          spreadRadius: 1,
+                          blurRadius: 4,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
                       onTap: () {
                         if (widget.isDeviceConnected == false) {
                           showDialogInternetCheck();
@@ -364,23 +510,30 @@ class _GroupInfoState extends State<GroupInfo> {
                           onLeaveGroup();
                         }
                       },
-                      leading: const Icon(
-                        Icons.logout,
-                        color: Colors.redAccent,
+                      leading: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: Colors.red[50],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.logout, color: Colors.red[700], size: 22),
                       ),
                       title: Text(
-                        "Leave Group",
+                        'Leave Group',
                         style: TextStyle(
-                          fontSize: size.width / 22,
+                          fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.redAccent,
+                          color: Colors.red[700],
                         ),
                       ),
-                    )
-                  ],
-                ),
+                      trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
               ),
-      ),
+            )
     );
   }
 
