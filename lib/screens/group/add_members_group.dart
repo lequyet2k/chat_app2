@@ -132,9 +132,20 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
             child: Scaffold(
               appBar: AppBar(
-                backgroundColor: Colors.grey,
-                title: const Text(
-                  "Add Members",
+                backgroundColor: Colors.grey[900],
+                elevation: 2,
+                shadowColor: Colors.black.withValues(alpha: 0.3),
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back, color: Colors.grey[100]),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                title: Text(
+                  "Add Members to Group",
+                  style: TextStyle(
+                    color: Colors.grey[100],
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               body: SingleChildScrollView(
@@ -143,27 +154,47 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
                   child: Column(
                     children: [
                       Container(
-                        padding:
-                            const EdgeInsets.only(top: 16, right: 16, left: 16),
+                        margin: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
                         child: TextField(
+                          controller: _search,
                           decoration: InputDecoration(
-                            hintText: "Search..",
-                            hintStyle: TextStyle(color: Colors.grey.shade600),
+                            hintText: "Search members to add...",
+                            hintStyle: TextStyle(color: Colors.grey.shade400),
                             prefixIcon: Icon(
                               Icons.search,
                               color: Colors.grey.shade600,
-                              size: 20,
+                              size: 22,
                             ),
                             filled: true,
-                            fillColor: Colors.grey.shade100,
-                            contentPadding: const EdgeInsets.all(8.0),
+                            fillColor: Colors.white,
+                            contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide.none,
+                            ),
                             enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade100,
-                                )),
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: Colors.blue,
+                                width: 2,
+                              ),
+                            ),
                           ),
-                          controller: _search,
                           onChanged: (value) {
                             setState(() {
                               query = value;
@@ -213,31 +244,75 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
                             map['email']
                                 .toString()
                                 .contains(query.toLowerCase())) {
-                          return ListTile(
-                            onTap: () async {
-                              setState(() {
-                                isLoading = true;
-                              });
-                              onAddMembers(map);
-                              setState(() {
-                                isLoading = false;
-                              });
-                              Navigator.pop(context);
-                            },
-                            title: Text(
-                              map['name'],
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                          return Container(
+                            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.03),
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
                             ),
-                            subtitle: Text(
-                              map['email'],
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            child: ListTile(
+                              onTap: () async {
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                onAddMembers(map);
+                                setState(() {
+                                  isLoading = false;
+                                });
+                                Navigator.pop(context);
+                              },
+                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              title: Text(
+                                map['name'],
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              subtitle: Text(
+                                map['email'],
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 13,
+                                ),
+                              ),
+                              leading: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: CircleAvatar(
+                                  radius: 24,
+                                  backgroundImage: NetworkImage(map['avatar']),
+                                ),
+                              ),
+                              trailing: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.person_add,
+                                  color: Colors.blue,
+                                  size: 20,
+                                ),
+                              ),
                             ),
-                            leading: CircleAvatar(
-                              backgroundImage: NetworkImage(map['avatar']),
-                            ),
-                            trailing: const Icon(Icons.add),
                           );
                         }
                         return Container();
