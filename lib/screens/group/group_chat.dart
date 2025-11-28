@@ -79,7 +79,9 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                 right: 20.0,
                 bottom: 20.0,
                 child: FloatingActionButton(
-                  backgroundColor: Colors.black,
+                  backgroundColor: Colors.blue[700],
+                  foregroundColor: Colors.white,
+                  elevation: 4,
                   onPressed: () {
                     if (widget.isDeviceConnected == false) {
                       showDialogInternetCheck();
