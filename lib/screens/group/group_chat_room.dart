@@ -254,6 +254,67 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
     );
   }
 
+  void _showAttachmentMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Photo & Video
+            ListTile(
+              leading: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.blue[50],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.photo_library_outlined, color: Colors.blue[700], size: 24),
+              ),
+              title: Text('Photo & Video', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey[900])),
+              onTap: () {
+                Navigator.pop(context);
+                getImage();
+              },
+            ),
+            const SizedBox(height: 8),
+            // Location
+            ListTile(
+              leading: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.green[50],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.location_on_outlined, color: Colors.green[700], size: 24),
+              ),
+              title: Text('Location', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey[900])),
+              onTap: () {
+                Navigator.pop(context);
+                if (widget.isDeviceConnected == false) {
+                  showDialogInternetCheck();
+                } else {
+                  checkUserisLocationed();
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -262,7 +323,10 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.grey[900],
+          elevation: 2,
+          shadowColor: Colors.black.withAlpha(76),
           flexibleSpace: SafeArea(
             child: Container(
               padding: const EdgeInsets.only(top: 4),
@@ -275,30 +339,44 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                           MaterialPageRoute(
                               builder: (_) => HomeScreen(user: widget.user)));
                     },
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.arrow_back_ios,
-                      color: Colors.blueAccent,
+                      color: Colors.grey[100],
+                      size: 22,
                     ),
                   ),
-                  const SizedBox(
-                    width: 2,
-                  ),
+                  const SizedBox(width: 2),
                   const CircleAvatar(
                     backgroundImage: CachedNetworkImageProvider(
                         'https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F2a2c7410-7b06-11ed-aa52-c50d48cba6ef.jpg?alt=media&token=1b11fc5a-2294-4db8-94bf-7bd083f54b98'),
                     maxRadius: 20,
                   ),
-                  const SizedBox(
-                    width: 12,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.groupName.length >= 25
+                              ? '${widget.groupName.substring(0, 25)}...'
+                              : widget.groupName,
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[100],
+                          ),
+                        ),
+                        Text(
+                          '${memberList.length} members',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  widget.groupName.length >= 25
-                      ? Text('${widget.groupName.substring(0, 25)}...',
-                          style: const TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.w600))
-                      : Text(widget.groupName,
-                          style: const TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.w600)),
-                  const Spacer(),
                   IconButton(
                     onPressed: () {
                       Navigator.push(
@@ -312,9 +390,10 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                                     isDeviceConnected: widget.isDeviceConnected,
                                   )));
                     },
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.more_vert,
-                      color: Colors.blueAccent,
+                      color: Colors.grey[300],
+                      size: 24,
                     ),
                   ),
                 ],
@@ -400,82 +479,107 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               Column(
                 children: [
                   Container(
-                    height: size.height / 16,
                     width: double.infinity,
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      // padding: EdgeInsets.only(bottom: 10,top: 10),
-                      color: Colors.white70,
-                      child: Row(
-                        children: <Widget>[
-                          IconButton(
+                    padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border(
+                        top: BorderSide(color: Colors.grey[200]!, width: 0.5),
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        // Attachment button
+                        Container(
+                          width: 36,
+                          height: 36,
+                          margin: const EdgeInsets.only(right: 6),
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
                             onPressed: () {
-                              getImage();
+                              _showAttachmentMenu(context);
                             },
-                            icon: const Icon(
-                              Icons.image_outlined,
-                              color: Colors.blueAccent,
+                            icon: Icon(
+                              Icons.add_circle_outline,
+                              color: Colors.grey[700],
+                              size: 22,
                             ),
                           ),
-                          IconButton(
-                            onPressed: () {
-                              if (widget.isDeviceConnected == false) {
-                                showDialogInternetCheck();
-                              } else {
-                                checkUserisLocationed();
-                              }
-                            },
-                            icon: const Icon(
-                              Icons.location_on,
-                              color: Colors.blueAccent,
+                        ),
+                        // Text input field
+                        Expanded(
+                          child: Container(
+                            constraints: const BoxConstraints(
+                              minHeight: 36,
+                              maxHeight: 100,
                             ),
-                          ),
-                          // SizedBox(width: 15,),
-                          Expanded(
-                            child: SizedBox(
-                              height: size.height / 20.8,
-                              child: TextField(
-                                autofocus: true,
-                                focusNode: focusNode,
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: Colors.grey.shade300,
-                                  // hintText: "Aa",
-                                  // hintStyle: TextStyle(color: Colors.white30),
-                                  prefixIcon: const Icon(Icons.abc),
-                                  suffixIcon: IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        focusNode.unfocus();
-                                        focusNode.canRequestFocus = false;
-                                        showEmoji = !showEmoji;
-                                      });
-                                    },
-                                    icon: const Icon(
-                                      Icons.emoji_emotions,
-                                      color: Colors.blueAccent,
-                                    ),
-                                  ),
-                                  // contentPadding: EdgeInsets.all(8.0),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(25),
+                            child: TextField(
+                              focusNode: focusNode,
+                              controller: _message,
+                              maxLines: null,
+                              style: TextStyle(fontSize: 15, color: Colors.grey[900]),
+                              decoration: InputDecoration(
+                                hintText: 'Type a message...',
+                                hintStyle: TextStyle(color: Colors.grey[400]),
+                                filled: true,
+                                fillColor: Colors.grey[100],
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(18),
+                                  borderSide: BorderSide(color: Colors.grey[200]!, width: 0.5),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(18),
+                                  borderSide: BorderSide(color: Colors.grey[200]!, width: 0.5),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(18),
+                                  borderSide: BorderSide(color: Colors.grey[400]!, width: 0.5),
+                                ),
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      focusNode.unfocus();
+                                      focusNode.canRequestFocus = false;
+                                      showEmoji = !showEmoji;
+                                    });
+                                  },
+                                  icon: Icon(
+                                    Icons.emoji_emotions_outlined,
+                                    color: Colors.grey[600],
+                                    size: 20,
                                   ),
                                 ),
-                                controller: _message,
                               ),
                             ),
                           ),
-                          IconButton(
-                            onPressed: () {
-                              onSendMessage();
-                            },
-                            icon: const Icon(
-                              Icons.send,
-                              color: Colors.blueAccent,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                        // Send/Mic button
+                        ValueListenableBuilder<TextEditingValue>(
+                          valueListenable: _message,
+                          builder: (context, value, child) {
+                            return Container(
+                              width: 36,
+                              height: 36,
+                              margin: const EdgeInsets.only(left: 6),
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                onPressed: () {
+                                  if (_message.text.trim().isNotEmpty) {
+                                    onSendMessage();
+                                  }
+                                },
+                                icon: Icon(
+                                  _message.text.trim().isEmpty ? Icons.mic_none : Icons.send,
+                                  color: Colors.grey[700],
+                                  size: 20,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 ],
