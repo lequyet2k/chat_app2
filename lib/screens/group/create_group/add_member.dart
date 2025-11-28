@@ -98,24 +98,68 @@ class _AddMemberState extends State<AddMember> {
                             map['email']
                                 .toString()
                                 .contains(query.toLowerCase())) {
-                          return ListTile(
-                            onTap: () async {
-                              addMemberToList(map);
-                            },
-                            title: Text(
-                              map['name'],
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                          return Container(
+                            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.03),
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
                             ),
-                            subtitle: Text(
-                              map['email'],
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            child: ListTile(
+                              onTap: () async {
+                                addMemberToList(map);
+                              },
+                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              title: Text(
+                                map['name'],
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              subtitle: Text(
+                                map['email'],
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 13,
+                                ),
+                              ),
+                              leading: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: CircleAvatar(
+                                  radius: 24,
+                                  backgroundImage: NetworkImage(map['avatar']),
+                                ),
+                              ),
+                              trailing: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.add,
+                                  color: Colors.blue,
+                                  size: 20,
+                                ),
+                              ),
                             ),
-                            leading: CircleAvatar(
-                              backgroundImage: NetworkImage(map['avatar']),
-                            ),
-                            trailing: Icon(Icons.add),
                           );
                         }
                         return Container();
@@ -145,35 +189,66 @@ class _AddMemberState extends State<AddMember> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.grey[900],
+          elevation: 2,
+          shadowColor: Colors.black.withValues(alpha: 0.3),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.grey[100]),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
           title: Text(
             "Add Members",
+            style: TextStyle(
+              color: Colors.grey[100],
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: EdgeInsets.only(top: 16, right: 16, left: 16),
+              margin: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: "Search..",
-                  hintStyle: TextStyle(color: Colors.grey.shade600),
+                  hintText: "Search members...",
+                  hintStyle: TextStyle(color: Colors.grey.shade400),
                   prefixIcon: Icon(
                     Icons.search,
                     color: Colors.grey.shade600,
-                    size: 20,
+                    size: 22,
                   ),
                   filled: true,
-                  fillColor: Colors.grey.shade100,
-                  contentPadding: EdgeInsets.all(8.0),
+                  fillColor: Colors.white,
+                  contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
                   enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade100,
-                      )),
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(
+                      color: Colors.blue,
+                      width: 2,
+                    ),
+                  ),
                 ),
-                // controller: _search,
                 onChanged: (value) {
                   setState(() {
                     query = value;
@@ -181,74 +256,86 @@ class _AddMemberState extends State<AddMember> {
                 },
               ),
             ),
-            SizedBox(
-              height: 25,
-            ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: List.generate(memberList.length, (index) {
-                  return GestureDetector(
-                    onTap: () {
-                      removeMember(
-                        index,
-                      );
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(left: 10, right: 15),
-                      child: Column(
-                        children: [
-                          Container(
-                            child: Stack(
+            SizedBox(height: 8),
+            Container(
+              height: 120,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  children: List.generate(memberList.length, (index) {
+                    bool isCurrentUser = memberList[index]['uid'] == _auth.currentUser!.uid;
+                    return GestureDetector(
+                      onTap: () {
+                        if (!isCurrentUser) {
+                          removeMember(index);
+                        }
+                      },
+                      child: Container(
+                        width: 80,
+                        margin: EdgeInsets.symmetric(horizontal: 6),
+                        child: Column(
+                          children: [
+                            Stack(
                               children: [
                                 Container(
-                                  height: 60,
-                                  width: 60,
+                                  height: 64,
+                                  width: 64,
                                   decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: DecorationImage(
-                                        image: NetworkImage(
-                                          memberList[index]['avatar'] ??
-                                              widget.user.photoURL,
-                                        ),
-                                        fit: BoxFit.cover,
-                                      )),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: isCurrentUser ? Colors.blue : Colors.grey.shade300,
+                                      width: 2,
+                                    ),
+                                    image: DecorationImage(
+                                      image: NetworkImage(
+                                        memberList[index]['avatar'] ?? widget.user.photoURL,
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                                 ),
                                 Positioned(
-                                  left: 40,
+                                  right: 0,
+                                  bottom: 0,
                                   child: Container(
-                                      decoration: BoxDecoration(
-                                          color: Colors.grey.shade500,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: Colors.grey.shade500,
-                                            width: 2,
-                                          )),
-                                      child: memberList[index]['uid'] ==
-                                              _auth.currentUser!.uid
-                                          ? Icon(
-                                              Icons.person,
-                                              color: Colors.white,
-                                              size: 13.5,
-                                            )
-                                          : Icon(
-                                              Icons.close,
-                                              color: Colors.white,
-                                              size: 13.5,
-                                            )),
+                                    height: 24,
+                                    width: 24,
+                                    decoration: BoxDecoration(
+                                      color: isCurrentUser ? Colors.blue : Colors.red,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      isCurrentUser ? Icons.person : Icons.close,
+                                      color: Colors.white,
+                                      size: 14,
+                                    ),
+                                  ),
                                 )
                               ],
                             ),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Text(memberList[index]['name']),
-                        ],
+                            SizedBox(height: 8),
+                            Text(
+                              memberList[index]['name'],
+                              maxLines: 2,
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: isCurrentUser ? FontWeight.w600 : FontWeight.normal,
+                                color: Colors.grey[800],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                }),
+                    );
+                  }),
+                ),
               ),
             ),
             Container(
@@ -266,22 +353,32 @@ class _AddMemberState extends State<AddMember> {
           ],
         ),
         floatingActionButton: memberList.length >= 2
-            ? FloatingActionButton(
-                backgroundColor: Colors.black,
-                child: Icon(Icons.forward),
+            ? FloatingActionButton.extended(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                elevation: 4,
+                icon: Icon(Icons.arrow_forward),
+                label: Text(
+                  'Next',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => CreateGroup(
-                              memberList: memberList,
-                              user: widget.user,
-                              isDeviceConnected: widget.isDeviceConnected,
-                            )),
+                      builder: (context) => CreateGroup(
+                        memberList: memberList,
+                        user: widget.user,
+                        isDeviceConnected: widget.isDeviceConnected,
+                      ),
+                    ),
                   );
                 },
               )
-            : SizedBox(),
+            : null,
       ),
     );
   }
