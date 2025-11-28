@@ -7,10 +7,38 @@ import 'package:my_porject/resources/methods.dart';
 class CustomSearch extends SearchDelegate {
   User user;
   bool isDeviceConnected;
-  CustomSearch({required this.user, required this.isDeviceConnected});
+  CustomSearch({required this.user, required this.isDeviceConnected})
+      : super(
+          searchFieldLabel: 'Search users...',
+          searchFieldStyle: TextStyle(
+            color: Colors.grey[100],
+            fontSize: 16,
+          ),
+        );
 
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    return ThemeData(
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.grey[900],
+        elevation: 2,
+        iconTheme: IconThemeData(color: Colors.grey[100]),
+        titleTextStyle: TextStyle(
+          color: Colors.grey[100],
+          fontSize: 18,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        hintStyle: TextStyle(color: Colors.grey[400]),
+        border: InputBorder.none,
+      ),
+      scaffoldBackgroundColor: Colors.grey[50],
+    );
+  }
 
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -59,32 +87,70 @@ class CustomSearch extends SearchDelegate {
                     }
                     if (map['name'].toString().contains(query.toLowerCase()) ||
                         map['email'].toString().contains(query.toLowerCase())) {
-                      return ListTile(
-                        onTap: () async {
-                          String roomId = ChatRoomId()
-                              .chatRoomId(user.displayName, map['name']);
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ChatScreen(
-                                        chatRoomId: roomId,
-                                        userMap: map,
-                                        user: user,
-                                        isDeviceConnected: isDeviceConnected,
-                                      )));
-                        },
-                        title: Text(
-                          map['name'],
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      return Container(
+                        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.03),
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
                         ),
-                        subtitle: Text(
-                          map['email'],
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        leading: CircleAvatar(
-                          backgroundImage: NetworkImage(map['avatar']),
+                        child: ListTile(
+                          onTap: () async {
+                            String roomId = ChatRoomId()
+                                .chatRoomId(user.displayName, map['name']);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ChatScreen(
+                                          chatRoomId: roomId,
+                                          userMap: map,
+                                          user: user,
+                                          isDeviceConnected: isDeviceConnected,
+                                        )));
+                          },
+                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          title: Text(
+                            map['name'],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                            ),
+                          ),
+                          subtitle: Text(
+                            map['email'],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 13,
+                            ),
+                          ),
+                          leading: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.grey.shade300,
+                                width: 2,
+                              ),
+                            ),
+                            child: CircleAvatar(
+                              radius: 24,
+                              backgroundImage: NetworkImage(map['avatar']),
+                            ),
+                          ),
+                          trailing: Icon(
+                            Icons.chat_bubble_outline,
+                            color: Colors.blue,
+                            size: 20,
+                          ),
                         ),
                       );
                     }
@@ -120,33 +186,71 @@ class CustomSearch extends SearchDelegate {
                     }
                     if (map['name'].toString().contains(query.toLowerCase()) ||
                         map['email'].toString().contains(query.toLowerCase())) {
-                      return ListTile(
-                        title: Text(
-                          map['name'],
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      return Container(
+                        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.03),
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
                         ),
-                        subtitle: Text(
-                          map['email'],
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        child: ListTile(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          title: Text(
+                            map['name'],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                            ),
+                          ),
+                          subtitle: Text(
+                            map['email'],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 13,
+                            ),
+                          ),
+                          leading: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.grey.shade300,
+                                width: 2,
+                              ),
+                            ),
+                            child: CircleAvatar(
+                              radius: 24,
+                              backgroundImage: NetworkImage(map['avatar']),
+                            ),
+                          ),
+                          trailing: Icon(
+                            Icons.chat_bubble_outline,
+                            color: Colors.blue,
+                            size: 20,
+                          ),
+                          onTap: () async {
+                            String roomId = ChatRoomId().chatRoomId(
+                                _auth.currentUser!.displayName, map['name']);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ChatScreen(
+                                          chatRoomId: roomId,
+                                          userMap: map,
+                                          user: user,
+                                          isDeviceConnected: isDeviceConnected,
+                                        )));
+                          },
                         ),
-                        leading: CircleAvatar(
-                          backgroundImage: NetworkImage(map['avatar']),
-                        ),
-                        onTap: () async {
-                          String roomId = ChatRoomId().chatRoomId(
-                              _auth.currentUser!.displayName, map['name']);
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ChatScreen(
-                                        chatRoomId: roomId,
-                                        userMap: map,
-                                        user: user,
-                                        isDeviceConnected: isDeviceConnected,
-                                      )));
-                        },
                       );
                     }
                     return Container();
