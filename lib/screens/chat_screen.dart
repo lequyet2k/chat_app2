@@ -449,9 +449,10 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Scaffold(
         backgroundColor: Colors.grey[50],
         appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 1,
-          shadowColor: Colors.grey[200],
+          automaticallyImplyLeading: false, // Disable default back button
+          backgroundColor: Colors.grey[900],
+          elevation: 2,
+          shadowColor: Colors.black.withValues(alpha: 0.3),
           flexibleSpace: SafeArea(
             child: Container(
               padding: const EdgeInsets.only(right: 10),
@@ -463,7 +464,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     },
                     icon: Icon(
                       Icons.arrow_back_ios,
-                      color: Colors.grey[800],
+                      color: Colors.grey[100],
+                      size: 22,
                     ),
                   ),
                   const SizedBox(
@@ -487,7 +489,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           style: TextStyle(
                               fontSize: 17, 
                               fontWeight: FontWeight.w600,
-                              color: Colors.grey[900]),
+                              color: Colors.grey[100]),
                         ),
                         const SizedBox(
                           height: 4,
@@ -506,8 +508,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                     height: 8,
                                     decoration: BoxDecoration(
                                       color: snapshot.data!['status'].toLowerCase().contains('online') 
-                                          ? Colors.green 
-                                          : Colors.grey[400],
+                                          ? Colors.greenAccent 
+                                          : Colors.grey[600],
                                       shape: BoxShape.circle,
                                     ),
                                   ),
@@ -515,7 +517,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   Text(
                                     snapshot.data!['status'],
                                     style: TextStyle(
-                                      color: Colors.grey[600],
+                                      color: Colors.grey[400],
                                       fontSize: 13,
                                     ),
                                   ),
@@ -550,7 +552,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     },
                     icon: Icon(
                       Icons.video_call_outlined,
-                      color: Colors.grey[700],
+                      color: Colors.grey[300],
                       size: 28,
                     ),
                   ),
@@ -568,7 +570,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     },
                     icon: Icon(
                       Icons.settings_outlined,
-                      color: Colors.grey[700],
+                      color: Colors.grey[300],
                       size: 26,
                     ),
                   ),
