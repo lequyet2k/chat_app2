@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_porject/screens/login_screen.dart';
+import 'package:my_porject/services/biometric_auth_service.dart';
 import 'package:uuid/uuid.dart';
 
 // ignore: must_be_immutable
@@ -29,10 +30,86 @@ class _SettingState extends State<Setting> {
   bool isLoading = false;
 
   late Map<String, dynamic> userMap;
+  
+  // Biometric Authentication
+  final BiometricAuthService _biometricService = BiometricAuthService();
+  bool _isBiometricEnabled = false;
+  bool _isBiometricAvailable = false;
 
   @override
   void initState() {
     super.initState();
+    _checkBiometricAvailability();
+    _loadBiometricSetting();
+  }
+  
+  Future<void> _checkBiometricAvailability() async {
+    final isAvailable = await _biometricService.isBiometricAvailable();
+    if (mounted) {
+      setState(() {
+        _isBiometricAvailable = isAvailable;
+      });
+    }
+  }
+  
+  Future<void> _loadBiometricSetting() async {
+    final isEnabled = await _biometricService.isBiometricEnabled();
+    if (mounted) {
+      setState(() {
+        _isBiometricEnabled = isEnabled;
+      });
+    }
+  }
+  
+  Future<void> _toggleBiometric(bool value) async {
+    if (value) {
+      // Enable biometric - require authentication first
+      final authenticated = await _biometricService.authenticate(
+        localizedReason: 'Authenticate to enable biometric lock',
+      );
+      
+      if (authenticated) {
+        await _biometricService.setBiometricEnabled(true);
+        if (mounted) {
+          setState(() {
+            _isBiometricEnabled = true;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Biometric lock enabled successfully'),
+              backgroundColor: Colors.green[700],
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Authentication failed'),
+              backgroundColor: Colors.red[700],
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    } else {
+      // Disable biometric
+      await _biometricService.setBiometricEnabled(false);
+      await _biometricService.clearAuthenticationState();
+      if (mounted) {
+        setState(() {
+          _isBiometricEnabled = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Biometric lock disabled'),
+            backgroundColor: Colors.grey[700],
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   Future getImage() async {
@@ -634,6 +711,51 @@ class _SettingState extends State<Setting> {
                             
                             const SizedBox(height: 24),
                             
+                            // Privacy & Security Section
+                            Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 20),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withValues(alpha: 0.1),
+                                    spreadRadius: 2,
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.security, color: Colors.blue[700], size: 20),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          "Privacy & Security",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.grey[800],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Divider(height: 1, color: Colors.grey[200]),
+                                  
+                                  // Biometric Lock Toggle
+                                  _buildBiometricToggle(),
+                                ],
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 24),
+                            
                             // Settings Section
                             Container(
                               margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -886,6 +1008,63 @@ class _SettingState extends State<Setting> {
                 color: Colors.grey[400], size: 16),
           ],
         ),
+      ),
+    );
+  }
+  
+  Widget _buildBiometricToggle() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          // Icon
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.blue.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(Icons.fingerprint, color: Colors.blue[700], size: 28),
+          ),
+          const SizedBox(width: 16),
+          // Text
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Biometric Lock",
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[900],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _isBiometricAvailable 
+                    ? (_isBiometricEnabled 
+                        ? "App is locked with biometric" 
+                        : "Lock app with fingerprint or face")
+                    : "Biometric not available on this device",
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: _isBiometricAvailable ? Colors.grey[600] : Colors.red[400],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Toggle Switch
+          Switch(
+            value: _isBiometricEnabled,
+            onChanged: _isBiometricAvailable ? _toggleBiometric : null,
+            activeColor: Colors.blue[700],
+            activeTrackColor: Colors.blue[200],
+            inactiveThumbColor: Colors.grey[400],
+            inactiveTrackColor: Colors.grey[200],
+          ),
+        ],
       ),
     );
   }

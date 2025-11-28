@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:my_porject/resources/firebase_options.dart';
 import 'package:my_porject/screens/login_screen.dart';
 import 'package:my_porject/screens/chathome_screen.dart';
+import 'package:my_porject/screens/biometric_lock_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/services/key_manager.dart';
+import 'package:my_porject/services/biometric_auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,8 +47,42 @@ class AuthWrapper extends StatefulWidget {
   State<AuthWrapper> createState() => _AuthWrapperState();
 }
 
-class _AuthWrapperState extends State<AuthWrapper> {
+class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
   bool _keysInitialized = false;
+  final BiometricAuthService _biometricService = BiometricAuthService();
+  bool _needsBiometricAuth = false;
+  bool _isCheckingBiometric = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _checkBiometricRequirement();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Re-check biometric when app comes back to foreground
+    if (state == AppLifecycleState.resumed) {
+      _checkBiometricRequirement();
+    }
+  }
+
+  Future<void> _checkBiometricRequirement() async {
+    final needsAuth = await _biometricService.needsReAuthentication();
+    if (mounted) {
+      setState(() {
+        _needsBiometricAuth = needsAuth;
+        _isCheckingBiometric = false;
+      });
+    }
+  }
 
   Future<void> _ensureEncryptionReady(User user) async {
     if (!_keysInitialized) {
@@ -55,13 +91,26 @@ class _AuthWrapperState extends State<AuthWrapper> {
     }
   }
 
+  void _onBiometricSuccess() {
+    setState(() {
+      _needsBiometricAuth = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Show biometric lock if needed
+    if (_needsBiometricAuth && !_isCheckingBiometric) {
+      return BiometricLockScreen(
+        onAuthenticationSuccess: _onBiometricSuccess,
+      );
+    }
+
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         // Show loading indicator while checking authentication
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting || _isCheckingBiometric) {
           return const Scaffold(
             body: Center(
               child: CircularProgressIndicator(),

@@ -1,0 +1,176 @@
+import 'package:flutter/services.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+/// Service class for handling biometric authentication
+/// Supports fingerprint, face recognition, and PIN/password fallback
+class BiometricAuthService {
+  final LocalAuthentication _localAuth = LocalAuthentication();
+
+  // SharedPreferences keys
+  static const String _biometricEnabledKey = 'biometric_enabled';
+  static const String _lastAuthTimeKey = 'last_auth_time';
+  
+  /// Check if device supports biometric authentication
+  Future<bool> isBiometricAvailable() async {
+    try {
+      final bool canAuthenticateWithBiometrics = await _localAuth.canCheckBiometrics;
+      final bool canAuthenticate = canAuthenticateWithBiometrics || 
+                                   await _localAuth.isDeviceSupported();
+      return canAuthenticate;
+    } on PlatformException catch (e) {
+      print('Error checking biometric availability: $e');
+      return false;
+    }
+  }
+
+  /// Get list of available biometric types
+  /// Returns: [BiometricType.face, BiometricType.fingerprint, etc.]
+  Future<List<BiometricType>> getAvailableBiometrics() async {
+    try {
+      return await _localAuth.getAvailableBiometrics();
+    } on PlatformException catch (e) {
+      print('Error getting available biometrics: $e');
+      return <BiometricType>[];
+    }
+  }
+
+  /// Check if biometric authentication is enabled in app settings
+  Future<bool> isBiometricEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_biometricEnabledKey) ?? false;
+  }
+
+  /// Enable or disable biometric authentication
+  Future<void> setBiometricEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_biometricEnabledKey, enabled);
+  }
+
+  /// Authenticate using biometric or device credentials
+  /// Returns true if authentication successful, false otherwise
+  Future<bool> authenticate({
+    String localizedReason = 'Please authenticate to access the app',
+    bool biometricOnly = false,
+  }) async {
+    try {
+      // Check if device supports biometric
+      final isAvailable = await isBiometricAvailable();
+      if (!isAvailable) {
+        print('Biometric authentication not available on this device');
+        return false;
+      }
+
+      // Attempt authentication
+      final bool didAuthenticate = await _localAuth.authenticate(
+        localizedReason: localizedReason,
+        options: AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: biometricOnly,
+          useErrorDialogs: true,
+          sensitiveTransaction: true,
+        ),
+      );
+
+      // Save last authentication time if successful
+      if (didAuthenticate) {
+        await _saveLastAuthTime();
+      }
+
+      return didAuthenticate;
+    } on PlatformException catch (e) {
+      print('Error during authentication: $e');
+      
+      // Handle specific error cases
+      if (e.code == 'NotAvailable') {
+        print('Biometric not available');
+      } else if (e.code == 'NotEnrolled') {
+        print('No biometrics enrolled');
+      } else if (e.code == 'LockedOut' || e.code == 'PermanentlyLockedOut') {
+        print('Biometric authentication locked');
+      }
+      
+      return false;
+    } catch (e) {
+      print('Unexpected error during authentication: $e');
+      return false;
+    }
+  }
+
+  /// Check if app needs re-authentication
+  /// Returns true if user needs to authenticate again
+  Future<bool> needsReAuthentication({Duration timeout = const Duration(minutes: 5)}) async {
+    if (!await isBiometricEnabled()) {
+      return false; // Biometric not enabled, no need to authenticate
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final lastAuthTime = prefs.getInt(_lastAuthTimeKey);
+
+    if (lastAuthTime == null) {
+      return true; // Never authenticated before
+    }
+
+    final lastAuth = DateTime.fromMillisecondsSinceEpoch(lastAuthTime);
+    final now = DateTime.now();
+    final difference = now.difference(lastAuth);
+
+    return difference > timeout;
+  }
+
+  /// Save the current time as last authentication time
+  Future<void> _saveLastAuthTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_lastAuthTimeKey, DateTime.now().millisecondsSinceEpoch);
+  }
+
+  /// Clear last authentication time (useful when user logs out)
+  Future<void> clearAuthenticationState() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_lastAuthTimeKey);
+  }
+
+  /// Get user-friendly biometric type name
+  String getBiometricTypeName(BiometricType type) {
+    switch (type) {
+      case BiometricType.face:
+        return 'Face Recognition';
+      case BiometricType.fingerprint:
+        return 'Fingerprint';
+      case BiometricType.iris:
+        return 'Iris Scan';
+      case BiometricType.strong:
+        return 'Strong Biometric';
+      case BiometricType.weak:
+        return 'Weak Biometric';
+    }
+  }
+
+  /// Get user-friendly message based on available biometrics
+  Future<String> getBiometricMessage() async {
+    final biometrics = await getAvailableBiometrics();
+    
+    if (biometrics.isEmpty) {
+      return 'Please authenticate to continue';
+    }
+    
+    if (biometrics.contains(BiometricType.face)) {
+      return 'Scan your face to unlock';
+    }
+    
+    if (biometrics.contains(BiometricType.fingerprint)) {
+      return 'Touch fingerprint sensor to unlock';
+    }
+    
+    return 'Use biometric authentication to unlock';
+  }
+
+  /// Stop authentication (cancel ongoing authentication)
+  Future<void> stopAuthentication() async {
+    try {
+      await _localAuth.stopAuthentication();
+    } catch (e) {
+      print('Error stopping authentication: $e');
+    }
+  }
+}
