@@ -87,14 +87,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
     }
   }
 
-  String _getDurationLabel(int minutes) {
-    if (minutes == 0) return 'Off';
-    if (minutes == 1) return '1 Minute';
-    if (minutes == 5) return '5 Minutes';
-    if (minutes == 60) return '1 Hour';
-    if (minutes == 1440) return '24 Hours';
-    return '$minutes minutes';
-  }
+
 
   Widget _buildDurationOption(int minutes, String label, IconData icon) {
     final isSelected = _selectedDuration == minutes;

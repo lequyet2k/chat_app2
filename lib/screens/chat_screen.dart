@@ -3,13 +3,10 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:my_porject/resources/methods.dart';
-// import 'package:my_porject/screens/callscreen/call_utils.dart';
-// import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -427,7 +424,6 @@ class _ChatScreenState extends State<ChatScreen> {
       height: 250,
       child: EmojiPicker(
         config: const Config(
-            // columns: 7,  // Deprecated in grouped_list 6.0.0
             ),
         onEmojiSelected: (emoji, category) {
           _message.text = _message.text + category.emoji;
@@ -532,12 +528,6 @@ class _ChatScreenState extends State<ChatScreen> {
                       if (widget.isDeviceConnected == false) {
                         showDialogInternetCheck();
                       } else {
-                        // Video call temporarily disabled - Agora RTC Engine needs upgrade
-                        // await CallUtils.dial(
-                        //   from: sender,
-                        //   to: receiver,
-                        //   context: context,
-                        // );
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: const Text('Video call feature temporarily disabled'),
