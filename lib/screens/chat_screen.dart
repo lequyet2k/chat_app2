@@ -66,10 +66,6 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       }
     });
-    // Add listener to update send/mic button
-    _message.addListener(() {
-      setState(() {});
-    });
     updateIsReadMessage();
     getUserInfo();
     super.initState();
@@ -786,31 +782,36 @@ class _ChatScreenState extends State<ChatScreen> {
                                   ),
                                 ),
                                 const SizedBox(width: 4),
-                                // Voice/Send button
-                                Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[800],
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: IconButton(
-                                    onPressed: () {
-                                      if (_message.text.trim().isNotEmpty) {
-                                        onSendMessage();
-                                      } else {
-                                        _showVoiceRecording();
-                                      }
-                                    },
-                                    icon: Icon(
-                                      _message.text.trim().isNotEmpty
-                                        ? Icons.send
-                                        : Icons.mic,
-                                      color: Colors.white,
-                                    ),
-                                    iconSize: 20,
-                                    padding: EdgeInsets.zero,
-                                  ),
+                                // Voice/Send button with ValueListenableBuilder to prevent flickering
+                                ValueListenableBuilder<TextEditingValue>(
+                                  valueListenable: _message,
+                                  builder: (context, value, child) {
+                                    return Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[800],
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: IconButton(
+                                        onPressed: () {
+                                          if (value.text.trim().isNotEmpty) {
+                                            onSendMessage();
+                                          } else {
+                                            _showVoiceRecording();
+                                          }
+                                        },
+                                        icon: Icon(
+                                          value.text.trim().isNotEmpty
+                                            ? Icons.send
+                                            : Icons.mic,
+                                          color: Colors.white,
+                                        ),
+                                        iconSize: 20,
+                                        padding: EdgeInsets.zero,
+                                      ),
+                                    );
+                                  },
                                 ),
                               ],
                             ),
