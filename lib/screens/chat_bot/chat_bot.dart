@@ -34,57 +34,67 @@ class _ChatBotState extends State<ChatBot> {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        flexibleSpace: SafeArea(
-          child: Container(
-            padding: const EdgeInsets.only(right: 16),
-            child: Row(
-              children: <Widget>[
-                IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(
+        backgroundColor: Colors.grey[900],
+        elevation: 2,
+        shadowColor: Colors.black.withValues(alpha: 0.3),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.grey[100]),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Row(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.blue,
                   width: 2,
                 ),
-                const CircleAvatar(
-                  backgroundImage: AssetImage('assets/images/chatbot.png'),
-                  maxRadius: 20,
-                ),
-                const SizedBox(
-                  width: 12,
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const <Widget>[
-                      Text(
-                        'chatBot',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w600),
-                      ),
-                      SizedBox(
-                        height: 6,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
+              child: CircleAvatar(
+                backgroundImage: AssetImage('assets/images/chatbot.png'),
+                radius: 18,
+              ),
             ),
-          ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'AI Chat Bot',
+                    style: TextStyle(
+                      color: Colors.grey[100],
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Always online',
+                    style: TextStyle(
+                      color: Colors.grey[400],
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.info_outline, color: Colors.grey[100]),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: Column(
         children: <Widget>[
           Expanded(
             child: Container(
-              color: Colors.white,
+              color: Colors.grey[50],
               child: StreamBuilder<QuerySnapshot>(
                 stream: _firestore
                     .collection('users')
@@ -108,12 +118,21 @@ class _ChatBotState extends State<ChatBot> {
                           as List<QueryDocumentSnapshot<Object?>>,
                       groupSeparatorBuilder: (String groupByValue) => Container(
                         alignment: Alignment.center,
-                        height: 30,
-                        child: Text(
-                          "${groupByValue.substring(11, 16)}, ${groupByValue.substring(0, 10)}",
-                          style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontWeight: FontWeight.bold),
+                        margin: EdgeInsets.symmetric(vertical: 8),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            "${groupByValue.substring(11, 16)}, ${groupByValue.substring(0, 10)}",
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
                       indexedItemBuilder: (context, element, index) {
@@ -131,56 +150,68 @@ class _ChatBotState extends State<ChatBot> {
             ),
           ),
           Container(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              padding: const EdgeInsets.only(top: 5, bottom: 10),
-              height: size.height / 15,
-              width: double.infinity,
-              color: Colors.white70,
-              child: Row(
-                children: <Widget>[
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  // SizedBox(width: 15,),
-                  Expanded(
-                    child: SizedBox(
-                      height: size.height / 20.8,
-                      // decoration: BoxDecoration(
-                      //     color: Colors.grey.shade300,
-                      //     borderRadius: BorderRadius.circular(25),
-                      // ),
-                      child: TextFormField(
-                        autofocus: true,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.grey.shade300,
-                          // hintText: "Aa",
-                          // hintStyle: TextStyle(color: Colors.white38),
-                          // contentPadding: EdgeInsets.all(8.0),
-                          prefixIcon: const Icon(
-                            Icons.abc,
-                            size: 30,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25),
+            color: Colors.white,
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Container(
+                    constraints: BoxConstraints(minHeight: 44, maxHeight: 120),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _message,
+                            minLines: 1,
+                            maxLines: 5,
+                            textInputAction: TextInputAction.newline,
+                            decoration: InputDecoration(
+                              hintText: 'Ask me anything...',
+                              hintStyle: TextStyle(
+                                color: Colors.grey[500],
+                                fontSize: 15,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                            ),
                           ),
                         ),
-                        controller: _message,
-                      ),
+                      ],
                     ),
                   ),
-                  IconButton(
-                    onPressed: () {
-                      sendMessage();
-                    },
-                    icon: const Icon(
+                ),
+                SizedBox(width: 8),
+                Container(
+                  height: 36,
+                  width: 36,
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: Icon(
                       Icons.send,
-                      color: Colors.blueAccent,
+                      color: Colors.white,
+                      size: 18,
                     ),
+                    onPressed: () {
+                      if (_message.text.trim().isNotEmpty) {
+                        sendMessage();
+                      }
+                    },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           )
         ],
@@ -189,43 +220,59 @@ class _ChatBotState extends State<ChatBot> {
   }
 
   Widget messages(Size size, Map<String, dynamic> map, BuildContext context) {
-    return Row(
-      children: [
-        const SizedBox(
-          width: 2,
-        ),
-        map['sendBy'] != widget.user.displayName
-            ? SizedBox(
-                height: size.width / 13,
-                width: size.width / 13,
-                child: const CircleAvatar(
-                  backgroundImage: AssetImage('assets/images/chatbot.png'),
-                  maxRadius: 30,
+    bool isUser = map['sendBy'] == widget.user.displayName;
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        children: [
+          if (!isUser) ...[
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.blue,
+                  width: 2,
                 ),
-              )
-            : Container(),
-        Container(
-          width: map['sendBy'] == widget.user.displayName
-              ? size.width * 0.98
-              : size.width * 0.7,
-          alignment: map['sendBy'] == widget.user.displayName
-              ? Alignment.centerRight
-              : Alignment.centerLeft,
-          child: Container(
-            constraints: BoxConstraints(maxWidth: size.width / 1.5),
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              color: Colors.blueAccent,
+              ),
+              child: CircleAvatar(
+                backgroundImage: AssetImage('assets/images/chatbot.png'),
+                radius: 16,
+              ),
             ),
-            child: Text(
-              map['message'],
-              style: const TextStyle(color: Colors.white, fontSize: 17),
+            SizedBox(width: 8),
+          ],
+          Flexible(
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(isUser ? 18 : 4),
+                  topRight: Radius.circular(isUser ? 4 : 18),
+                  bottomLeft: Radius.circular(18),
+                  bottomRight: Radius.circular(18),
+                ),
+                color: isUser ? Colors.blue : Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Text(
+                map['message'],
+                style: TextStyle(
+                  color: isUser ? Colors.white : Colors.grey[800],
+                  fontSize: 15,
+                ),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
