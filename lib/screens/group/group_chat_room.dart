@@ -196,7 +196,9 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         .doc(widget.groupChatId)
         .get()
         .then((value) {
-      memberList = value.data()!['members'];
+      setState(() {
+        memberList = value.data()!['members'];
+      });
     });
   }
 
@@ -539,8 +541,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                       children: <Widget>[
                         // Attachment button
                         Container(
-                          width: 36,
-                          height: 36,
+                          width: 44,
+                          height: 44,
                           margin: const EdgeInsets.only(right: 6),
                           child: IconButton(
                             padding: EdgeInsets.zero,
@@ -550,7 +552,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                             icon: Icon(
                               Icons.add_circle_outline,
                               color: Colors.grey[700],
-                              size: 22,
+                              size: 28,
                             ),
                           ),
                         ),
@@ -558,19 +560,19 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                         Expanded(
                           child: Container(
                             constraints: const BoxConstraints(
-                              minHeight: 36,
+                              minHeight: 44,
                               maxHeight: 100,
                             ),
                             child: TextField(
                               focusNode: focusNode,
                               controller: _message,
                               maxLines: null,
-                              style: TextStyle(fontSize: 15, color: Colors.grey[900]),
+                              style: TextStyle(fontSize: 16, color: Colors.grey[900], height: 1.4),
                               decoration: InputDecoration(
                                 hintText: 'Type a message...',
-                                hintStyle: TextStyle(color: Colors.grey[400]),
+                                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
                                 filled: true,
-                                fillColor: Colors.grey[100],
+                                fillColor: Colors.grey[50],
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(18),
@@ -595,7 +597,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                                   icon: Icon(
                                     Icons.emoji_emotions_outlined,
                                     color: Colors.grey[600],
-                                    size: 20,
+                                    size: 24,
                                   ),
                                 ),
                               ),
@@ -607,9 +609,13 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                           valueListenable: _message,
                           builder: (context, value, child) {
                             return Container(
-                              width: 36,
-                              height: 36,
+                              width: 44,
+                              height: 44,
                               margin: const EdgeInsets.only(left: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[800],
+                                shape: BoxShape.circle,
+                              ),
                               child: IconButton(
                                 padding: EdgeInsets.zero,
                                 onPressed: () {
@@ -618,9 +624,9 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                                   }
                                 },
                                 icon: Icon(
-                                  _message.text.trim().isEmpty ? Icons.mic_none : Icons.send,
-                                  color: Colors.grey[700],
-                                  size: 20,
+                                  _message.text.trim().isEmpty ? Icons.mic : Icons.send,
+                                  color: Colors.white,
+                                  size: 22,
                                 ),
                               ),
                             );

@@ -71,13 +71,67 @@ class _GroupInfoState extends State<GroupInfo> {
       context: context,
       builder: (_) {
         return AlertDialog(
-          content: ListTile(
-            onTap: () {
-              removeMember(index);
-              Navigator.pop(context);
-            },
-            title: const Text("Remove this member"),
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
+          title: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.red[50],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.person_remove_outlined, color: Colors.red[700], size: 22),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Remove Member',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[900],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'Are you sure you want to remove ${membersList[index]['name']} from this group?',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[700],
+              height: 1.4,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.grey[700],
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              ),
+              child: const Text('Cancel', style: TextStyle(fontSize: 15)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                removeMember(index);
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red[700],
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('Remove', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+            ),
+          ],
         );
       },
     );
@@ -154,6 +208,159 @@ class _GroupInfoState extends State<GroupInfo> {
     } else {
       print("Cant remove");
     }
+  }
+
+  void _showAutoDeleteSettings() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Drag handle
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            // Title
+            Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.orange[50],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(Icons.auto_delete, color: Colors.orange[700], size: 24),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Auto-delete Messages',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[900],
+                        ),
+                      ),
+                      Text(
+                        'Automatically delete old messages',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            // Auto-delete options
+            _buildAutoDeleteOption('Off', 'Messages will not be deleted', Icons.block, null),
+            _buildAutoDeleteOption('1 Hour', 'Delete after 1 hour', Icons.schedule, 60),
+            _buildAutoDeleteOption('1 Day', 'Delete after 24 hours', Icons.calendar_today, 1440),
+            _buildAutoDeleteOption('1 Week', 'Delete after 7 days', Icons.calendar_month, 10080),
+            const SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAutoDeleteOption(String title, String subtitle, IconData icon, int? minutes) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[200]!),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ListTile(
+        onTap: () {
+          _saveAutoDeleteSetting(minutes);
+          Navigator.pop(context);
+        },
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: Colors.grey[700], size: 20),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey[900],
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[600],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _saveAutoDeleteSetting(int? minutes) async {
+    try {
+      await _firestore.collection('groups').doc(widget.groupId).set({
+        'autoDeleteEnabled': minutes != null,
+        'autoDeleteDuration': minutes ?? 0,
+        'autoDeleteUpdatedBy': _auth.currentUser!.uid,
+        'autoDeleteUpdatedAt': DateTime.now(),
+      }, SetOptions(merge: true));
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(minutes == null 
+              ? 'Auto-delete disabled' 
+              : 'Auto-delete set to ${_getDurationText(minutes)}'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  String _getDurationText(int minutes) {
+    if (minutes < 60) return '$minutes minutes';
+    if (minutes < 1440) return '${minutes ~/ 60} hour${minutes >= 120 ? "s" : ""}';
+    return '${minutes ~/ 1440} day${minutes >= 2880 ? "s" : ""}';
   }
 
   void onLeaveGroup() async {
@@ -363,6 +570,64 @@ class _GroupInfoState extends State<GroupInfo> {
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                           color: Colors.grey[900],
+                        ),
+                      ),
+                      trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
+                    ),
+                  ),
+
+                  // Auto-delete Messages Section
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withValues(alpha: 0.1),
+                          spreadRadius: 1,
+                          blurRadius: 4,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      onTap: () {
+                        if (widget.isDeviceConnected == false) {
+                          showDialogInternetCheck();
+                        } else if (checkAdmin()) {
+                          _showAutoDeleteSettings();
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Only admins can change auto-delete settings'),
+                              backgroundColor: Colors.orange,
+                            ),
+                          );
+                        }
+                      },
+                      leading: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: Colors.orange[50],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.auto_delete_outlined, color: Colors.orange[700], size: 22),
+                      ),
+                      title: Text(
+                        'Auto-delete Messages',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey[900],
+                        ),
+                      ),
+                      subtitle: Text(
+                        'Automatically delete old messages',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[600],
                         ),
                       ),
                       trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),

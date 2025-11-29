@@ -106,10 +106,10 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isSelected
-              ? Colors.blue.withValues(alpha: 0.1)
-              : Colors.grey.withValues(alpha: 0.05),
+              ? Colors.grey[800]
+              : Colors.white,
           border: Border.all(
-            color: isSelected ? Colors.blue : Colors.grey.withValues(alpha: 0.3),
+            color: isSelected ? Colors.grey[700]! : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12),
@@ -119,9 +119,9 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
             Icon(
               icon,
               color: isSelected
-                  ? Colors.blue
+                  ? Colors.white
                   : _autoDeleteEnabled
-                      ? Colors.black87
+                      ? Colors.grey[800]
                       : Colors.grey,
               size: 28,
             ),
@@ -135,7 +135,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                      color: _autoDeleteEnabled ? Colors.black87 : Colors.grey,
+                      color: isSelected ? Colors.white : (_autoDeleteEnabled ? Colors.grey[900] : Colors.grey),
                     ),
                   ),
                   if (minutes > 0)
@@ -143,9 +143,9 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                       'Messages will be deleted after $label',
                       style: TextStyle(
                         fontSize: 12,
-                        color: _autoDeleteEnabled
-                            ? Colors.black54
-                            : Colors.grey,
+                        color: isSelected ? Colors.grey[300] : (_autoDeleteEnabled
+                            ? Colors.grey[600]
+                            : Colors.grey),
                       ),
                     ),
                 ],
@@ -154,7 +154,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
             if (isSelected)
               const Icon(
                 Icons.check_circle,
-                color: Colors.blue,
+                color: Colors.white,
                 size: 24,
               ),
           ],
@@ -166,9 +166,10 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text('Chat Settings'),
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.grey[900],
         foregroundColor: Colors.white,
         elevation: 0,
       ),
@@ -185,10 +186,10 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                       children: [
                         CircleAvatar(
                           radius: 24,
-                          backgroundColor: Colors.blue.withValues(alpha: 0.1),
+                          backgroundColor: Colors.grey[800],
                           child: const Icon(
                             Icons.auto_delete,
-                            color: Colors.blue,
+                            color: Colors.white,
                             size: 28,
                           ),
                         ),
@@ -223,10 +224,10 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.blue.withValues(alpha: 0.05),
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.blue.withValues(alpha: 0.2),
+                          color: Colors.grey[300]!,
                         ),
                       ),
                       child: Row(
@@ -237,7 +238,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                                 : Icons.toggle_off,
                             size: 48,
                             color: _autoDeleteEnabled
-                                ? Colors.blue
+                                ? Colors.grey[800]
                                 : Colors.grey,
                           ),
                           const SizedBox(width: 12),
@@ -275,7 +276,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                               });
                               _saveSettings();
                             },
-                            activeTrackColor: Colors.blue,
+                            activeTrackColor: Colors.grey[700],
                             activeThumbColor: Colors.white,
                           ),
                         ],

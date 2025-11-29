@@ -695,19 +695,19 @@ class _ChatScreenState extends State<ChatScreen> {
                                     Icons.add_circle_outline,
                                     color: Colors.grey[600],
                                   ),
-                                  iconSize: 24,
-                                  padding: const EdgeInsets.all(4),
+                                  iconSize: 28,
+                                  padding: const EdgeInsets.all(6),
                                   constraints: const BoxConstraints(
-                                    minWidth: 32,
-                                    minHeight: 32,
+                                    minWidth: 40,
+                                    minHeight: 40,
                                   ),
                                 ),
-                                const SizedBox(width: 2),
+                                const SizedBox(width: 6),
                                 // Text input field
                                 Expanded(
                                   child: Container(
                                     constraints: const BoxConstraints(
-                                      minHeight: 36,
+                                      minHeight: 44,
                                       maxHeight: 100,
                                     ),
                                     decoration: BoxDecoration(
@@ -729,20 +729,20 @@ class _ChatScreenState extends State<ChatScreen> {
                                             textInputAction: TextInputAction.newline,
                                             style: TextStyle(
                                               color: Colors.grey[900],
-                                              fontSize: 15,
-                                              height: 1.3,
+                                              fontSize: 16,
+                                              height: 1.4,
                                             ),
                                             decoration: InputDecoration(
                                               hintText: "Message",
                                               hintStyle: TextStyle(
                                                 color: Colors.grey[400],
-                                                fontSize: 15,
+                                                fontSize: 16,
                                               ),
                                               filled: true,
                                               fillColor: Colors.transparent,
                                               contentPadding: const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 8,
+                                                horizontal: 14,
+                                                vertical: 10,
                                               ),
                                               border: InputBorder.none,
                                               enabledBorder: InputBorder.none,
@@ -766,25 +766,25 @@ class _ChatScreenState extends State<ChatScreen> {
                                               : Icons.emoji_emotions_outlined,
                                             color: Colors.grey[600],
                                           ),
-                                          iconSize: 20,
-                                          padding: const EdgeInsets.all(4),
+                                          iconSize: 24,
+                                          padding: const EdgeInsets.all(6),
                                           constraints: const BoxConstraints(
-                                            minWidth: 28,
-                                            minHeight: 28,
+                                            minWidth: 36,
+                                            minHeight: 36,
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 2),
+                                const SizedBox(width: 6),
                                 // Voice/Send button with ValueListenableBuilder to prevent flickering
                                 ValueListenableBuilder<TextEditingValue>(
                                   valueListenable: _message,
                                   builder: (context, value, child) {
                                     return Container(
-                                      width: 36,
-                                      height: 36,
+                                      width: 44,
+                                      height: 44,
                                       decoration: BoxDecoration(
                                         color: Colors.grey[800],
                                         shape: BoxShape.circle,
@@ -803,7 +803,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                             : Icons.mic,
                                           color: Colors.white,
                                         ),
-                                        iconSize: 18,
+                                        iconSize: 22,
                                         padding: EdgeInsets.zero,
                                       ),
                                     );
