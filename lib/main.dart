@@ -9,9 +9,14 @@ import 'package:provider/provider.dart';
 import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/services/key_manager.dart';
 import 'package:my_porject/services/biometric_auth_service.dart';
+import 'package:my_porject/utils/error_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize global error handler
+  ErrorHandler.initialize();
+  
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
