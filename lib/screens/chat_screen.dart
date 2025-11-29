@@ -18,6 +18,7 @@ import 'package:my_porject/services/encrypted_chat_service.dart';
 import 'package:my_porject/services/voice_message_service.dart';
 import 'package:my_porject/widgets/voice_message_player.dart';
 import 'package:my_porject/screens/chat_settings_screen.dart';
+import 'package:my_porject/screens/video_call_screen.dart';
 
 // ignore: must_be_immutable
 class ChatScreen extends StatefulWidget {
@@ -530,10 +531,19 @@ class _ChatScreenState extends State<ChatScreen> {
                       if (widget.isDeviceConnected == false) {
                         showDialogInternetCheck();
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text('Video call feature temporarily disabled'),
-                            backgroundColor: Colors.grey[700],
+                        // Generate unique channel name for this call
+                        final channelName = '${widget.chatRoomId}_${DateTime.now().millisecondsSinceEpoch}';
+                        
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => VideoCallScreen(
+                              channelName: channelName,
+                              userName: widget.user.displayName ?? 'You',
+                              userAvatar: widget.user.photoURL ?? 'https://via.placeholder.com/150',
+                              calleeName: widget.userMap['name'],
+                              calleeAvatar: widget.userMap['image'],
+                            ),
                           ),
                         );
                       }
