@@ -107,12 +107,28 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ));
 
   void setStatus(String status) async {
+    // Check if user has locked their status
+    final userDoc = await _firestore.collection('users').doc(_auth.currentUser!.uid).get();
+    final bool isStatusLocked = userDoc.data()?['isStatusLocked'] ?? false;
+    
+    // If status is locked, set to "Offline" regardless
+    final String actualStatus = isStatusLocked ? "Offline" : status;
+    
     await _firestore.collection('users').doc(_auth.currentUser?.uid).update({
-      "status": status,
+      "status": actualStatus,
     });
   }
 
   void changeStatus(String statuss) async {
+    // Check if user has locked their status
+    final userDoc = await _firestore.collection('users').doc(_auth.currentUser!.uid).get();
+    final bool isStatusLocked = userDoc.data()?['isStatusLocked'] ?? false;
+    
+    // If status is locked, don't update
+    if (isStatusLocked) {
+      return;
+    }
+    
     int? n;
     await FirebaseFirestore.instance
         .collection('users')
