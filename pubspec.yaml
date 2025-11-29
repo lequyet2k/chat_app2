@@ -138,8 +138,13 @@ flutter:
      - assets/images/background_login.jpeg
      - assets/images/background_login_or_signup.jpeg
      - assets/images/user.png
+     - assets/images/user_2.png
+     - assets/images/user_3.png
+     - assets/images/user_4.png
+     - assets/images/user_5.png
      - assets/images/avatar_user_default.jpeg
      - assets/images/chatbot.png
+     - assets/dialog_flow_auth.json
      - assets/icons/chatbot-icon.png
      - assets/images/groupAvatar.png
      - assets/images/message_icon.png
