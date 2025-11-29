@@ -16,6 +16,8 @@ import 'package:internet_connection_checker_plus/internet_connection_checker_plu
 import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/screens/group/group_info.dart';
 import 'package:my_porject/services/group_encryption_service.dart';
+import 'package:my_porject/services/voice_message_service.dart';
+import 'package:my_porject/widgets/voice_message_player.dart';
 import 'package:uuid/uuid.dart';
 
 import '../chat_screen.dart';
@@ -50,6 +52,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
 
   List memberList = [];
   String? avatarUrl;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -666,6 +669,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                                 onPressed: () {
                                   if (_message.text.trim().isNotEmpty) {
                                     onSendMessage();
+                                  } else {
+                                    _showVoiceRecording();
                                   }
                                 },
                                 icon: Icon(
@@ -916,6 +921,55 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                   ),
                 ),
               ),
+            ],
+          );
+        } else if (chatMap['type'] == 'voice') {
+          // Voice message rendering for group chat
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              const SizedBox(width: 2),
+              chatMap['sendBy'] != widget.user.displayName
+                  ? Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      height: size.width / 13,
+                      width: size.width / 13,
+                      child: CircleAvatar(
+                        backgroundImage: NetworkImage(chatMap['avatar']),
+                        maxRadius: 30,
+                      ),
+                    )
+                  : Container(),
+              Flexible(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                  padding: const EdgeInsets.all(10),
+                  constraints: BoxConstraints(
+                    maxWidth: size.width * 0.7,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: chatMap['sendBy'] == widget.user.displayName
+                        ? Colors.grey[800]
+                        : Colors.grey[900],
+                  ),
+                  child: VoiceMessagePlayer(
+                    audioUrl: chatMap['message'],
+                    isMe: chatMap['sendBy'] == widget.user.displayName,
+                  ),
+                ),
+              ),
+              chatMap['sendBy'] == widget.user.displayName
+                  ? Container(
+                      margin: const EdgeInsets.only(bottom: 8, left: 4),
+                      height: size.width / 13,
+                      width: size.width / 13,
+                      child: CircleAvatar(
+                        backgroundImage: NetworkImage(chatMap['avatar']),
+                        maxRadius: 30,
+                      ),
+                    )
+                  : Container(),
             ],
           );
         } else if (chatMap['type'] == 'notify') {
@@ -1654,4 +1708,311 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                   ))
             ],
           ));
+
+  void _showVoiceRecording() {
+    print('🎤 [GroupChat] Voice recording button pressed');
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (BuildContext context) {
+        return _VoiceRecordingBottomSheet(
+          onSendVoiceMessage: _sendVoiceMessage,
+        );
+      },
+    );
+  }
+
+  Future<void> _sendVoiceMessage(String audioUrl, int fileSize) async {
+    print('🎤 [GroupChat] Sending voice message...');
+    print('🎤 [GroupChat] Audio URL: $audioUrl');
+    
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      Map<String, dynamic> chatData = {
+        "sendBy": widget.user.displayName,
+        "message": audioUrl,
+        "type": "voice",
+        "time": timeForMessage(DateTime.now().toString()),
+        'avatar': avatarUrl,
+        'timeStamp': DateTime.now(),
+        'fileSize': fileSize,
+        'isEncrypted': false, // Voice messages not encrypted
+      };
+
+      await _firestore
+          .collection('groups')
+          .doc(widget.groupChatId)
+          .collection('chats')
+          .add(chatData);
+
+      print('✅ [GroupChat] Voice message sent successfully');
+
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      print('❌ [GroupChat] Error sending voice message: $e');
+      setState(() {
+        isLoading = false;
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to send voice message: $e'),
+            backgroundColor: Colors.red[700],
+          ),
+        );
+      }
+    }
+  }
+}
+
+/// Voice Recording Bottom Sheet Widget for Group Chat
+class _VoiceRecordingBottomSheet extends StatefulWidget {
+  final Function(String audioUrl, int fileSize) onSendVoiceMessage;
+
+  const _VoiceRecordingBottomSheet({
+    required this.onSendVoiceMessage,
+  });
+
+  @override
+  State<_VoiceRecordingBottomSheet> createState() => _VoiceRecordingBottomSheetState();
+}
+
+class _VoiceRecordingBottomSheetState extends State<_VoiceRecordingBottomSheet> with SingleTickerProviderStateMixin {
+  bool _isRecording = false;
+  bool _isUploading = false;
+  String _recordingTime = '00:00';
+  Timer? _timer;
+  int _seconds = 0;
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+    _startRecording();
+  }
+
+  Future<void> _startRecording() async {
+    final success = await VoiceMessageService.startRecording();
+    
+    if (success) {
+      setState(() {
+        _isRecording = true;
+      });
+      
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (mounted) {
+          setState(() {
+            _seconds++;
+            _recordingTime = _formatTime(_seconds);
+          });
+        }
+      });
+    } else {
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Microphone permission denied'),
+            backgroundColor: Colors.red[700],
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _stopAndSend() async {
+    _timer?.cancel();
+    
+    setState(() {
+      _isRecording = false;
+      _isUploading = true;
+    });
+
+    final audioPath = await VoiceMessageService.stopRecording();
+    
+    if (audioPath != null) {
+      final result = await VoiceMessageService.uploadVoiceMessage(audioPath);
+      
+      if (result != null && mounted) {
+        Navigator.pop(context);
+        widget.onSendVoiceMessage(result['url'], result['size']);
+      } else {
+        if (mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Failed to upload voice message'),
+              backgroundColor: Colors.red[700],
+            ),
+          );
+        }
+      }
+    } else {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  Future<void> _cancel() async {
+    _timer?.cancel();
+    await VoiceMessageService.cancelRecording();
+    if (mounted) {
+      Navigator.pop(context);
+    }
+  }
+
+  String _formatTime(int seconds) {
+    final minutes = (seconds / 60).floor();
+    final remainingSeconds = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.grey[900],
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey[700],
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 32),
+          Text(
+            _isUploading ? 'Sending...' : 'Recording Voice Message',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[100],
+            ),
+          ),
+          const SizedBox(height: 32),
+          if (_isUploading)
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[400]!),
+            )
+          else
+            AnimatedBuilder(
+              animation: _animationController,
+              builder: (context, child) {
+                return Container(
+                  width: 80 + (_animationController.value * 20),
+                  height: 80 + (_animationController.value * 20),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Container(
+                      width: 60,
+                      height: 60,
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.mic,
+                        color: Colors.white,
+                        size: 32,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          const SizedBox(height: 24),
+          if (!_isUploading)
+            Text(
+              _recordingTime,
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[100],
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          const SizedBox(height: 32),
+          if (!_isUploading)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                GestureDetector(
+                  onTap: _cancel,
+                  child: Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[800],
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.close,
+                      color: Colors.grey[300],
+                      size: 28,
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: _stopAndSend,
+                  child: Container(
+                    width: 70,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      color: Colors.blue[700],
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blue.withValues(alpha: 0.3),
+                          spreadRadius: 2,
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.send,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
 }
