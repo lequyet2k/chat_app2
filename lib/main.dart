@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:my_porject/resources/firebase_options.dart';
 import 'package:my_porject/screens/login_screen.dart';
 import 'package:my_porject/screens/chathome_screen.dart';
@@ -80,6 +81,17 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
   }
 
   Future<void> _checkBiometricRequirement() async {
+    // Skip biometric auth on web platform
+    if (kIsWeb) {
+      if (mounted) {
+        setState(() {
+          _needsBiometricAuth = false;
+          _isCheckingBiometric = false;
+        });
+      }
+      return;
+    }
+    
     final needsAuth = await _biometricService.needsReAuthentication();
     if (mounted) {
       setState(() {

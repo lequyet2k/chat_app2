@@ -113,6 +113,9 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
     message = _message.text;
     if (_message.text.isNotEmpty) {
       // Encrypt message
+      if (kDebugMode) {
+        debugPrint('🔐 Attempting to encrypt group message...');
+      }
       String? encryptedMessage = await GroupEncryptionService.encryptGroupMessage(
         _message.text,
         widget.groupChatId,
@@ -122,7 +125,11 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       if (encryptedMessage == null) {
         encryptedMessage = _message.text;
         if (kDebugMode) {
-          debugPrint('⚠️ Sending unencrypted message (encryption failed)');
+          debugPrint('⚠️ Encryption FAILED - Sending unencrypted message');
+        }
+      } else {
+        if (kDebugMode) {
+          debugPrint('✅ Message encrypted successfully');
         }
       }
 
@@ -133,7 +140,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         "time": timeForMessage(DateTime.now().toString()),
         'avatar': avatarUrl,
         'timeStamp': DateTime.now(),
-        'encrypted': encryptedMessage != _message.text, // Mark if encrypted
+        'isEncrypted': encryptedMessage != _message.text, // Mark if encrypted (fixed field name)
       };
 
       _message.clear();
@@ -556,37 +563,34 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                             ),
                           ),
                         ),
-                        // Text input field
+                        // Text input field - Modern redesign
                         Expanded(
                           child: Container(
                             constraints: const BoxConstraints(
-                              minHeight: 44,
-                              maxHeight: 100,
+                              minHeight: 48,
+                              maxHeight: 120,
                             ),
-                            child: TextField(
-                              focusNode: focusNode,
-                              controller: _message,
-                              maxLines: null,
-                              style: TextStyle(fontSize: 16, color: Colors.grey[900], height: 1.4),
-                              decoration: InputDecoration(
-                                hintText: 'Type a message...',
-                                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
-                                filled: true,
-                                fillColor: Colors.grey[50],
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(18),
-                                  borderSide: BorderSide(color: Colors.grey[200]!, width: 0.5),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                color: Colors.grey[300]!,
+                                width: 1.5,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withValues(alpha: 0.08),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
                                 ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(18),
-                                  borderSide: BorderSide(color: Colors.grey[200]!, width: 0.5),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(18),
-                                  borderSide: BorderSide(color: Colors.grey[400]!, width: 0.5),
-                                ),
-                                suffixIcon: IconButton(
+                              ],
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const SizedBox(width: 4),
+                                // Emoji button - moved to left inside input
+                                IconButton(
                                   onPressed: () {
                                     setState(() {
                                       focusNode.unfocus();
@@ -595,12 +599,48 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                                     });
                                   },
                                   icon: Icon(
-                                    Icons.emoji_emotions_outlined,
-                                    color: Colors.grey[600],
-                                    size: 24,
+                                    showEmoji 
+                                      ? Icons.keyboard_rounded
+                                      : Icons.emoji_emotions_rounded,
+                                    color: Colors.grey[700],
+                                  ),
+                                  iconSize: 26,
+                                  padding: const EdgeInsets.all(8),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 40,
+                                    minHeight: 40,
                                   ),
                                 ),
-                              ),
+                                // Text input
+                                Expanded(
+                                  child: TextField(
+                                    focusNode: focusNode,
+                                    controller: _message,
+                                    maxLines: null,
+                                    style: TextStyle(
+                                      fontSize: 16, 
+                                      color: Colors.grey[900], 
+                                      height: 1.5,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                    decoration: InputDecoration(
+                                      hintText: 'Type a message...',
+                                      hintStyle: TextStyle(
+                                        color: Colors.grey[500], 
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                      filled: false,
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                                      border: InputBorder.none,
+                                      enabledBorder: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                      isDense: false,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                              ],
                             ),
                           ),
                         ),

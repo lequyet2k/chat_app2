@@ -703,55 +703,33 @@ class _ChatScreenState extends State<ChatScreen> {
                                   ),
                                 ),
                                 const SizedBox(width: 6),
-                                // Text input field
+                                // Text input field - Modern redesign
                                 Expanded(
                                   child: Container(
                                     constraints: const BoxConstraints(
-                                      minHeight: 44,
-                                      maxHeight: 100,
+                                      minHeight: 48,
+                                      maxHeight: 120,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.grey[50],
-                                      borderRadius: BorderRadius.circular(18),
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(24),
                                       border: Border.all(
                                         color: Colors.grey[300]!,
-                                        width: 0.5,
+                                        width: 1.5,
                                       ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withValues(alpha: 0.08),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
                                     ),
                                     child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
-                                        Expanded(
-                                          child: TextField(
-                                            focusNode: focusNode,
-                                            controller: _message,
-                                            maxLines: null,
-                                            textInputAction: TextInputAction.newline,
-                                            style: TextStyle(
-                                              color: Colors.grey[900],
-                                              fontSize: 16,
-                                              height: 1.4,
-                                            ),
-                                            decoration: InputDecoration(
-                                              hintText: "Message",
-                                              hintStyle: TextStyle(
-                                                color: Colors.grey[400],
-                                                fontSize: 16,
-                                              ),
-                                              filled: true,
-                                              fillColor: Colors.transparent,
-                                              contentPadding: const EdgeInsets.symmetric(
-                                                horizontal: 14,
-                                                vertical: 10,
-                                              ),
-                                              border: InputBorder.none,
-                                              enabledBorder: InputBorder.none,
-                                              focusedBorder: InputBorder.none,
-                                              isDense: true,
-                                            ),
-                                          ),
-                                        ),
-                                        // Emoji button
+                                        const SizedBox(width: 4),
+                                        // Emoji button - moved to left
                                         IconButton(
                                           onPressed: () {
                                             setState(() {
@@ -762,17 +740,50 @@ class _ChatScreenState extends State<ChatScreen> {
                                           },
                                           icon: Icon(
                                             showEmoji 
-                                              ? Icons.keyboard_outlined
-                                              : Icons.emoji_emotions_outlined,
-                                            color: Colors.grey[600],
+                                              ? Icons.keyboard_rounded
+                                              : Icons.emoji_emotions_rounded,
+                                            color: Colors.grey[700],
                                           ),
-                                          iconSize: 24,
-                                          padding: const EdgeInsets.all(6),
+                                          iconSize: 26,
+                                          padding: const EdgeInsets.all(8),
                                           constraints: const BoxConstraints(
-                                            minWidth: 36,
-                                            minHeight: 36,
+                                            minWidth: 40,
+                                            minHeight: 40,
                                           ),
                                         ),
+                                        // Text input
+                                        Expanded(
+                                          child: TextField(
+                                            focusNode: focusNode,
+                                            controller: _message,
+                                            maxLines: null,
+                                            textInputAction: TextInputAction.newline,
+                                            style: TextStyle(
+                                              color: Colors.grey[900],
+                                              fontSize: 16,
+                                              height: 1.5,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                            decoration: InputDecoration(
+                                              hintText: "Type a message...",
+                                              hintStyle: TextStyle(
+                                                color: Colors.grey[500],
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                              filled: false,
+                                              contentPadding: const EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 12,
+                                              ),
+                                              border: InputBorder.none,
+                                              enabledBorder: InputBorder.none,
+                                              focusedBorder: InputBorder.none,
+                                              isDense: false,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 4),
                                       ],
                                     ),
                                   ),
