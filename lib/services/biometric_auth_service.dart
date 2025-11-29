@@ -100,22 +100,30 @@ class BiometricAuthService {
   /// Check if app needs re-authentication
   /// Returns true if user needs to authenticate again
   Future<bool> needsReAuthentication({Duration timeout = const Duration(minutes: 5)}) async {
-    if (!await isBiometricEnabled()) {
+    final isEnabled = await isBiometricEnabled();
+    print('🔐 [BiometricService] Biometric enabled: $isEnabled');
+    
+    if (!isEnabled) {
       return false; // Biometric not enabled, no need to authenticate
     }
 
     final prefs = await SharedPreferences.getInstance();
     final lastAuthTime = prefs.getInt(_lastAuthTimeKey);
+    print('⏰ [BiometricService] Last auth time: $lastAuthTime');
 
     if (lastAuthTime == null) {
+      print('🆕 [BiometricService] Never authenticated before - needs auth');
       return true; // Never authenticated before
     }
 
     final lastAuth = DateTime.fromMillisecondsSinceEpoch(lastAuthTime);
     final now = DateTime.now();
     final difference = now.difference(lastAuth);
+    
+    final needsAuth = difference > timeout;
+    print('⏱️ [BiometricService] Time since last auth: ${difference.inMinutes}min - Needs auth: $needsAuth');
 
-    return difference > timeout;
+    return needsAuth;
   }
 
   /// Save the current time as last authentication time

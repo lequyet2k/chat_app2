@@ -26,22 +26,32 @@ class GroupEncryptionService {
     String groupId,
   ) async {
     try {
+      print('🔐 [GroupEncryption] Starting encryption for groupId: $groupId');
+      
       // Get all group members
       final groupDoc = await _firestore.collection('groups').doc(groupId).get();
       if (!groupDoc.exists) {
+        print('❌ [GroupEncryption] Group document not found');
         return null;
       }
 
       final List<dynamic> members = groupDoc.data()?['members'] ?? [];
+      print('👥 [GroupEncryption] Found ${members.length} members');
+      
       if (members.isEmpty) {
+        print('❌ [GroupEncryption] No members in group');
         return null;
       }
 
       // Encrypt message for each member
       Map<String, Map<String, String>> encryptedForMembers = {};
       
-      for (String memberId in members) {
+      for (var member in members) {
         try {
+          // Extract UID from member object
+          final String memberId = member['uid'] ?? '';
+          if (memberId.isEmpty) continue;
+          
           // Get member's public key
           String? publicKey = await KeyManager.getUserPublicKey(memberId);
           
@@ -55,20 +65,23 @@ class GroupEncryptionService {
             encryptedForMembers[memberId] = encryptedData;
           }
         } catch (e) {
-          print('Error encrypting for member $memberId: $e');
+          print('Error encrypting for member: $e');
           // Continue with other members even if one fails
         }
       }
 
       if (encryptedForMembers.isEmpty) {
+        print('❌ [GroupEncryption] No members could be encrypted for');
         return null;
       }
 
+      print('✅ [GroupEncryption] Successfully encrypted for ${encryptedForMembers.length} members');
+      
       // Return as JSON string
       return json.encode(encryptedForMembers);
       
     } catch (e) {
-      print('Error in encryptGroupMessage: $e');
+      print('❌ [GroupEncryption] Error: $e');
       return null;
     }
   }

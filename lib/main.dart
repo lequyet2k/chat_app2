@@ -81,8 +81,11 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
   }
 
   Future<void> _checkBiometricRequirement() async {
+    print('🔐 [Biometric] Checking biometric requirement...');
+    
     // Skip biometric auth on web platform
     if (kIsWeb) {
+      print('🌐 [Biometric] Web platform - skipping biometric');
       if (mounted) {
         setState(() {
           _needsBiometricAuth = false;
@@ -92,7 +95,10 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
       return;
     }
     
+    print('📱 [Biometric] Mobile platform - checking authentication need');
     final needsAuth = await _biometricService.needsReAuthentication();
+    print('${needsAuth ? "🔒" : "🔓"} [Biometric] Needs auth: $needsAuth');
+    
     if (mounted) {
       setState(() {
         _needsBiometricAuth = needsAuth;
