@@ -38,13 +38,16 @@ class BiometricAuthService {
   /// Check if biometric authentication is enabled in app settings
   Future<bool> isBiometricEnabled() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_biometricEnabledKey) ?? false;
+    final isEnabled = prefs.getBool(_biometricEnabledKey) ?? false;
+    print('📦 [BiometricService] Read from storage - enabled: $isEnabled');
+    return isEnabled;
   }
 
   /// Enable or disable biometric authentication
   Future<void> setBiometricEnabled(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_biometricEnabledKey, enabled);
+    print('💾 [BiometricService] Saved to storage - enabled: $enabled');
   }
 
   /// Authenticate using biometric or device credentials
@@ -53,15 +56,23 @@ class BiometricAuthService {
     String localizedReason = 'Please authenticate to access the app',
     bool biometricOnly = false,
   }) async {
+    print('🔐 [BiometricService] authenticate() called');
+    print('🔐 [BiometricService] Reason: $localizedReason');
+    print('🔐 [BiometricService] BiometricOnly: $biometricOnly');
+    
     try {
       // Check if device supports biometric
+      print('🔐 [BiometricService] Checking device availability...');
       final isAvailable = await isBiometricAvailable();
+      print('🔐 [BiometricService] Device available: $isAvailable');
+      
       if (!isAvailable) {
-        print('Biometric authentication not available on this device');
+        print('❌ [BiometricService] Biometric authentication not available on this device');
         return false;
       }
 
       // Attempt authentication
+      print('🔐 [BiometricService] Starting authentication dialog...');
       final bool didAuthenticate = await _localAuth.authenticate(
         localizedReason: localizedReason,
         options: AuthenticationOptions(
@@ -72,27 +83,30 @@ class BiometricAuthService {
         ),
       );
 
+      print('🔐 [BiometricService] Authentication result: $didAuthenticate');
+
       // Save last authentication time if successful
       if (didAuthenticate) {
+        print('✅ [BiometricService] Saving authentication time...');
         await _saveLastAuthTime();
       }
 
       return didAuthenticate;
     } on PlatformException catch (e) {
-      print('Error during authentication: $e');
+      print('❌ [BiometricService] PlatformException: ${e.code} - ${e.message}');
       
       // Handle specific error cases
       if (e.code == 'NotAvailable') {
-        print('Biometric not available');
+        print('❌ [BiometricService] Biometric not available');
       } else if (e.code == 'NotEnrolled') {
-        print('No biometrics enrolled');
+        print('❌ [BiometricService] No biometrics enrolled');
       } else if (e.code == 'LockedOut' || e.code == 'PermanentlyLockedOut') {
-        print('Biometric authentication locked');
+        print('❌ [BiometricService] Biometric authentication locked');
       }
       
       return false;
     } catch (e) {
-      print('Unexpected error during authentication: $e');
+      print('❌ [BiometricService] Unexpected error: $e');
       return false;
     }
   }

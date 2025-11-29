@@ -44,7 +44,9 @@ class _SettingState extends State<Setting> {
   }
   
   Future<void> _checkBiometricAvailability() async {
+    print('⚙️ [Settings] Checking biometric availability...');
     final isAvailable = await _biometricService.isBiometricAvailable();
+    print('⚙️ [Settings] Biometric available: $isAvailable');
     if (mounted) {
       setState(() {
         _isBiometricAvailable = isAvailable;
@@ -53,7 +55,9 @@ class _SettingState extends State<Setting> {
   }
   
   Future<void> _loadBiometricSetting() async {
+    print('⚙️ [Settings] Loading biometric setting...');
     final isEnabled = await _biometricService.isBiometricEnabled();
+    print('⚙️ [Settings] Biometric enabled: $isEnabled');
     if (mounted) {
       setState(() {
         _isBiometricEnabled = isEnabled;
@@ -62,18 +66,25 @@ class _SettingState extends State<Setting> {
   }
   
   Future<void> _toggleBiometric(bool value) async {
+    print('🔄 [Settings] Toggle biometric: $value');
+    
     if (value) {
       // Enable biometric - require authentication first
+      print('🔐 [Settings] Requesting biometric authentication...');
       final authenticated = await _biometricService.authenticate(
         localizedReason: 'Authenticate to enable biometric lock',
       );
       
+      print('🔐 [Settings] Authentication result: $authenticated');
+      
       if (authenticated) {
+        print('✅ [Settings] Enabling biometric lock...');
         await _biometricService.setBiometricEnabled(true);
         if (mounted) {
           setState(() {
             _isBiometricEnabled = true;
           });
+          print('✅ [Settings] Biometric lock enabled!');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text('Biometric lock enabled successfully'),
@@ -83,6 +94,7 @@ class _SettingState extends State<Setting> {
           );
         }
       } else {
+        print('❌ [Settings] Authentication failed');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -95,12 +107,14 @@ class _SettingState extends State<Setting> {
       }
     } else {
       // Disable biometric
+      print('🔓 [Settings] Disabling biometric lock...');
       await _biometricService.setBiometricEnabled(false);
       await _biometricService.clearAuthenticationState();
       if (mounted) {
         setState(() {
           _isBiometricEnabled = false;
         });
+        print('✅ [Settings] Biometric lock disabled!');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Biometric lock disabled'),
