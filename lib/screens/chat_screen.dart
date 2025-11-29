@@ -16,7 +16,9 @@ import 'package:uuid/uuid.dart';
 import 'package:my_porject/models/user_model.dart';
 import 'package:my_porject/services/encrypted_chat_service.dart';
 import 'package:my_porject/services/voice_message_service.dart';
+import 'package:my_porject/services/file_sharing_service.dart';
 import 'package:my_porject/widgets/voice_message_player.dart';
+import 'package:my_porject/widgets/file_message_widget.dart';
 import 'package:my_porject/screens/chat_settings_screen.dart';
 import 'package:my_porject/screens/video_call_screen.dart';
 
@@ -1365,6 +1367,58 @@ class _ChatScreenState extends State<ChatScreen> {
             ],
           ),
         );
+      } else if (map['type'] == 'file') {
+        bool isMe = map['sendBy'] == widget.user.displayName;
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            children: [
+              if (!isMe) ...[ 
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.grey.shade300,
+                      width: 2,
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider(userMap['avatar']),
+                    radius: 16,
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                  children: [
+                    FileMessageWidget(
+                      fileUrl: map['message'],
+                      fileName: map['fileName'] ?? 'Unknown file',
+                      fileSize: map['fileSize'] ?? 0,
+                      fileExtension: map['fileExtension'] ?? 'bin',
+                      isMe: isMe,
+                    ),
+                    const SizedBox(height: 4),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Text(
+                        map['time'],
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
       } else if (map['type'] == 'locationed') {
         bool isMe = map['sendBy'] == widget.user.displayName;
         return Container(
@@ -1637,23 +1691,184 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   // Pick document (placeholder - requires file_picker package)
-  void _pickDocument() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(Icons.info_outline, color: Colors.white),
-            const SizedBox(width: 12),
-            const Expanded(
-              child: Text('Document sharing feature coming soon!'),
+  Future<void> _pickDocument() async {
+    try {
+      if (widget.isDeviceConnected == false) {
+        showDialogInternetCheck();
+        return;
+      }
+
+      debugPrint('📁 ChatScreen: Starting document picker...');
+
+      // Chọn file
+      final file = await FileSharingService.pickFile();
+      
+      if (file == null) {
+        debugPrint('📁 ChatScreen: No file selected');
+        return;
+      }
+
+      debugPrint('📁 ChatScreen: File selected: ${file.name}');
+
+      // Hiển thị dialog loading
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => WillPopScope(
+          onWillPop: () async => false,
+          child: AlertDialog(
+            backgroundColor: Colors.grey[900],
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(color: Colors.blue),
+                const SizedBox(height: 20),
+                Text(
+                  'Đang tải lên ${file.name}...',
+                  style: const TextStyle(color: Colors.white),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-        backgroundColor: Colors.grey[800],
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-    );
+      );
+
+      // Upload file
+      final result = await FileSharingService.uploadFile(
+        file: file,
+        chatRoomId: widget.chatRoomId,
+        onProgress: (progress) {
+          debugPrint('📁 ChatScreen: Upload progress: ${(progress * 100).toStringAsFixed(1)}%');
+        },
+      );
+
+      // Đóng dialog loading
+      if (mounted) Navigator.pop(context);
+
+      debugPrint('✅ ChatScreen: File uploaded successfully');
+
+      // Gửi file message
+      await _sendFileMessage(
+        downloadUrl: result.downloadUrl,
+        fileName: result.fileName,
+        fileSize: result.fileSize,
+        fileExtension: result.fileExtension,
+        storagePath: result.storagePath,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: const [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 12),
+                Expanded(child: Text('File đã được gửi thành công!')),
+              ],
+            ),
+            backgroundColor: Colors.green[700],
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } on FileException catch (e) {
+      // Đóng dialog loading nếu đang mở
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+      
+      debugPrint('❌ ChatScreen: FileException: $e');
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text(e.message)),
+              ],
+            ),
+            backgroundColor: Colors.red[700],
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      // Đóng dialog loading nếu đang mở
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+      
+      debugPrint('❌ ChatScreen: Error picking/uploading document: $e');
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: const [
+                Icon(Icons.error_outline, color: Colors.white),
+                SizedBox(width: 12),
+                Expanded(child: Text('Lỗi khi gửi file. Vui lòng thử lại!')),
+              ],
+            ),
+            backgroundColor: Colors.red[700],
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _sendFileMessage({
+    required String downloadUrl,
+    required String fileName,
+    required int fileSize,
+    required String fileExtension,
+    required String storagePath,
+  }) async {
+    try {
+      debugPrint('📤 ChatScreen: Sending file message...');
+
+      final message = FirebaseFirestore.instance
+          .collection('chatroom')
+          .doc(widget.chatRoomId)
+          .collection('chats')
+          .doc();
+
+      await message.set({
+        "sendBy": widget.user.displayName,
+        "message": downloadUrl,
+        "type": "file",
+        "time": FieldValue.serverTimestamp(),
+        "avatar": widget.user.photoURL,
+        "timeStamp": DateTime.now(),
+        // File metadata
+        "fileName": fileName,
+        "fileSize": fileSize,
+        "fileExtension": fileExtension,
+        "storagePath": storagePath,
+        // Encryption status (files are not encrypted for now)
+        "isEncrypted": false,
+      });
+
+      // Update last message in chatroom
+      await FirebaseFirestore.instance
+          .collection('chatroom')
+          .doc(widget.chatRoomId)
+          .update({
+        "last_time": DateTime.now(),
+        "last_chat": "📁 $fileName",
+      });
+
+      debugPrint('✅ ChatScreen: File message sent successfully');
+    } catch (e) {
+      debugPrint('❌ ChatScreen: Error sending file message: $e');
+      rethrow;
+    }
   }
 
   // Open camera (placeholder)

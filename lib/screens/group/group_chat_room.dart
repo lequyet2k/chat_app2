@@ -17,7 +17,9 @@ import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/screens/group/group_info.dart';
 import 'package:my_porject/services/group_encryption_service.dart';
 import 'package:my_porject/services/voice_message_service.dart';
+import 'package:my_porject/services/file_sharing_service.dart';
 import 'package:my_porject/widgets/voice_message_player.dart';
+import 'package:my_porject/widgets/file_message_widget.dart';
 import 'package:uuid/uuid.dart';
 
 import '../chat_screen.dart';
@@ -352,6 +354,24 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
               },
             ),
             const SizedBox(height: 8),
+            // Document
+            ListTile(
+              leading: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.purple[50],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.insert_drive_file_outlined, color: Colors.purple[700], size: 24),
+              ),
+              title: Text('Document', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey[900])),
+              onTap: () {
+                Navigator.pop(context);
+                _pickDocument();
+              },
+            ),
+            const SizedBox(height: 8),
             // Location
             ListTile(
               leading: Container(
@@ -377,6 +397,175 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         ),
       ),
     );
+  }
+
+  Future<void> _pickDocument() async {
+    try {
+      if (widget.isDeviceConnected == false) {
+        showDialogInternetCheck();
+        return;
+      }
+
+      debugPrint('📁 GroupChatRoom: Starting document picker...');
+
+      // Chọn file
+      final file = await FileSharingService.pickFile();
+      
+      if (file == null) {
+        debugPrint('📁 GroupChatRoom: No file selected');
+        return;
+      }
+
+      debugPrint('📁 GroupChatRoom: File selected: ${file.name}');
+
+      // Hiển thị dialog loading
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => WillPopScope(
+          onWillPop: () async => false,
+          child: AlertDialog(
+            backgroundColor: Colors.grey[900],
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(color: Colors.blue),
+                const SizedBox(height: 20),
+                Text(
+                  'Đang tải lên ${file.name}...',
+                  style: const TextStyle(color: Colors.white),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      // Upload file
+      final result = await FileSharingService.uploadFile(
+        file: file,
+        chatRoomId: widget.groupChatId,
+        onProgress: (progress) {
+          debugPrint('📁 GroupChatRoom: Upload progress: ${(progress * 100).toStringAsFixed(1)}%');
+        },
+      );
+
+      // Đóng dialog loading
+      if (mounted) Navigator.pop(context);
+
+      debugPrint('✅ GroupChatRoom: File uploaded successfully');
+
+      // Gửi file message
+      await _sendFileMessage(
+        downloadUrl: result.downloadUrl,
+        fileName: result.fileName,
+        fileSize: result.fileSize,
+        fileExtension: result.fileExtension,
+        storagePath: result.storagePath,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: const [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 12),
+                Expanded(child: Text('File đã được gửi thành công!')),
+              ],
+            ),
+            backgroundColor: Colors.green[700],
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } on FileException catch (e) {
+      // Đóng dialog loading nếu đang mở
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+      
+      debugPrint('❌ GroupChatRoom: FileException: $e');
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text(e.message)),
+              ],
+            ),
+            backgroundColor: Colors.red[700],
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      // Đóng dialog loading nếu đang mở
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+      
+      debugPrint('❌ GroupChatRoom: Error picking/uploading document: $e');
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: const [
+                Icon(Icons.error_outline, color: Colors.white),
+                SizedBox(width: 12),
+                Expanded(child: Text('Lỗi khi gửi file. Vui lòng thử lại!')),
+              ],
+            ),
+            backgroundColor: Colors.red[700],
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _sendFileMessage({
+    required String downloadUrl,
+    required String fileName,
+    required int fileSize,
+    required String fileExtension,
+    required String storagePath,
+  }) async {
+    try {
+      debugPrint('📤 GroupChatRoom: Sending file message...');
+
+      await FirebaseFirestore.instance
+          .collection('groups')
+          .doc(widget.groupChatId)
+          .collection("chats")
+          .add({
+        "sendBy": widget.user.displayName,
+        "message": downloadUrl,
+        "type": "file",
+        "time": FieldValue.serverTimestamp(),
+        "avatar": widget.user.photoURL,
+        "timeStamp": DateTime.now(),
+        // File metadata
+        "fileName": fileName,
+        "fileSize": fileSize,
+        "fileExtension": fileExtension,
+        "storagePath": storagePath,
+        // Encryption status (files are not encrypted for now)
+        "isEncrypted": false,
+      });
+
+      debugPrint('✅ GroupChatRoom: File message sent successfully');
+    } catch (e) {
+      debugPrint('❌ GroupChatRoom: Error sending file message: $e');
+      rethrow;
+    }
   }
 
   @override
@@ -955,6 +1144,51 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                   ),
                   child: VoiceMessagePlayer(
                     audioUrl: chatMap['message'],
+                    isMe: chatMap['sendBy'] == widget.user.displayName,
+                  ),
+                ),
+              ),
+              chatMap['sendBy'] == widget.user.displayName
+                  ? Container(
+                      margin: const EdgeInsets.only(bottom: 8, left: 4),
+                      height: size.width / 13,
+                      width: size.width / 13,
+                      child: CircleAvatar(
+                        backgroundImage: NetworkImage(chatMap['avatar']),
+                        maxRadius: 30,
+                      ),
+                    )
+                  : Container(),
+            ],
+          );
+        } else if (chatMap['type'] == 'file') {
+          // File message rendering for group chat
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              const SizedBox(width: 2),
+              chatMap['sendBy'] != widget.user.displayName
+                  ? Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      height: size.width / 13,
+                      width: size.width / 13,
+                      child: CircleAvatar(
+                        backgroundImage: NetworkImage(chatMap['avatar']),
+                        maxRadius: 30,
+                      ),
+                    )
+                  : Container(),
+              Flexible(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                  constraints: BoxConstraints(
+                    maxWidth: size.width * 0.7,
+                  ),
+                  child: FileMessageWidget(
+                    fileUrl: chatMap['message'],
+                    fileName: chatMap['fileName'] ?? 'Unknown file',
+                    fileSize: chatMap['fileSize'] ?? 0,
+                    fileExtension: chatMap['fileExtension'] ?? 'bin',
                     isMe: chatMap['sendBy'] == widget.user.displayName,
                   ),
                 ),
