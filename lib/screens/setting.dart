@@ -322,9 +322,12 @@ class _SettingState extends State<Setting> {
     setState(() {
       isLoading = true;
     });
+    // Update both isStatusLocked AND status in user's own document
     await _firestore.collection('users').doc(_auth.currentUser?.uid).update({
       "isStatusLocked": true,
+      "status": "Offline",  // Force status to Offline when locked
     });
+    
     int? n;
     await FirebaseFirestore.instance
         .collection('users')
@@ -610,11 +613,13 @@ class _SettingState extends State<Setting> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 12, vertical: 6),
                                     decoration: BoxDecoration(
-                                      color: map['status']
+                                      color: (map['isStatusLocked'] == true)
+                                          ? Colors.grey.withValues(alpha: 0.1)
+                                          : (map['status']
                                               .toLowerCase()
                                               .contains('online')
                                           ? Colors.green.withValues(alpha: 0.1)
-                                          : Colors.grey.withValues(alpha: 0.1),
+                                          : Colors.grey.withValues(alpha: 0.1)),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Row(
@@ -624,25 +629,31 @@ class _SettingState extends State<Setting> {
                                           width: 8,
                                           height: 8,
                                           decoration: BoxDecoration(
-                                            color: map['status']
+                                            color: (map['isStatusLocked'] == true)
+                                                ? Colors.grey[400]
+                                                : (map['status']
                                                     .toLowerCase()
                                                     .contains('online')
                                                 ? Colors.green
-                                                : Colors.grey[400],
+                                                : Colors.grey[400]),
                                             shape: BoxShape.circle,
                                           ),
                                         ),
                                         const SizedBox(width: 6),
                                         Text(
-                                          map['status'] ?? 'Offline',
+                                          (map['isStatusLocked'] == true) 
+                                              ? 'Offline' 
+                                              : (map['status'] ?? 'Offline'),
                                           style: TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w500,
-                                            color: map['status']
+                                            color: (map['isStatusLocked'] == true)
+                                                ? Colors.grey[600]
+                                                : (map['status']
                                                     .toLowerCase()
                                                     .contains('online')
                                                 ? Colors.green[700]
-                                                : Colors.grey[600],
+                                                : Colors.grey[600]),
                                           ),
                                         ),
                                       ],
