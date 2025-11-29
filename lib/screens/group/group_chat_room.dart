@@ -9,11 +9,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/screens/group/group_info.dart';
+import 'package:my_porject/services/group_encryption_service.dart';
 import 'package:uuid/uuid.dart';
 
 import '../chat_screen.dart';
@@ -110,13 +112,28 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
     String message;
     message = _message.text;
     if (_message.text.isNotEmpty) {
+      // Encrypt message
+      String? encryptedMessage = await GroupEncryptionService.encryptGroupMessage(
+        _message.text,
+        widget.groupChatId,
+      );
+
+      // If encryption fails, send unencrypted (fallback)
+      if (encryptedMessage == null) {
+        encryptedMessage = _message.text;
+        if (kDebugMode) {
+          debugPrint('⚠️ Sending unencrypted message (encryption failed)');
+        }
+      }
+
       Map<String, dynamic> chatData = {
         "sendBy": widget.user.displayName,
-        "message": _message.text,
+        "message": encryptedMessage, // Encrypted message
         "type": "text",
         "time": timeForMessage(DateTime.now().toString()),
         'avatar': avatarUrl,
         'timeStamp': DateTime.now(),
+        'encrypted': encryptedMessage != _message.text, // Mark if encrypted
       };
 
       _message.clear();
@@ -126,6 +143,12 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
           .doc(widget.groupChatId)
           .collection('chats')
           .add(chatData);
+      
+      // For chat history, show "[Encrypted]" or first few chars
+      String historyPreview = encryptedMessage == message 
+          ? "${widget.user.displayName}: $message"
+          : "${widget.user.displayName}: 🔒 Encrypted message";
+          
       for (int i = 0; i < memberList.length; i++) {
         await _firestore
             .collection('users')
@@ -133,13 +156,37 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
             .collection('chatHistory')
             .doc(widget.groupChatId)
             .update({
-          'lastMessage': "${widget.user.displayName}: $message",
+          'lastMessage': historyPreview,
           'type': "text",
           'time': timeForMessage(DateTime.now().toString()),
           'timeStamp': DateTime.now(),
           'isRead': false,
         });
       }
+    }
+  }
+
+  // Decrypt message if it's encrypted
+  Future<String> _decryptMessageIfNeeded(Map<String, dynamic> chatMap) async {
+    try {
+      final String message = chatMap['message'] ?? '';
+      final bool isEncrypted = chatMap['isEncrypted'] ?? false;
+      
+      // If not encrypted, return original message
+      if (!isEncrypted || message.isEmpty) {
+        return message;
+      }
+      
+      // Decrypt the message
+      String? decryptedMessage = await GroupEncryptionService.decryptGroupMessage(
+        message,
+        widget.groupChatId,
+      );
+      
+      return decryptedMessage ?? '[Unable to decrypt message]';
+    } catch (e) {
+      print('Error decrypting message: $e');
+      return '[Decryption error]';
     }
   }
 
@@ -705,13 +752,43 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                         ),
                         child: Column(
                           children: [
-                            Text(
-                              chatMap['message'],
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white,
-                              ),
+                            // Decrypt message if encrypted
+                            FutureBuilder<String>(
+                              future: _decryptMessageIfNeeded(chatMap),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SizedBox(
+                                        width: 12,
+                                        height: 12,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white70),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Decrypting...',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.white70,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }
+                                return Text(
+                                  snapshot.data ?? chatMap['message'],
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
+                                  ),
+                                );
+                              },
                             ),
                           ],
                         ),
