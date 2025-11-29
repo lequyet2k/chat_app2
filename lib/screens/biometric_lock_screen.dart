@@ -51,7 +51,9 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
   }
 
   Future<void> _checkBiometricAvailability() async {
+    print('📱 [BiometricLockScreen] Checking biometric availability...');
     final biometrics = await _biometricService.getAvailableBiometrics();
+    print('📱 [BiometricLockScreen] Available biometrics: $biometrics');
     if (mounted) {
       setState(() {
         _availableBiometrics = biometrics;
@@ -60,8 +62,12 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
   }
 
   Future<void> _authenticateUser() async {
-    if (_isAuthenticating) return;
+    if (_isAuthenticating) {
+      print('📱 [BiometricLockScreen] Already authenticating...');
+      return;
+    }
 
+    print('📱 [BiometricLockScreen] Starting authentication...');
     setState(() {
       _isAuthenticating = true;
       _errorMessage = '';
@@ -69,15 +75,21 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
 
     try {
       final message = await _biometricService.getBiometricMessage();
+      print('📱 [BiometricLockScreen] Auth message: $message');
+      
       final authenticated = await _biometricService.authenticate(
         localizedReason: message,
         biometricOnly: false,
       );
 
+      print('📱 [BiometricLockScreen] Authentication result: $authenticated');
+      
       if (mounted) {
         if (authenticated) {
+          print('✅ [BiometricLockScreen] Authentication successful!');
           widget.onAuthenticationSuccess();
         } else {
+          print('❌ [BiometricLockScreen] Authentication failed');
           setState(() {
             _errorMessage = 'Authentication failed. Please try again.';
             _isAuthenticating = false;
@@ -85,6 +97,7 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
         }
       }
     } catch (e) {
+      print('❌ [BiometricLockScreen] Error: $e');
       if (mounted) {
         setState(() {
           _errorMessage = 'An error occurred. Please try again.';

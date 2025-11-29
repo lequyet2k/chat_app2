@@ -121,13 +121,18 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         widget.groupChatId,
       );
 
+      // Track encryption success
+      bool encryptionSucceeded = false;
+      
       // If encryption fails, send unencrypted (fallback)
       if (encryptedMessage == null) {
         encryptedMessage = _message.text;
+        encryptionSucceeded = false;
         if (kDebugMode) {
           debugPrint('⚠️ Encryption FAILED - Sending unencrypted message');
         }
       } else {
+        encryptionSucceeded = true;
         if (kDebugMode) {
           debugPrint('✅ Message encrypted successfully');
         }
@@ -140,7 +145,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         "time": timeForMessage(DateTime.now().toString()),
         'avatar': avatarUrl,
         'timeStamp': DateTime.now(),
-        'isEncrypted': encryptedMessage != _message.text, // Mark if encrypted (fixed field name)
+        'isEncrypted': encryptionSucceeded, // Mark if encryption succeeded
       };
 
       _message.clear();
