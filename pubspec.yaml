@@ -85,12 +85,14 @@ dependencies:
   rive: ^0.14.0-dev.14
   
   # Voice Message Recording & Playback (Flutter 3.35.4 compatible)
-  record: ^5.1.2
+  record: ^5.2.1
   audioplayers: ^6.1.0
   path: any
 dependency_overrides:
   # Force upgrade win32 to fix Flutter 3.38.0 compatibility
   win32: ^5.15.0
+  # Fix record_linux compatibility issue (only needed for Linux desktop)
+  record_linux: ^1.2.1
 
 dev_dependencies:
   flutter_test:
