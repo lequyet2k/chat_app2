@@ -6,7 +6,7 @@ class UserPresenceService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  /// Set user status to online
+  /// Set user status to online (respects isStatusLocked setting)
   Future<void> setUserOnline() async {
     try {
       final user = _auth.currentUser;
@@ -15,12 +15,24 @@ class UserPresenceService {
         return;
       }
 
-      await _firestore.collection('users').doc(user.uid).update({
-        'status': 'Online',
-        'lastSeen': FieldValue.serverTimestamp(),
-      });
+      // Check if user has status locked
+      final userDoc = await _firestore.collection('users').doc(user.uid).get();
+      final isStatusLocked = userDoc.data()?['isStatusLocked'] ?? false;
       
-      print('✅ [Presence] User set to ONLINE: ${user.uid}');
+      if (isStatusLocked) {
+        // User has turned off status - only update lastSeen, keep status as Offline
+        await _firestore.collection('users').doc(user.uid).update({
+          'lastSeen': FieldValue.serverTimestamp(),
+        });
+        print('🔒 [Presence] Status locked - keeping OFFLINE: ${user.uid}');
+      } else {
+        // Normal case - set status to Online
+        await _firestore.collection('users').doc(user.uid).update({
+          'status': 'Online',
+          'lastSeen': FieldValue.serverTimestamp(),
+        });
+        print('✅ [Presence] User set to ONLINE: ${user.uid}');
+      }
     } catch (e) {
       print('❌ [Presence] Error setting user online: $e');
     }
@@ -35,6 +47,7 @@ class UserPresenceService {
         return;
       }
 
+      // Always set offline when app is closed/paused (regardless of isStatusLocked)
       await _firestore.collection('users').doc(user.uid).update({
         'status': 'Offline',
         'lastSeen': FieldValue.serverTimestamp(),
