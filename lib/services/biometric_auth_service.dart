@@ -11,6 +11,9 @@ class BiometricAuthService {
   static const String _biometricEnabledKey = 'biometric_enabled';
   static const String _lastAuthTimeKey = 'last_auth_time';
   
+  // Track if user has authenticated in current app session
+  static bool _hasAuthenticatedThisSession = false;
+  
   /// Check if device supports biometric authentication
   Future<bool> isBiometricAvailable() async {
     try {
@@ -121,6 +124,14 @@ class BiometricAuthService {
       return false; // Biometric not enabled, no need to authenticate
     }
 
+    // If user hasn't authenticated in current app session, ALWAYS require auth
+    // This ensures biometric shows up every time app is opened/restarted
+    if (!_hasAuthenticatedThisSession) {
+      print('🆕 [BiometricService] New app session - needs auth');
+      return true;
+    }
+
+    // User already authenticated this session, now check timeout
     final prefs = await SharedPreferences.getInstance();
     final lastAuthTime = prefs.getInt(_lastAuthTimeKey);
     print('⏰ [BiometricService] Last auth time: $lastAuthTime');
@@ -144,12 +155,20 @@ class BiometricAuthService {
   Future<void> _saveLastAuthTime() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_lastAuthTimeKey, DateTime.now().millisecondsSinceEpoch);
+    
+    // Mark that user has authenticated in current session
+    _hasAuthenticatedThisSession = true;
+    print('✅ [BiometricService] Session authenticated - flag set to true');
   }
 
   /// Clear last authentication time (useful when user logs out)
   Future<void> clearAuthenticationState() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_lastAuthTimeKey);
+    
+    // Reset session authentication flag
+    _hasAuthenticatedThisSession = false;
+    print('🗑️ [BiometricService] Authentication state cleared');
   }
 
   /// Get user-friendly biometric type name
