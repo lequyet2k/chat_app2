@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/services/key_manager.dart';
 import 'package:my_porject/services/biometric_auth_service.dart';
+import 'package:my_porject/services/user_presence_service.dart';
 import 'package:my_porject/utils/error_handler.dart';
 
 void main() async {
@@ -56,6 +57,7 @@ class AuthWrapper extends StatefulWidget {
 class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
   bool _keysInitialized = false;
   final BiometricAuthService _biometricService = BiometricAuthService();
+  final UserPresenceService _presenceService = UserPresenceService();
   bool _needsBiometricAuth = false;
   bool _isCheckingBiometric = true;
 
@@ -74,9 +76,24 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Re-check biometric when app comes back to foreground
-    if (state == AppLifecycleState.resumed) {
-      _checkBiometricRequirement();
+    final user = FirebaseAuth.instance.currentUser;
+    
+    if (user != null) {
+      // Update user presence based on app lifecycle
+      if (state == AppLifecycleState.resumed) {
+        print('📱 [Lifecycle] App RESUMED - setting user ONLINE');
+        _presenceService.setUserOnline();
+        _checkBiometricRequirement();
+      } else if (state == AppLifecycleState.paused) {
+        print('📱 [Lifecycle] App PAUSED - setting user OFFLINE');
+        _presenceService.setUserOffline();
+      } else if (state == AppLifecycleState.inactive) {
+        print('📱 [Lifecycle] App INACTIVE');
+        // Don't change status for inactive (e.g., phone call)
+      } else if (state == AppLifecycleState.detached) {
+        print('📱 [Lifecycle] App DETACHED - setting user OFFLINE');
+        _presenceService.setUserOffline();
+      }
     }
   }
 
@@ -143,6 +160,9 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
 
         // If user is logged in, ensure encryption keys and show home screen
         if (snapshot.hasData && snapshot.data != null) {
+          // Set user online when authenticated
+          _presenceService.setUserOnline();
+          
           return FutureBuilder(
             future: _ensureEncryptionReady(snapshot.data!),
             builder: (context, keySnapshot) {
@@ -163,6 +183,11 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
               return HomeScreen(user: snapshot.data!);
             },
           );
+        }
+
+        // If user logged out, set offline
+        if (snapshot.hasData == false) {
+          _presenceService.setUserOffline();
         }
 
         // Otherwise, show login screen
