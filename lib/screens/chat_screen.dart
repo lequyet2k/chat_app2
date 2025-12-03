@@ -567,8 +567,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             builder: (context) => VideoCallScreen(
                               channelName: channelName,
                               userName: widget.user.displayName ?? 'You',
-                              userAvatar: widget.user.photoURL ?? 'https://via.placeholder.com/150',
-                              calleeName: widget.userMap['name'],
+                              userAvatar: widget.user.photoURL,
+                              calleeName: widget.userMap['name'] ?? 'Unknown',
                               calleeAvatar: widget.userMap['image'],
                             ),
                           ),

@@ -7,18 +7,18 @@ import '../configs/agora_configs.dart';
 class VideoCallScreen extends StatefulWidget {
   final String channelName;
   final String userName;
-  final String userAvatar;
+  final String? userAvatar;  // Nullable
   final String calleeName;
-  final String calleeAvatar;
+  final String? calleeAvatar;  // Nullable
   final bool isGroupCall;
 
   const VideoCallScreen({
     Key? key,
     required this.channelName,
     required this.userName,
-    required this.userAvatar,
+    this.userAvatar,  // Optional
     required this.calleeName,
-    required this.calleeAvatar,
+    this.calleeAvatar,  // Optional
     this.isGroupCall = false,
   }) : super(key: key);
 
@@ -172,7 +172,12 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
             children: [
               CircleAvatar(
                 radius: 50,
-                backgroundImage: NetworkImage(widget.userAvatar),
+                backgroundImage: widget.userAvatar != null && widget.userAvatar!.isNotEmpty
+                    ? NetworkImage(widget.userAvatar!)
+                    : const AssetImage('assets/default_avatar.png') as ImageProvider,
+                child: widget.userAvatar == null || widget.userAvatar!.isEmpty
+                    ? const Icon(Icons.person, size: 50, color: Colors.white70)
+                    : null,
               ),
               const SizedBox(height: 16),
               Text(
@@ -224,7 +229,12 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
             children: [
               CircleAvatar(
                 radius: 60,
-                backgroundImage: NetworkImage(widget.calleeAvatar),
+                backgroundImage: widget.calleeAvatar != null && widget.calleeAvatar!.isNotEmpty
+                    ? NetworkImage(widget.calleeAvatar!)
+                    : const AssetImage('assets/default_avatar.png') as ImageProvider,
+                child: widget.calleeAvatar == null || widget.calleeAvatar!.isEmpty
+                    ? const Icon(Icons.person, size: 60, color: Colors.white70)
+                    : null,
               ),
               const SizedBox(height: 20),
               Text(
