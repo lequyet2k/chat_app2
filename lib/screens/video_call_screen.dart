@@ -163,38 +163,73 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   }
 
   Widget _buildLocalPreview() {
+    // ✅ FIX: Khi camera off, hiển thị avatar thay vì video
     if (!_localUserJoined || _isCameraOff) {
       return Container(
         color: Colors.black87,
         child: Center(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircleAvatar(
-                radius: 50,
-                backgroundImage: widget.userAvatar != null && widget.userAvatar!.isNotEmpty
-                    ? NetworkImage(widget.userAvatar!)
-                    : const AssetImage('assets/default_avatar.png') as ImageProvider,
-                child: widget.userAvatar == null || widget.userAvatar!.isEmpty
-                    ? const Icon(Icons.person, size: 50, color: Colors.white70)
-                    : null,
+              // Avatar with fallback
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.grey[800],
+                ),
+                child: widget.userAvatar != null && widget.userAvatar!.isNotEmpty
+                    ? ClipOval(
+                        child: Image.network(
+                          widget.userAvatar!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(Icons.person, size: 40, color: Colors.white70);
+                          },
+                        ),
+                      )
+                    : const Icon(Icons.person, size: 40, color: Colors.white70),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
+              // User name - compact for small preview
               Text(
-                widget.userName,
+                widget.userName.length > 10 
+                    ? '${widget.userName.substring(0, 10)}...'
+                    : widget.userName,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 18,
+                  fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
+              // Camera off indicator
               if (_isCameraOff) ...[
-                const SizedBox(height: 8),
-                const Text(
-                  'Camera Off',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.videocam_off, size: 10, color: Colors.redAccent),
+                      SizedBox(width: 4),
+                      Text(
+                        'Off',
+                        style: TextStyle(
+                          color: Colors.redAccent,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -203,6 +238,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         ),
       );
     }
+    // Normal case: Show video preview
     return AgoraVideoView(
       controller: VideoViewController(
         rtcEngine: _engine,
@@ -221,29 +257,43 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         ),
       );
     } else {
+      // ✅ FIX: Waiting for remote user - show callee avatar
       return Container(
         color: Colors.black,
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircleAvatar(
-                radius: 60,
-                backgroundImage: widget.calleeAvatar != null && widget.calleeAvatar!.isNotEmpty
-                    ? NetworkImage(widget.calleeAvatar!)
-                    : const AssetImage('assets/default_avatar.png') as ImageProvider,
-                child: widget.calleeAvatar == null || widget.calleeAvatar!.isEmpty
-                    ? const Icon(Icons.person, size: 60, color: Colors.white70)
-                    : null,
+              // Callee avatar with fallback
+              Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.grey[800],
+                  border: Border.all(color: Colors.white24, width: 3),
+                ),
+                child: widget.calleeAvatar != null && widget.calleeAvatar!.isNotEmpty
+                    ? ClipOval(
+                        child: Image.network(
+                          widget.calleeAvatar!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(Icons.person, size: 80, color: Colors.white70);
+                          },
+                        ),
+                      )
+                    : const Icon(Icons.person, size: 80, color: Colors.white70),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               Text(
                 widget.calleeName,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 22,
+                  fontSize: 24,
                   fontWeight: FontWeight.w600,
                 ),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
               const Text(
@@ -251,6 +301,16 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 style: TextStyle(
                   color: Colors.grey,
                   fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Animated waiting indicator
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.grey[600]!),
                 ),
               ),
             ],
