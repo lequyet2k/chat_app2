@@ -1408,7 +1408,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Text(
-                        map['time'],
+                        map['time'] is String ? map['time'] : '',
                         style: TextStyle(
                           fontSize: 10,
                           color: Colors.grey[600],
