@@ -65,6 +65,19 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
         });
       }
     });
+
+    // ✅ FIX: Preload audio to get duration immediately
+    _preloadAudio();
+  }
+
+  Future<void> _preloadAudio() async {
+    try {
+      // Set audio source to get metadata
+      await _audioPlayer.setSourceUrl(widget.audioUrl);
+      print('✅ [VoiceMessage] Audio preloaded: ${widget.audioUrl}');
+    } catch (e) {
+      print('❌ [VoiceMessage] Error preloading audio: $e');
+    }
   }
 
   Future<void> _togglePlayPause() async {
@@ -123,10 +136,11 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
         : 0.0;
 
     return Container(
+      constraints: const BoxConstraints(maxWidth: 280), // ✅ FIX: Giới hạn width tối đa
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: widget.isMe 
-            ? Colors.blue.withValues(alpha: 0.1)
+            ? Colors.deepPurple.withValues(alpha: 0.12)  // ✅ FIX: Đổi từ blue sang deepPurple
             : Colors.grey.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
@@ -140,7 +154,7 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: widget.isMe ? Colors.blue[700] : Colors.grey[700],
+                color: widget.isMe ? Colors.deepPurple[600] : Colors.grey[700],  // ✅ FIX: Đổi blue sang deepPurple
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -166,7 +180,7 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
                     value: progress,
                     backgroundColor: Colors.grey.withValues(alpha: 0.3),
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      widget.isMe ? Colors.blue[700]! : Colors.grey[700]!,
+                      widget.isMe ? Colors.deepPurple[600]! : Colors.grey[700]!,  // ✅ FIX: Đổi blue sang deepPurple
                     ),
                     minHeight: 4,
                   ),
@@ -174,14 +188,17 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
                 
                 const SizedBox(height: 4),
                 
-                // Time display
+                // Time display - ✅ FIX: Hiển thị duration ngay cả khi chưa play
                 Text(
-                  _isPlaying || _position > Duration.zero
-                      ? '${_formatDuration(_position)} / ${_formatDuration(displayDuration)}'
-                      : _formatDuration(displayDuration),
+                  displayDuration > Duration.zero
+                      ? (_isPlaying || _position > Duration.zero
+                          ? '${_formatDuration(_position)} / ${_formatDuration(displayDuration)}'
+                          : _formatDuration(displayDuration))
+                      : 'Loading...',  // Show loading if duration not ready
                   style: TextStyle(
                     fontSize: 11,
                     color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],

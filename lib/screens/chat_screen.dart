@@ -1383,25 +1383,30 @@ class _ChatScreenState extends State<ChatScreen> {
                 const SizedBox(width: 8),
               ],
               Flexible(
-                child: Column(
-                  crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                  children: [
-                    VoiceMessagePlayer(
-                      audioUrl: map['message'],
-                      isMe: isMe,
-                    ),
-                    const SizedBox(height: 4),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Text(
-                        _formatTimestamp(map['time']),
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey[600],
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.75,  // ✅ Max 75% screen width
+                  ),
+                  child: Column(
+                    crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                    children: [
+                      VoiceMessagePlayer(
+                        audioUrl: map['message'],
+                        isMe: isMe,
+                      ),
+                      const SizedBox(height: 4),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Text(
+                          _formatTimestamp(map['time']),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey[600],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
