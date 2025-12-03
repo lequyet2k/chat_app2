@@ -1432,28 +1432,33 @@ class _ChatScreenState extends State<ChatScreen> {
                 const SizedBox(width: 8),
               ],
               Flexible(
-                child: Column(
-                  crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                  children: [
-                    FileMessageWidget(
-                      fileUrl: map['message'],
-                      fileName: map['fileName'] ?? 'Unknown file',
-                      fileSize: map['fileSize'] ?? 0,
-                      fileExtension: map['fileExtension'] ?? 'bin',
-                      isMe: isMe,
-                    ),
-                    const SizedBox(height: 4),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Text(
-                        _formatTimestamp(map['time']),
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey[600],
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.75, // 75% of screen width
+                  ),
+                  child: Column(
+                    crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                    children: [
+                      FileMessageWidget(
+                        fileUrl: map['message'],
+                        fileName: map['fileName'] ?? 'Unknown file',
+                        fileSize: map['fileSize'] ?? 0,
+                        fileExtension: map['fileExtension'] ?? 'bin',
+                        isMe: isMe,
+                      ),
+                      const SizedBox(height: 4),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Text(
+                          _formatTimestamp(map['time']),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey[600],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -1968,7 +1973,7 @@ class _ChatScreenState extends State<ChatScreen> {
         'fileSize': fileSize,
       };
 
-      await _firestore.collection('chatRoom').doc(roomId).collection('chats').add(messageData);
+      await _firestore.collection('chatroom').doc(roomId).collection('chats').add(messageData);
 
       // Update chat history for current user
       await _firestore.collection('users').doc(_auth.currentUser!.uid).collection('chatHistory').doc(widget.userMap['uid']).update({
