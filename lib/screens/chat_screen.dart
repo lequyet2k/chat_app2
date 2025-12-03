@@ -58,6 +58,31 @@ class _ChatScreenState extends State<ChatScreen> {
   // Cache for decrypted messages to prevent re-decryption
   final Map<String, String> _decryptedMessagesCache = {};
 
+  // Helper function to format Timestamp to readable time string
+  String _formatTimestamp(dynamic timestamp) {
+    if (timestamp == null) return '';
+    
+    // If already a String, return it
+    if (timestamp is String) return timestamp;
+    
+    // If it's a Firestore Timestamp, convert it
+    if (timestamp is Timestamp) {
+      final DateTime dateTime = timestamp.toDate();
+      final String hour = dateTime.hour.toString().padLeft(2, '0');
+      final String minute = dateTime.minute.toString().padLeft(2, '0');
+      return '$hour:$minute';
+    }
+    
+    // If it's a DateTime
+    if (timestamp is DateTime) {
+      final String hour = timestamp.hour.toString().padLeft(2, '0');
+      final String minute = timestamp.minute.toString().padLeft(2, '0');
+      return '$hour:$minute';
+    }
+    
+    return '';
+  }
+
   @override
   void initState() {
     getConnectivity();
@@ -646,7 +671,20 @@ class _ChatScreenState extends State<ChatScreen> {
                               elements: snapshot.data?.docs
                                   as List<QueryDocumentSnapshot<Object?>>,
                               shrinkWrap: true,
-                              groupBy: (element) => element['time'],
+                              groupBy: (element) {
+                                // Handle mixed time types (String, Timestamp, DateTime)
+                                final timeValue = element['time'];
+                                if (timeValue is String) {
+                                  return timeValue;
+                                } else if (timeValue is Timestamp) {
+                                  final dateTime = timeValue.toDate();
+                                  return timeForMessage(dateTime.toString());
+                                } else if (timeValue is DateTime) {
+                                  return timeForMessage(timeValue.toString());
+                                } else {
+                                  return timeForMessage(DateTime.now().toString());
+                                }
+                              },
                               order: GroupedListOrder.ASC,
                               reverse: false,
                               padding: const EdgeInsets.only(bottom: 80), // Add padding to prevent input box from covering last message
@@ -1356,7 +1394,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Text(
-                        map['time'],
+                        _formatTimestamp(map['time']),
                         style: TextStyle(
                           fontSize: 10,
                           color: Colors.grey[600],
@@ -1408,7 +1446,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Text(
-                        map['time'] is String ? map['time'] : '',
+                        _formatTimestamp(map['time']),
                         style: TextStyle(
                           fontSize: 10,
                           color: Colors.grey[600],
