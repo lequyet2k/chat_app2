@@ -98,6 +98,25 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
 
   @override
   Widget build(BuildContext context) {
+    // Handle empty or invalid audio URL
+    if (widget.audioUrl.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.red.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error, color: Colors.red, size: 18),
+            const SizedBox(width: 8),
+            Text('Voice message unavailable', style: TextStyle(fontSize: 12, color: Colors.red[700])),
+          ],
+        ),
+      );
+    }
+
     final displayDuration = _duration > Duration.zero ? _duration : Duration.zero;
     final progress = displayDuration.inMilliseconds > 0
         ? _position.inMilliseconds / displayDuration.inMilliseconds

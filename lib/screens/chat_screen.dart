@@ -647,6 +647,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                   as List<QueryDocumentSnapshot<Object?>>,
                               shrinkWrap: true,
                               groupBy: (element) => element['time'],
+                              order: GroupedListOrder.ASC,
+                              reverse: false,
                               padding: const EdgeInsets.only(bottom: 80), // Add padding to prevent input box from covering last message
                               groupSeparatorBuilder: (String groupByValue) =>
                                   Container(

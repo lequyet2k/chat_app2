@@ -702,6 +702,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                             shrinkWrap: true,
                             controller: controller,
                             groupBy: (element) => element['time'],
+                            order: GroupedListOrder.ASC,
+                            reverse: false,
                             groupSeparatorBuilder: (String groupByValue) =>
                                 Container(
                               alignment: Alignment.center,

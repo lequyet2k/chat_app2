@@ -68,39 +68,69 @@ class _SettingState extends State<Setting> {
   Future<void> _toggleBiometric(bool value) async {
     print('🔄 [Settings] Toggle biometric: $value');
     
+    if (!_isBiometricAvailable) {
+      print('❌ [Settings] Biometric not available on this device');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Biometric authentication is not available on this device'),
+            backgroundColor: Colors.orange[700],
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+      return;
+    }
+    
     if (value) {
       // Enable biometric - require authentication first
       print('🔐 [Settings] Requesting biometric authentication...');
-      final authenticated = await _biometricService.authenticate(
-        localizedReason: 'Authenticate to enable biometric lock',
-      );
       
-      print('🔐 [Settings] Authentication result: $authenticated');
-      
-      if (authenticated) {
-        print('✅ [Settings] Enabling biometric lock...');
-        await _biometricService.setBiometricEnabled(true);
-        if (mounted) {
-          setState(() {
-            _isBiometricEnabled = true;
-          });
-          print('✅ [Settings] Biometric lock enabled!');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Biometric lock enabled successfully'),
-              backgroundColor: Colors.green[700],
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+      try {
+        final authenticated = await _biometricService.authenticate(
+          localizedReason: 'Authenticate to enable biometric lock',
+        );
+        
+        print('🔐 [Settings] Authentication result: $authenticated');
+        
+        if (authenticated) {
+          print('✅ [Settings] Enabling biometric lock...');
+          await _biometricService.setBiometricEnabled(true);
+          if (mounted) {
+            setState(() {
+              _isBiometricEnabled = true;
+            });
+            print('✅ [Settings] Biometric lock enabled!');
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Biometric lock enabled successfully'),
+                backgroundColor: Colors.green[700],
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        } else {
+          print('❌ [Settings] Authentication failed');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Authentication failed. Please try again.'),
+                backgroundColor: Colors.red[700],
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
         }
-      } else {
-        print('❌ [Settings] Authentication failed');
+      } catch (e) {
+        print('❌ [Settings] Error during authentication: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Authentication failed'),
+              content: Text('Error: ${e.toString()}'),
               backgroundColor: Colors.red[700],
               behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 4),
             ),
           );
         }
