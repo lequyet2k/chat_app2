@@ -21,6 +21,7 @@ import 'package:my_porject/widgets/voice_message_player.dart';
 import 'package:my_porject/widgets/file_message_widget.dart';
 import 'package:my_porject/screens/chat_settings_screen.dart';
 import 'package:my_porject/screens/video_call_screen.dart';
+import 'package:my_porject/services/auto_delete_service.dart';
 
 // ignore: must_be_immutable
 class ChatScreen extends StatefulWidget {
@@ -57,6 +58,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // Cache for decrypted messages to prevent re-decryption
   final Map<String, String> _decryptedMessagesCache = {};
+
+  // Auto Delete Service
+  final AutoDeleteService _autoDeleteService = AutoDeleteService();
+  bool _autoDeleteEnabled = false;
+  int _autoDeleteDuration = 0;
 
   // Helper function to format Timestamp to readable time string
   String _formatTimestamp(dynamic timestamp) {
@@ -95,13 +101,42 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     updateIsReadMessage();
     getUserInfo();
+    _initAutoDelete(); // Khởi động auto delete service
     super.initState();
+  }
+
+  /// Khởi động Auto Delete Service cho chatroom này
+  Future<void> _initAutoDelete() async {
+    // Bắt đầu monitoring auto-delete cho chatroom
+    await _autoDeleteService.startMonitoring(widget.chatRoomId);
+    
+    // Lấy cài đặt hiện tại để hiển thị indicator
+    final settings = await _autoDeleteService.getAutoDeleteSettings(widget.chatRoomId);
+    if (settings != null && mounted) {
+      setState(() {
+        _autoDeleteEnabled = settings['enabled'] ?? false;
+        _autoDeleteDuration = settings['duration'] ?? 0;
+      });
+    }
+    
+    // Lắng nghe thay đổi cài đặt
+    _firestore.collection('chatroom').doc(widget.chatRoomId).snapshots().listen((snapshot) {
+      if (snapshot.exists && mounted) {
+        final data = snapshot.data()!;
+        setState(() {
+          _autoDeleteEnabled = data['autoDeleteEnabled'] ?? false;
+          _autoDeleteDuration = data['autoDeleteDuration'] ?? 0;
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
     controller.dispose();
     updateIsReadMessage();
+    // Dừng auto delete service khi rời khỏi chat
+    _autoDeleteService.stopMonitoring(widget.chatRoomId);
     super.dispose();
   }
 
@@ -543,6 +578,36 @@ class _ChatScreenState extends State<ChatScreen> {
                                       fontSize: 13,
                                     ),
                                   ),
+                                  // Auto-delete indicator
+                                  if (_autoDeleteEnabled) ...[
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange.withValues(alpha: 0.2),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.auto_delete,
+                                            color: Colors.orange[300],
+                                            size: 12,
+                                          ),
+                                          const SizedBox(width: 3),
+                                          Text(
+                                            AutoDeleteService.formatDuration(_autoDeleteDuration),
+                                            style: TextStyle(
+                                              color: Colors.orange[300],
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               );
                             } else {

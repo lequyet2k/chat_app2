@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:my_porject/services/auto_delete_service.dart';
 
 class ChatSettingsScreen extends StatefulWidget {
   final String chatRoomId;
@@ -393,10 +394,187 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                         ],
                       ),
                     ),
+
+                    const SizedBox(height: 32),
+
+                    // Delete All Messages Button
+                    Container(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _showDeleteAllConfirmation,
+                        icon: const Icon(Icons.delete_forever, color: Colors.white),
+                        label: const Text(
+                          'Delete All Messages',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red[700],
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),
             ),
     );
+  }
+
+  /// Hiển thị dialog xác nhận xóa tất cả tin nhắn
+  void _showDeleteAllConfirmation() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.red[700], size: 28),
+            const SizedBox(width: 12),
+            const Text(
+              'Delete All Messages?',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'This will permanently delete ALL messages in this chat.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[700],
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.red[700], size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'This action cannot be undone!',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.red[700],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _deleteAllMessages();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red[700],
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text('Delete All'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Xóa tất cả tin nhắn
+  Future<void> _deleteAllMessages() async {
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Deleting messages...'),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      final success = await AutoDeleteService().deleteAllMessages(widget.chatRoomId);
+
+      // Close loading dialog
+      if (mounted) Navigator.pop(context);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(
+                  success ? Icons.check_circle : Icons.error,
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  success 
+                    ? 'All messages deleted successfully!' 
+                    : 'Failed to delete messages. Please try again.',
+                ),
+              ],
+            ),
+            backgroundColor: success ? Colors.green[700] : Colors.red[700],
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      // Close loading dialog
+      if (mounted) Navigator.pop(context);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red[700],
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 }

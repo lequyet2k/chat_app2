@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_porject/screens/login_screen.dart';
 import 'package:my_porject/services/biometric_auth_service.dart';
+import 'package:my_porject/services/fcm_service.dart';
+import 'package:my_porject/services/user_presence_service.dart';
 import 'package:uuid/uuid.dart';
 
 // ignore: must_be_immutable
@@ -296,7 +298,38 @@ class _SettingState extends State<Setting> {
   }
 
   Future<void> logOut() async {
-    await _auth.signOut();
+    try {
+      // 1. Clear FCM token from Firestore (prevent notifications to logged out user)
+      await FCMService().clearToken();
+      print('✅ [Logout] FCM token cleared');
+
+      // 2. Clear biometric authentication state
+      await _biometricService.clearAuthenticationState();
+      await _biometricService.setBiometricEnabled(false);
+      print('✅ [Logout] Biometric state cleared');
+
+      // 3. Update user status to Offline before logout
+      if (_auth.currentUser != null) {
+        await _firestore.collection('users').doc(_auth.currentUser!.uid).update({
+          'status': 'Offline',
+          'lastSeen': FieldValue.serverTimestamp(),
+          'isStatusLocked': false,
+        });
+        print('✅ [Logout] User status set to Offline');
+      }
+
+      // 4. Set user offline via presence service
+      await UserPresenceService().setUserOffline();
+      print('✅ [Logout] User status set to offline via presence service');
+
+      // 5. Sign out from Firebase Auth
+      await _auth.signOut();
+      print('✅ [Logout] Firebase signOut completed');
+    } catch (e) {
+      print('❌ [Logout] Error during logout: $e');
+      // Still try to sign out even if other operations fail
+      await _auth.signOut();
+    }
   }
 
   showTurnOffStatus() {
