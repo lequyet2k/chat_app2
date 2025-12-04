@@ -463,6 +463,224 @@ class _ChatScreenState extends State<ChatScreen> {
   late ScrollController controller = ScrollController();
   late int index;
 
+  /// Open camera and capture photo to send
+  Future<void> _openCamera() async {
+    try {
+      if (widget.isDeviceConnected == false) {
+        showDialogInternetCheck();
+        return;
+      }
+
+      final ImagePicker picker = ImagePicker();
+      final XFile? photo = await picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 85,
+        maxWidth: 1920,
+        maxHeight: 1080,
+      );
+
+      if (photo == null) {
+        debugPrint('📷 Camera: No photo captured');
+        return;
+      }
+
+      debugPrint('📷 Camera: Photo captured: ${photo.path}');
+
+      // Show loading dialog
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => PopScope(
+            canPop: false,
+            child: AlertDialog(
+              backgroundColor: Colors.grey[900],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(color: Colors.blue),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Sending photo...',
+                    style: TextStyle(color: Colors.grey[100], fontSize: 15),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+
+      // Upload photo
+      imageFile = File(photo.path);
+      await _uploadCameraPhoto();
+
+      // Close loading dialog
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: const [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 12),
+                Text('Photo sent successfully!'),
+              ],
+            ),
+            backgroundColor: Colors.green[700],
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      // Close loading dialog if open
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+      
+      debugPrint('❌ Camera error: $e');
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: const [
+                Icon(Icons.error_outline, color: Colors.white),
+                SizedBox(width: 12),
+                Expanded(child: Text('Failed to send photo. Please try again.')),
+              ],
+            ),
+            backgroundColor: Colors.red[700],
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  /// Upload camera photo to Firebase Storage
+  Future<void> _uploadCameraPhoto() async {
+    if (imageFile == null) return;
+    
+    String fileName = const Uuid().v1();
+    int status = 1;
+
+    // Create placeholder message
+    await _firestore
+        .collection('chatroom')
+        .doc(widget.chatRoomId)
+        .collection('chats')
+        .doc(fileName)
+        .set({
+      'sendBy': widget.user.displayName,
+      'message': 'Uploading photo...',
+      'type': "img",
+      'time': timeForMessage(DateTime.now().toString()),
+      'timeStamp': DateTime.now(),
+    });
+
+    // Upload to Firebase Storage
+    var ref = FirebaseStorage.instance
+        .ref()
+        .child('camera_photos')
+        .child("$fileName.jpg");
+
+    var uploadTask = await ref.putFile(imageFile!).catchError((error) async {
+      await _firestore
+          .collection('chatroom')
+          .doc(widget.chatRoomId)
+          .collection('chats')
+          .doc(fileName)
+          .delete();
+      status = 0;
+      throw error;
+    });
+
+    if (status == 1) {
+      String imageUrl = await uploadTask.ref.getDownloadURL();
+
+      // Update message with actual image URL
+      await _firestore
+          .collection('chatroom')
+          .doc(widget.chatRoomId)
+          .collection('chats')
+          .doc(fileName)
+          .update({
+        'message': imageUrl,
+      });
+
+      // Update chatroom info
+      await _firestore.collection('chatroom').doc(widget.chatRoomId).set({
+        'user1': widget.user.displayName,
+        'user2': widget.userMap['name'],
+        'lastMessage': "📷 Photo",
+        'type': "img",
+        'uid': widget.userMap['uid'],
+      }, SetOptions(merge: true));
+
+      // Update sender's chat history
+      await _firestore
+          .collection('users')
+          .doc(_auth.currentUser!.uid)
+          .collection('chatHistory')
+          .doc(widget.userMap['uid'])
+          .set({
+        'lastMessage': "📷 You sent a photo",
+        'type': "img",
+        'name': widget.userMap['name'],
+        'time': timeForMessage(DateTime.now().toString()),
+        'uid': widget.userMap['uid'],
+        'avatar': widget.userMap['avatar'],
+        'status': widget.userMap['status'],
+        'datatype': 'p2p',
+        'timeStamp': DateTime.now(),
+        'isRead': true,
+      });
+
+      // Get current user info for receiver's chat history
+      String? currentUserAvatar;
+      String? userStatus;
+      await _firestore
+          .collection("users")
+          .where("email", isEqualTo: _auth.currentUser!.email)
+          .get()
+          .then((value) {
+        if (value.docs.isNotEmpty) {
+          currentUserAvatar = value.docs[0]['avatar'];
+          userStatus = value.docs[0]['status'];
+        }
+      });
+
+      // Update receiver's chat history
+      await _firestore
+          .collection('users')
+          .doc(widget.userMap['uid'])
+          .collection('chatHistory')
+          .doc(_auth.currentUser!.uid)
+          .set({
+        'lastMessage': "📷 ${widget.user.displayName} sent a photo",
+        'type': "img",
+        'name': widget.user.displayName,
+        'time': timeForMessage(DateTime.now().toString()),
+        'uid': _auth.currentUser!.uid,
+        'avatar': currentUserAvatar,
+        'status': userStatus,
+        'datatype': 'p2p',
+        'timeStamp': DateTime.now(),
+        'isRead': false,
+      });
+    }
+  }
+
   void liveLocation() {
     LocationSettings locationSettings = const LocationSettings(
         accuracy: LocationAccuracy.high, distanceFilter: 100);
@@ -1986,27 +2204,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  // Open camera (placeholder)
-  void _openCamera() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(Icons.info_outline, color: Colors.white),
-            const SizedBox(width: 12),
-            const Expanded(
-              child: Text('Camera feature coming soon!'),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.grey[800],
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-    );
-  }
-
-  // Voice recording (placeholder)
+  // Voice recording
   void _showVoiceRecording() {
     print('🎤 [ChatScreen] Voice recording button pressed');
     showModalBottomSheet(

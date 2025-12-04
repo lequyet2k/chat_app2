@@ -34,8 +34,10 @@ dependencies:
   # Force upgrade Flutter plugin lifecycle to fix v1 embedding error
   flutter_plugin_android_lifecycle: ^2.0.33
   
-  dialog_flowtter:
-
+  # dialog_flowtter:  # REMOVED - Using Google Gemini AI instead
+  
+  # HTTP client for AI API calls
+  http: ^1.5.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

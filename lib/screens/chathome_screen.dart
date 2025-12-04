@@ -16,7 +16,9 @@ import 'package:my_porject/screens/chat_bot/chat_bot.dart';
 import 'package:my_porject/screens/finding_screen.dart';
 import 'package:my_porject/screens/setting.dart';
 import 'package:my_porject/screens/group/group_chat.dart';
+import 'package:my_porject/screens/private_chat_screen.dart';
 import 'package:my_porject/widgets/conversationList.dart';
+// Note: PrivateChatService is used in conversationList.dart, not directly here
 import 'package:provider/provider.dart';
 import 'package:my_porject/resources/methods.dart';
 import '../db/log_repository.dart';
@@ -362,46 +364,82 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     letterSpacing: -0.5,
                   ),
                 ),
-                GestureDetector(
-                  onTap: () {
-                    if (isDeviceConnected == false) {
-                      showDialogInternetCheck();
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ChatBot(
-                                  user: widget.user,
-                                )),
-                      );
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.grey[900],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Icon(
-                          Icons.smart_toy_outlined,
+                Row(
+                  children: [
+                    // Private Chats Button
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PrivateChatScreen(
+                              user: widget.user,
+                              isDeviceConnected: isDeviceConnected,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.lock_outline,
                           color: Colors.white,
                           size: 20,
                         ),
-                        const SizedBox(width: 6),
-                        const Text(
-                          "AI Bot",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    // AI Bot Button
+                    GestureDetector(
+                      onTap: () {
+                        if (isDeviceConnected == false) {
+                          showDialogInternetCheck();
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ChatBot(
+                                      user: widget.user,
+                                    )),
+                          );
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.grey[900],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Icon(
+                              Icons.auto_awesome,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 6),
+                            const Text(
+                              "AI",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
