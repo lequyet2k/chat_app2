@@ -56,11 +56,16 @@ Future<AuthResult> createAccount(String name, String email, String password) asy
     await _firestore.collection('users').doc(_auth.currentUser?.uid).set({
       "name": name,
       "email": email,
-      "status": "Online",
+      "status": "Pending Verification",
       "uid": _auth.currentUser!.uid,
+      "emailVerified": false,
       "avatar":
           "https://firebasestorage.googleapis.com/v0/b/chatapptest2-93793.appspot.com/o/images%2F5c1b8830-75fc-11ed-a92f-3d766ba9d8a3.jpg?alt=media&token=6160aa31-424d-42f6-871e-0ca425e937cb",
     });
+
+    // Send email verification
+    await userCredential.user!.sendEmailVerification();
+    print("✅ Verification email sent to $email");
 
     // Initialize encryption keys for new user
     await KeyManager.initializeKeys();
@@ -74,6 +79,15 @@ Future<AuthResult> createAccount(String name, String email, String password) asy
     print('Unexpected error: $e');
     return AuthResult(errorMessage: 'An unexpected error occurred. Please try again.');
   }
+}
+
+// Update email verified status in Firestore
+Future<void> updateEmailVerifiedStatus(String uid) async {
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  await _firestore.collection('users').doc(uid).update({
+    "emailVerified": true,
+    "status": "Online",
+  });
 }
 
 Future<AuthResult> logIn(String email, String password) async {

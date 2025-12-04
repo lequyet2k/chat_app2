@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_porject/screens/auth_screen.dart';
 import 'package:my_porject/screens/login_screen.dart';
 import 'package:my_porject/screens/chathome_screen.dart';
+import 'package:my_porject/screens/email_verification_screen.dart';
 import 'package:my_porject/components/upside_signup.dart';
 
 class SignUp extends StatefulWidget {
@@ -36,10 +37,10 @@ class _SignUpScreen extends State<SignUp> {
         ),
         title: Row(
           children: [
-            Icon(Icons.check_circle_outline, color: Colors.green[700], size: 28),
+            Icon(Icons.mark_email_read, color: Colors.blue[700], size: 28),
             const SizedBox(width: 12),
             Text(
-              'Success!',
+              'Verify Your Email',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -48,37 +49,90 @@ class _SignUpScreen extends State<SignUp> {
             ),
           ],
         ),
-        content: Text(
-          'Account created successfully! Please login to continue.',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[700],
-            height: 1.4,
-          ),
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Login(
-                    email: email.text,
-                    password: password.text,
-                  ),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green[700],
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Account created successfully!',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.green[700],
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'A verification email has been sent to:',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[700],
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
                 borderRadius: BorderRadius.circular(8),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.email, size: 16, color: Colors.grey[600]),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      email.text,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[800],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            child: const Text('Login Now', style: TextStyle(fontSize: 15)),
+            const SizedBox(height: 12),
+            Text(
+              'Please verify your email to complete registration.',
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey[600],
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EmailVerificationScreen(
+                      email: email.text,
+                      password: password.text,
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.verified_user),
+              label: const Text('Continue to Verify', style: TextStyle(fontSize: 15)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue[700],
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
           ),
         ],
       ),

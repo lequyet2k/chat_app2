@@ -1,10 +1,13 @@
 import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/screens/signup_screen.dart';
+import 'package:my_porject/screens/email_verification_screen.dart';
+import 'package:my_porject/screens/forgot_password_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/screens/auth_screen.dart';
 import 'package:my_porject/components/upside.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 // ignore: must_be_immutable
 class Login extends StatefulWidget {
@@ -90,6 +93,111 @@ class LoginPage extends State<Login> {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             child: const Text('Try Again', style: TextStyle(fontSize: 15)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void showEmailNotVerifiedDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.mark_email_unread, color: Colors.orange[700], size: 28),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Email Not Verified',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[900],
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Please verify your email before logging in.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[700],
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange[50],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange[200]!),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.orange[700], size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Check your inbox for the verification link.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.orange[700],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                isLoading = false;
+              });
+            },
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EmailVerificationScreen(
+                    email: _email?.text ?? '',
+                    password: _password?.text ?? '',
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(Icons.verified_user, size: 18),
+            label: const Text('Verify Now'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue[700],
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            ),
           ),
         ],
       ),
@@ -331,6 +439,33 @@ class LoginPage extends State<Login> {
                                   ],
                                 ),
                               ),
+                              // Forgot Password Link
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 30),
+                                  child: TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ForgotPasswordScreen(
+                                            initialEmail: _email?.text,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      'Forgot Password?',
+                                      style: TextStyle(
+                                        color: Colors.blue[700],
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
                               const SizedBox(
                                 height: 10,
                               ),
@@ -346,8 +481,24 @@ class LoginPage extends State<Login> {
                                           isLoading = true;
                                         });
                                         logIn(_email!.text, _password!.text)
-                                            .then((result) {
+                                            .then((result) async {
                                           if (result.isSuccess && result.user != null) {
+                                            // Check if email is verified
+                                            await result.user!.reload();
+                                            final user = FirebaseAuth.instance.currentUser;
+                                            
+                                            if (user != null && !user.emailVerified) {
+                                              // Email not verified - show dialog
+                                              setState(() {
+                                                isLoading = false;
+                                              });
+                                              showEmailNotVerifiedDialog();
+                                              return;
+                                            }
+                                            
+                                            // Email verified - update status and proceed
+                                            await updateEmailVerifiedStatus(user!.uid);
+                                            
                                             setState(() {
                                               isLoading = false;
                                             });
