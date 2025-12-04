@@ -443,8 +443,10 @@ class _SettingState extends State<Setting> {
     setState(() {
       isLoading = true;
     });
+    // Update both isStatusLocked AND status to Online
     await _firestore.collection('users').doc(_auth.currentUser?.uid).update({
       "isStatusLocked": false,
+      "status": "Online",  // Set status back to Online when unlocked
     });
     int? n;
     await FirebaseFirestore.instance
