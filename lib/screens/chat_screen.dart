@@ -22,6 +22,7 @@ import 'package:my_porject/widgets/file_message_widget.dart';
 import 'package:my_porject/screens/chat_settings_screen.dart';
 import 'package:my_porject/screens/video_call_screen.dart';
 import 'package:my_porject/services/auto_delete_service.dart';
+import 'package:my_porject/utils/loading_utils.dart';
 
 // ignore: must_be_immutable
 class ChatScreen extends StatefulWidget {
@@ -486,43 +487,17 @@ class _ChatScreenState extends State<ChatScreen> {
 
       debugPrint('📷 Camera: Photo captured: ${photo.path}');
 
-      // Show loading dialog
+      // Show loading overlay
       if (mounted) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => PopScope(
-            canPop: false,
-            child: AlertDialog(
-              backgroundColor: Colors.grey[900],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const CircularProgressIndicator(color: Colors.blue),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Sending photo...',
-                    style: TextStyle(color: Colors.grey[100], fontSize: 15),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
+        LoadingUtils.show(context, message: 'Sending photo...');
       }
 
       // Upload photo
       imageFile = File(photo.path);
       await _uploadCameraPhoto();
 
-      // Close loading dialog
-      if (mounted && Navigator.canPop(context)) {
-        Navigator.pop(context);
-      }
+      // Hide loading overlay
+      LoadingUtils.hide();
 
       // Show success message
       if (mounted) {
@@ -2043,29 +2018,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
       debugPrint('📁 ChatScreen: File selected: ${file.name}');
 
-      // Hiển thị dialog loading
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => WillPopScope(
-          onWillPop: () async => false,
-          child: AlertDialog(
-            backgroundColor: Colors.grey[900],
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircularProgressIndicator(color: Colors.blue),
-                const SizedBox(height: 20),
-                Text(
-                  'Đang tải lên ${file.name}...',
-                  style: const TextStyle(color: Colors.white),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
+      // Show loading overlay
+      LoadingUtils.show(context, message: 'Uploading ${file.name}...');
 
       // Upload file
       final result = await FileSharingService.uploadFile(
@@ -2076,8 +2030,8 @@ class _ChatScreenState extends State<ChatScreen> {
         },
       );
 
-      // Đóng dialog loading
-      if (mounted) Navigator.pop(context);
+      // Hide loading overlay
+      LoadingUtils.hide();
 
       debugPrint('✅ ChatScreen: File uploaded successfully');
 

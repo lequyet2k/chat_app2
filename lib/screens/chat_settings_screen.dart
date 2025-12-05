@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:my_porject/services/auto_delete_service.dart';
+import 'package:my_porject/widgets/loading_overlay.dart';
 
 class ChatSettingsScreen extends StatefulWidget {
   final String chatRoomId;
@@ -166,17 +167,17 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        title: const Text('Chat Settings'),
-        backgroundColor: Colors.grey[900],
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+    return LoadingOverlay(
+      isLoading: _isLoading,
+      child: Scaffold(
+        backgroundColor: Colors.grey[50],
+        appBar: AppBar(
+          title: const Text('Chat Settings'),
+          backgroundColor: Colors.grey[900],
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        body: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -426,6 +427,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                 ),
               ),
             ),
+      ),
     );
   }
 
