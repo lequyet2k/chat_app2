@@ -22,6 +22,7 @@ import 'package:my_porject/widgets/conversationList.dart';
 import 'package:provider/provider.dart';
 import 'package:my_porject/resources/methods.dart';
 import '../db/log_repository.dart';
+import '../configs/app_theme.dart';
 import 'chat_screen.dart';
 
 // ignore: must_be_immutable
@@ -215,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.grey[900] : Colors.transparent,
+          color: isSelected ? AppTheme.primaryDark : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -223,15 +224,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           children: [
             Icon(
               isSelected ? activeIcon : icon,
-              color: isSelected ? Colors.white : Colors.grey[600],
+              color: isSelected ? AppTheme.textWhite : AppTheme.textSecondary,
               size: 24,
             ),
             if (isSelected) ...[
               const SizedBox(width: 8),
               Text(
                 label,
-                style: TextStyle(
-                  color: Colors.white,
+                style: const TextStyle(
+                  color: AppTheme.textWhite,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -261,11 +262,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        backgroundColor: Colors.grey[50],
+        backgroundColor: AppTheme.backgroundLight,
         body: appBar(_selectedIndex),
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.surfaceLight,
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.withValues(alpha: 0.15),
@@ -300,9 +301,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       children: [
         Container(
           margin: const EdgeInsets.only(top: 8, left: 20, bottom: 8),
-          child: Text('Recent',
+          child: const Text('Recent',
               style: TextStyle(
-                color: Colors.grey[600],
+                color: AppTheme.textSecondary,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.3,
@@ -357,10 +358,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               children: <Widget>[
                 Text(
                   "Messages",
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[900],
+                  style: AppTheme.headlineLarge.copyWith(
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -383,15 +381,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
+                          gradient: AppTheme.accentGradient,
                         ),
                         child: const Icon(
                           Icons.lock_outline,
-                          color: Colors.white,
+                          color: AppTheme.textWhite,
                           size: 20,
                         ),
                       ),
@@ -416,23 +410,23 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
-                          color: Colors.grey[900],
+                          color: AppTheme.primaryDark,
                         ),
-                        child: Row(
+                        child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             Icon(
                               Icons.auto_awesome,
-                              color: Colors.white,
+                              color: AppTheme.textWhite,
                               size: 20,
                             ),
-                            const SizedBox(width: 6),
-                            const Text(
+                            SizedBox(width: 6),
+                            Text(
                               "AI",
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                                color: AppTheme.textWhite,
                               ),
                             ),
                           ],
@@ -449,35 +443,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: TextField(
             autofocus: false,
-            style: TextStyle(color: Colors.grey[900], fontSize: 15),
-            decoration: InputDecoration(
-              hintText: "Search messages...",
-              hintStyle: TextStyle(color: Colors.grey[400], fontSize: 15),
-              prefixIcon: Icon(
-                Icons.search,
-                color: Colors.grey[400],
-                size: 22,
-              ),
-              filled: true,
-              fillColor: Colors.grey[100],
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: Colors.grey[200]!,
-                    width: 1,
-                  )),
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: Colors.grey[400]!,
-                    width: 1.5,
-                  )),
-            ),
+            style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15),
+            decoration: AppTheme.searchInputDecoration(hintText: "Search messages..."),
             controller: _search,
             onTap: () {
               if (isDeviceConnected == false) {
@@ -599,12 +566,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                                   width: 20,
                                                   height: 20,
                                                   decoration: BoxDecoration(
-                                                      color: const Color(
-                                                          0xFF66BB6A),
+                                                      color: AppTheme.online,
                                                       shape: BoxShape.circle,
                                                       border: Border.all(
-                                                        color: const Color(
-                                                            0xFFFFFFFF),
+                                                        color: AppTheme.backgroundWhite,
                                                         width: 3,
                                                       )),
                                                 ),
@@ -653,7 +618,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.grey.shade200,
+              color: AppTheme.backgroundLight,
               borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20), topRight: Radius.circular(20)),
             ),

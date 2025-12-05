@@ -23,6 +23,7 @@ import 'package:my_porject/screens/chat_settings_screen.dart';
 import 'package:my_porject/screens/video_call_screen.dart';
 import 'package:my_porject/services/auto_delete_service.dart';
 import 'package:my_porject/utils/loading_utils.dart';
+import 'package:my_porject/configs/app_theme.dart';
 
 // ignore: must_be_immutable
 class ChatScreen extends StatefulWidget {
@@ -697,10 +698,10 @@ class _ChatScreenState extends State<ChatScreen> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        backgroundColor: Colors.grey[50],
+        backgroundColor: AppTheme.backgroundLight,
         appBar: AppBar(
           automaticallyImplyLeading: false, // Disable default back button
-          backgroundColor: Colors.grey[900],
+          backgroundColor: AppTheme.primaryDark,
           elevation: 2,
           shadowColor: Colors.black.withValues(alpha: 0.3),
           flexibleSpace: SafeArea(
@@ -712,9 +713,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     onPressed: () async {
                       Navigator.pop(context);
                     },
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.arrow_back_ios,
-                      color: Colors.grey[100],
+                      color: AppTheme.textWhite,
                       size: 22,
                     ),
                   ),
@@ -736,10 +737,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       children: <Widget>[
                         Text(
                           widget.userMap['name'],
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontSize: 17, 
                               fontWeight: FontWeight.w600,
-                              color: Colors.grey[100]),
+                              color: AppTheme.textWhite),
                         ),
                         const SizedBox(
                           height: 4,
@@ -758,16 +759,16 @@ class _ChatScreenState extends State<ChatScreen> {
                                     height: 8,
                                     decoration: BoxDecoration(
                                       color: snapshot.data!['status'].toLowerCase().contains('online') 
-                                          ? Colors.greenAccent 
-                                          : Colors.grey[600],
+                                          ? AppTheme.online 
+                                          : AppTheme.offline,
                                       shape: BoxShape.circle,
                                     ),
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
                                     snapshot.data!['status'],
-                                    style: TextStyle(
-                                      color: Colors.grey[400],
+                                    style: const TextStyle(
+                                      color: AppTheme.textHint,
                                       fontSize: 13,
                                     ),
                                   ),
@@ -833,9 +834,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         );
                       }
                     },
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.video_call_outlined,
-                      color: Colors.grey[300],
+                      color: AppTheme.textWhite,
                       size: 28,
                     ),
                   ),
@@ -851,9 +852,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                       );
                     },
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.settings_outlined,
-                      color: Colors.grey[300],
+                      color: AppTheme.textWhite,
                       size: 26,
                     ),
                   ),
@@ -1251,8 +1252,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             bottomRight: Radius.circular(18),
                           ),
                     color: map['sendBy'] == widget.user.displayName
-                        ? Colors.grey[800]
-                        : Colors.grey[200],
+                        ? AppTheme.sentBubble
+                        : AppTheme.receivedBubble,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.grey.withValues(alpha: 0.15),
@@ -1270,7 +1271,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           'Decrypting...',
                           style: TextStyle(
                               color: map['sendBy'] == widget.user.displayName
-                                  ? Colors.white70
+                                  ? AppTheme.textWhite.withValues(alpha: 0.7)
                                   : Colors.grey[600],
                               fontSize: 15,
                               fontStyle: FontStyle.italic),

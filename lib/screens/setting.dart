@@ -10,6 +10,7 @@ import 'package:my_porject/screens/login_screen.dart';
 import 'package:my_porject/services/biometric_auth_service.dart';
 import 'package:my_porject/services/fcm_service.dart';
 import 'package:my_porject/services/user_presence_service.dart';
+import 'package:my_porject/configs/app_theme.dart';
 import 'package:uuid/uuid.dart';
 
 // ignore: must_be_immutable
@@ -76,7 +77,7 @@ class _SettingState extends State<Setting> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Biometric authentication is not available on this device'),
-            backgroundColor: Colors.orange[700],
+            backgroundColor: AppTheme.warning,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 3),
           ),
@@ -107,7 +108,7 @@ class _SettingState extends State<Setting> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: const Text('Biometric lock enabled successfully'),
-                backgroundColor: Colors.green[700],
+                backgroundColor: AppTheme.success,
                 behavior: SnackBarBehavior.floating,
               ),
             );
@@ -118,7 +119,7 @@ class _SettingState extends State<Setting> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: const Text('Authentication failed. Please try again.'),
-                backgroundColor: Colors.red[700],
+                backgroundColor: AppTheme.error,
                 behavior: SnackBarBehavior.floating,
               ),
             );
@@ -130,7 +131,7 @@ class _SettingState extends State<Setting> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error: ${e.toString()}'),
-              backgroundColor: Colors.red[700],
+              backgroundColor: AppTheme.error,
               behavior: SnackBarBehavior.floating,
               duration: const Duration(seconds: 4),
             ),
@@ -150,7 +151,7 @@ class _SettingState extends State<Setting> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Biometric lock disabled'),
-            backgroundColor: Colors.grey[700],
+            backgroundColor: AppTheme.textSecondary,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -231,7 +232,7 @@ class _SettingState extends State<Setting> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.surfaceLight,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -283,7 +284,7 @@ class _SettingState extends State<Setting> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red[700],
+              backgroundColor: AppTheme.error,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -336,7 +337,7 @@ class _SettingState extends State<Setting> {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
-              backgroundColor: Colors.white,
+              backgroundColor: AppTheme.surfaceLight,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -486,7 +487,7 @@ class _SettingState extends State<Setting> {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
-              backgroundColor: Colors.white,
+              backgroundColor: AppTheme.surfaceLight,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -528,7 +529,7 @@ class _SettingState extends State<Setting> {
                     Navigator.maybePop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green[700],
+                    backgroundColor: AppTheme.success,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -546,7 +547,7 @@ class _SettingState extends State<Setting> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppTheme.backgroundLight,
       body: isLoading
           ? Container(
               height: size.height,
@@ -568,7 +569,7 @@ class _SettingState extends State<Setting> {
                     slivers: [
                       // App Bar
                       SliverAppBar(
-                        backgroundColor: Colors.white,
+                        backgroundColor: AppTheme.surfaceLight,
                         elevation: 0,
                         pinned: true,
                         expandedHeight: 0,
@@ -1162,7 +1163,7 @@ class _SettingState extends State<Setting> {
   showDialogInternetCheck() => showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-            backgroundColor: Colors.white,
+            backgroundColor: AppTheme.surfaceLight,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),

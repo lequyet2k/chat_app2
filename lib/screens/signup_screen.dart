@@ -4,6 +4,7 @@ import 'package:my_porject/screens/login_screen.dart';
 import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/screens/email_verification_screen.dart';
 import 'package:my_porject/components/upside_signup.dart';
+import 'package:my_porject/configs/app_theme.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({key});
@@ -31,21 +32,17 @@ class _SignUpScreen extends State<SignUp> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.surfaceLight,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         title: Row(
           children: [
-            Icon(Icons.mark_email_read, color: Colors.blue[700], size: 28),
+            Icon(Icons.mark_email_read, color: AppTheme.accent, size: 28),
             const SizedBox(width: 12),
             Text(
               'Verify Your Email',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[900],
-              ),
+              style: AppTheme.titleLarge,
             ),
           ],
         ),
@@ -57,38 +54,33 @@ class _SignUpScreen extends State<SignUp> {
               'Account created successfully!',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.green[700],
+                color: AppTheme.success,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 12),
             Text(
               'A verification email has been sent to:',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[700],
-                height: 1.4,
-              ),
+              style: AppTheme.bodyMedium.copyWith(height: 1.4),
             ),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: AppTheme.backgroundLight,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.email, size: 16, color: Colors.grey[600]),
+                  Icon(Icons.email, size: 16, color: AppTheme.textSecondary),
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(
                       email.text,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[800],
+                      style: AppTheme.bodyMedium.copyWith(
                         fontWeight: FontWeight.w500,
+                        color: AppTheme.textPrimary,
                       ),
                     ),
                   ),
@@ -98,11 +90,7 @@ class _SignUpScreen extends State<SignUp> {
             const SizedBox(height: 12),
             Text(
               'Please verify your email to complete registration.',
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey[600],
-                height: 1.4,
-              ),
+              style: AppTheme.bodySmall.copyWith(height: 1.4),
             ),
           ],
         ),
@@ -124,14 +112,7 @@ class _SignUpScreen extends State<SignUp> {
               },
               icon: const Icon(Icons.verified_user),
               label: const Text('Continue to Verify', style: TextStyle(fontSize: 15)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue[700],
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              ),
+              style: AppTheme.accentButtonStyle,
             ),
           ),
         ],
@@ -143,31 +124,23 @@ class _SignUpScreen extends State<SignUp> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.surfaceLight,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         title: Row(
           children: [
-            Icon(Icons.error_outline, color: Colors.red[700], size: 28),
+            Icon(Icons.error_outline, color: AppTheme.error, size: 28),
             const SizedBox(width: 12),
             Text(
               'Registration Failed',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[900],
-              ),
+              style: AppTheme.titleLarge,
             ),
           ],
         ),
         content: Text(
           errorMessage,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[700],
-            height: 1.4,
-          ),
+          style: AppTheme.bodyMedium.copyWith(height: 1.4),
         ),
         actions: [
           ElevatedButton(
@@ -177,14 +150,7 @@ class _SignUpScreen extends State<SignUp> {
                 isLoading = false;
               });
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.grey[800],
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            ),
+            style: AppTheme.primaryButtonStyle,
             child: const Text('Try Again', style: TextStyle(fontSize: 15)),
           ),
         ],
@@ -234,9 +200,9 @@ class _SignUpScreen extends State<SignUp> {
                         child: Container(
                           width: double.infinity,
                           height: 100,
-                          decoration: const BoxDecoration(
-                              color: Color(0xfffeeeee4),
-                              borderRadius: BorderRadius.only(
+                          decoration: BoxDecoration(
+                              color: AppTheme.backgroundLight,
+                              borderRadius: const BorderRadius.only(
                                 topRight: Radius.circular(50),
                                 topLeft: Radius.circular(50),
                               )),
@@ -244,15 +210,11 @@ class _SignUpScreen extends State<SignUp> {
                             children: [
                               Container(
                                 margin: const EdgeInsets.only(top: 15),
-                                child: const Text(
+                                child: Text(
                                   "Create New Account",
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontFamily: 'OpenSans',
-                                    fontSize: 17,
+                                  style: AppTheme.titleMedium.copyWith(
                                     letterSpacing: 1,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xfff575861),
                                   ),
                                 ),
                               ),
@@ -271,7 +233,7 @@ class _SignUpScreen extends State<SignUp> {
                               minHeight: size.height - 280,
                             ),
                             decoration: const BoxDecoration(
-                                color: Colors.white,
+                                color: AppTheme.surfaceLight,
                                 borderRadius: BorderRadius.only(
                                   topRight: Radius.circular(50),
                                   topLeft: Radius.circular(50),
@@ -369,12 +331,9 @@ class _SignUpScreen extends State<SignUp> {
                                 ],
                               ),
                             ),
-                            const Text(
+                            Text(
                               'or use your email account',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontFamily: 'OpenSans',
-                                fontSize: 13,
+                              style: AppTheme.bodySmall.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -518,7 +477,7 @@ class _SignUpScreen extends State<SignUp> {
                             ),
                             SizedBox(
                               width: 200,
-                              height: 35,
+                              height: 45,
                               child: ElevatedButton(
                                 onPressed: () {
                                   if (_formKey.currentState!.validate()) {
@@ -545,28 +504,27 @@ class _SignUpScreen extends State<SignUp> {
                                     }
                                   }
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.black,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30.0),
+                                style: AppTheme.primaryButtonStyle.copyWith(
+                                  shape: WidgetStateProperty.all(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30.0),
+                                    ),
                                   ),
                                 ),
                                 child: const Text("REGISTER",
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: AppTheme.textWhite,
                                       fontSize: 15,
+                                      fontWeight: FontWeight.w600,
                                     )),
                               ),
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-                                const Text(
+                                Text(
                                   "Already have an account?",
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontFamily: 'OpenSans',
-                                    fontSize: 13,
+                                  style: AppTheme.bodySmall.copyWith(
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -587,7 +545,7 @@ class _SignUpScreen extends State<SignUp> {
                                     child: const Text(
                                       "Login here",
                                       style: TextStyle(
-                                          color: Colors.black,
+                                          color: AppTheme.primaryDark,
                                           fontWeight: FontWeight.bold),
                                     ))
                               ],

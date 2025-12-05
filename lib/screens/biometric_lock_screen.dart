@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 import '../services/biometric_auth_service.dart';
+import '../configs/app_theme.dart';
 
 /// Biometric Lock Screen
 /// Shows when app launches if biometric authentication is enabled
@@ -134,18 +135,11 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: AppTheme.primaryDark,
       body: SafeArea(
         child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.grey[900]!,
-                Colors.grey[850]!,
-              ],
-            ),
+          decoration: const BoxDecoration(
+            gradient: AppTheme.headerGradient,
           ),
           child: Center(
             child: Column(
@@ -155,13 +149,13 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withValues(alpha: 0.1),
+                    color: AppTheme.accent.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.chat_bubble,
                     size: 60,
-                    color: Colors.blue[400],
+                    color: AppTheme.accent,
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -169,19 +163,16 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
                 // App Name
                 Text(
                   'Secure Chat',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                  style: AppTheme.headlineLarge.copyWith(
+                    color: AppTheme.textWhite,
                     letterSpacing: 1.2,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Private & Secure Messaging',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[400],
+                  style: AppTheme.bodyMedium.copyWith(
+                    color: AppTheme.textHint,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -196,17 +187,17 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
                       child: Container(
                         padding: const EdgeInsets.all(30),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withValues(alpha: 0.15),
+                          color: AppTheme.accent.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.blue.withValues(alpha: 0.3),
+                            color: AppTheme.accent.withValues(alpha: 0.3),
                             width: 2,
                           ),
                         ),
                         child: Icon(
                           _getBiometricIcon(),
                           size: 80,
-                          color: Colors.blue[300],
+                          color: AppTheme.accentLight,
                         ),
                       ),
                     );
@@ -217,10 +208,8 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
                 // Biometric Type Title
                 Text(
                   _getBiometricTitle(),
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                  style: AppTheme.headlineSmall.copyWith(
+                    color: AppTheme.textWhite,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -233,9 +222,8 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
                         ? 'Please authenticate to unlock'
                         : 'Tap the button below to authenticate',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.grey[400],
+                    style: AppTheme.bodyMedium.copyWith(
+                      color: AppTheme.textHint,
                       height: 1.4,
                     ),
                   ),
@@ -249,21 +237,21 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.red.withValues(alpha: 0.1),
+                        color: AppTheme.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: Colors.red.withValues(alpha: 0.3),
+                          color: AppTheme.error.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.error_outline, color: Colors.red[400], size: 20),
+                          Icon(Icons.error_outline, color: AppTheme.error.withValues(alpha: 0.7), size: 20),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               _errorMessage,
                               style: TextStyle(
-                                color: Colors.red[300],
+                                color: AppTheme.error.withValues(alpha: 0.8),
                                 fontSize: 14,
                               ),
                             ),
@@ -278,17 +266,18 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
                 if (!_isAuthenticating)
                   ElevatedButton.icon(
                     onPressed: _authenticateUser,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[700],
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 40,
-                        vertical: 16,
+                    style: AppTheme.accentButtonStyle.copyWith(
+                      padding: WidgetStateProperty.all(
+                        const EdgeInsets.symmetric(
+                          horizontal: 40,
+                          vertical: 16,
+                        ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                      shape: WidgetStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
                       ),
-                      elevation: 0,
                     ),
                     icon: Icon(_getBiometricIcon(), size: 24),
                     label: const Text(
@@ -307,15 +296,14 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
                     children: [
                       CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          Colors.blue[300]!,
+                          AppTheme.accentLight,
                         ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         'Authenticating...',
-                        style: TextStyle(
-                          color: Colors.grey[400],
-                          fontSize: 14,
+                        style: AppTheme.bodyMedium.copyWith(
+                          color: AppTheme.textHint,
                         ),
                       ),
                     ],
@@ -330,10 +318,10 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.1),
+                    color: AppTheme.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Colors.green.withValues(alpha: 0.3),
+                      color: AppTheme.success.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
@@ -341,14 +329,14 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
                     children: [
                       Icon(
                         Icons.shield_outlined,
-                        color: Colors.green[400],
+                        color: AppTheme.success,
                         size: 18,
                       ),
                       const SizedBox(width: 8),
                       Text(
                         'End-to-End Encrypted',
                         style: TextStyle(
-                          color: Colors.green[400],
+                          color: AppTheme.success,
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                         ),

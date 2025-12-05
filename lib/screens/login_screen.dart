@@ -6,6 +6,7 @@ import 'package:my_porject/screens/forgot_password_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/screens/auth_screen.dart';
 import 'package:my_porject/components/upside.dart';
+import 'package:my_porject/configs/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -50,31 +51,23 @@ class LoginPage extends State<Login> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.surfaceLight,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         title: Row(
           children: [
-            Icon(Icons.error_outline, color: Colors.red[700], size: 28),
+            Icon(Icons.error_outline, color: AppTheme.error, size: 28),
             const SizedBox(width: 12),
             Text(
               'Login Failed',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[900],
-              ),
+              style: AppTheme.titleLarge,
             ),
           ],
         ),
         content: Text(
           errorMessage,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[700],
-            height: 1.4,
-          ),
+          style: AppTheme.bodyMedium.copyWith(height: 1.4),
         ),
         actions: [
           ElevatedButton(
@@ -84,14 +77,7 @@ class LoginPage extends State<Login> {
                 isLoading = false;
               });
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.grey[800],
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            ),
+            style: AppTheme.primaryButtonStyle,
             child: const Text('Try Again', style: TextStyle(fontSize: 15)),
           ),
         ],
@@ -104,22 +90,18 @@ class LoginPage extends State<Login> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.surfaceLight,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         title: Row(
           children: [
-            Icon(Icons.mark_email_unread, color: Colors.orange[700], size: 28),
+            Icon(Icons.mark_email_unread, color: AppTheme.warning, size: 28),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 'Email Not Verified',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[900],
-                ),
+                style: AppTheme.titleLarge,
               ),
             ),
           ],
@@ -130,30 +112,26 @@ class LoginPage extends State<Login> {
           children: [
             Text(
               'Please verify your email before logging in.',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[700],
-                height: 1.4,
-              ),
+              style: AppTheme.bodyMedium.copyWith(height: 1.4),
             ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.orange[50],
+                color: AppTheme.warningLight,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.orange[200]!),
+                border: Border.all(color: AppTheme.warning.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline, color: Colors.orange[700], size: 20),
+                  Icon(Icons.info_outline, color: AppTheme.warning, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Check your inbox for the verification link.',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.orange[700],
+                        color: AppTheme.warning,
                       ),
                     ),
                   ),
@@ -172,7 +150,7 @@ class LoginPage extends State<Login> {
             },
             child: Text(
               'Cancel',
-              style: TextStyle(color: Colors.grey[600]),
+              style: TextStyle(color: AppTheme.textSecondary),
             ),
           ),
           ElevatedButton.icon(
@@ -190,14 +168,7 @@ class LoginPage extends State<Login> {
             },
             icon: const Icon(Icons.verified_user, size: 18),
             label: const Text('Verify Now'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue[700],
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            ),
+            style: AppTheme.accentButtonStyle,
           ),
         ],
       ),
@@ -239,9 +210,9 @@ class LoginPage extends State<Login> {
                           child: Container(
                             width: double.infinity,
                             height: 100,
-                            decoration: const BoxDecoration(
-                                color: Color(0xfffeeeee4),
-                                borderRadius: BorderRadius.only(
+                            decoration: BoxDecoration(
+                                color: AppTheme.backgroundLight,
+                                borderRadius: const BorderRadius.only(
                                   topRight: Radius.circular(50),
                                   topLeft: Radius.circular(50),
                                 )),
@@ -249,15 +220,11 @@ class LoginPage extends State<Login> {
                               children: [
                                 Container(
                                   margin: const EdgeInsets.only(top: 15),
-                                  child: const Text(
+                                  child: Text(
                                     "Login to your account",
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontFamily: 'OpenSans',
-                                      fontSize: 17,
+                                    style: AppTheme.titleMedium.copyWith(
                                       letterSpacing: 1,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xfff575861),
                                     ),
                                   ),
                                 ),
@@ -276,7 +243,7 @@ class LoginPage extends State<Login> {
                                 minHeight: size.height - 280,
                               ),
                               decoration: const BoxDecoration(
-                                  color: Colors.white,
+                                  color: AppTheme.surfaceLight,
                                   borderRadius: BorderRadius.only(
                                     topRight: Radius.circular(50),
                                     topLeft: Radius.circular(50),
@@ -357,12 +324,9 @@ class LoginPage extends State<Login> {
                               const SizedBox(
                                 height: 5,
                               ),
-                              const Text(
+                              Text(
                                 'or use your email account',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontFamily: 'OpenSans',
-                                  fontSize: 13,
+                                style: AppTheme.bodySmall.copyWith(
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -455,10 +419,10 @@ class LoginPage extends State<Login> {
                                         ),
                                       );
                                     },
-                                    child: Text(
+                                    child: const Text(
                                       'Forgot Password?',
                                       style: TextStyle(
-                                        color: Colors.blue[700],
+                                        color: AppTheme.accent,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 13,
                                       ),
@@ -471,7 +435,7 @@ class LoginPage extends State<Login> {
                               ),
                               SizedBox(
                                 width: 200,
-                                height: 35,
+                                height: 45,
                                 child: ElevatedButton(
                                   onPressed: () {
                                     if (_formKey.currentState!.validate()) {
@@ -519,16 +483,18 @@ class LoginPage extends State<Login> {
                                       } else {}
                                     }
                                   },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.black,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30.0),
+                                  style: AppTheme.primaryButtonStyle.copyWith(
+                                    shape: WidgetStateProperty.all(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(30.0),
+                                      ),
                                     ),
                                   ),
                                   child: const Text("LOGIN",
                                       style: TextStyle(
-                                        color: Colors.white,
+                                        color: AppTheme.textWhite,
                                         fontSize: 15,
+                                        fontWeight: FontWeight.w600,
                                       )),
                                 ),
                               ),
@@ -538,12 +504,9 @@ class LoginPage extends State<Login> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
-                                  const Text(
+                                  Text(
                                     "Don't have an account?",
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontFamily: 'OpenSans',
-                                      fontSize: 13,
+                                    style: AppTheme.bodySmall.copyWith(
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -562,7 +525,7 @@ class LoginPage extends State<Login> {
                                       child: const Text(
                                         "Register here",
                                         style: TextStyle(
-                                            color: Colors.black,
+                                            color: AppTheme.primaryDark,
                                             fontWeight: FontWeight.bold),
                                       ))
                                 ],
