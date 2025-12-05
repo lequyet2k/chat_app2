@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 /// Encrypted Chat Service
 ///
 /// Provides high-level methods for sending and receiving encrypted messages
+/// 
+/// FIX: Now encrypts messages for BOTH sender and recipient so sender can also read their own messages
 class EncryptedChatService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -27,31 +29,58 @@ class EncryptedChatService {
     Map<String, dynamic>? additionalData,
   }) async {
     try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) return false;
+
       // Get recipient's public key
-      final recipientPublicKey =
-          await KeyManager.getUserPublicKey(recipientUid);
+      final recipientPublicKey = await KeyManager.getUserPublicKey(recipientUid);
 
       if (recipientPublicKey == null) {
         if (kDebugMode) {
-          debugPrint('⚠️ Recipient does not have encryption enabled');
+          debugPrint('⚠️ [E2EE] Recipient does not have encryption enabled');
         }
-        // Fallback to unencrypted message
         return false;
       }
 
-      // Encrypt the message
-      final encryptedData = EncryptionService.encryptMessage(
+      // Get sender's public key (for self-decryption)
+      final senderPublicKey = await KeyManager.getPublicKey();
+      
+      if (senderPublicKey == null) {
+        if (kDebugMode) {
+          debugPrint('⚠️ [E2EE] Sender does not have encryption keys');
+        }
+        return false;
+      }
+
+      // Encrypt the message for RECIPIENT
+      final recipientEncryptedData = EncryptionService.encryptMessage(
         message,
         recipientPublicKey,
       );
 
-      // Prepare message data
+      // Encrypt the message for SENDER (so sender can also read their own messages)
+      final senderEncryptedData = EncryptionService.encryptMessage(
+        message,
+        senderPublicKey,
+      );
+
+      if (kDebugMode) {
+        debugPrint('🔐 [E2EE] Message encrypted for both sender and recipient');
+      }
+
+      // Prepare message data with BOTH encrypted versions
       final messageData = {
-        'sendBy': _auth.currentUser!.displayName,
-        'encrypted': true, // Mark as encrypted
-        'encryptedMessage': encryptedData['encryptedMessage'],
-        'encryptedAESKey': encryptedData['encryptedAESKey'],
-        'iv': encryptedData['iv'],
+        'sendBy': currentUser.displayName,
+        'senderUid': currentUser.uid,
+        'encrypted': true,
+        // For recipient to decrypt
+        'encryptedMessage': recipientEncryptedData['encryptedMessage'],
+        'encryptedAESKey': recipientEncryptedData['encryptedAESKey'],
+        'iv': recipientEncryptedData['iv'],
+        // For sender to decrypt their own message
+        'senderEncryptedMessage': senderEncryptedData['encryptedMessage'],
+        'senderEncryptedAESKey': senderEncryptedData['encryptedAESKey'],
+        'senderIv': senderEncryptedData['iv'],
         'type': 'text',
         'timeStamp': DateTime.now(),
         ...?additionalData,
@@ -65,13 +94,14 @@ class EncryptedChatService {
           .add(messageData);
 
       if (kDebugMode) {
-        debugPrint('✅ Encrypted message sent successfully');
+        debugPrint('✅ [E2EE] Encrypted message sent successfully');
       }
 
       return true;
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ Error sending encrypted message: $e');
+        debugPrint('❌ [E2EE] Error sending encrypted message: $e');
+        debugPrint('❌ [E2EE] Stack trace: $stackTrace');
       }
       return false;
     }
@@ -91,30 +121,72 @@ class EncryptedChatService {
         return messageData['message'] ?? '';
       }
 
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        return '[Not logged in]';
+      }
+
       // Get user's private key
       final privateKey = await KeyManager.getPrivateKey();
 
       if (privateKey == null) {
-        return '[Encryption keys not found]';
+        if (kDebugMode) {
+          debugPrint('⚠️ [E2EE] Private key not found - attempting to restore');
+        }
+        // Try to restore keys
+        await KeyManager.ensureKeysReady();
+        final restoredKey = await KeyManager.getPrivateKey();
+        if (restoredKey == null) {
+          return '[Encryption keys not found - please re-login]';
+        }
       }
 
-      // Prepare encrypted data
-      final encryptedData = {
-        'encryptedMessage': messageData['encryptedMessage'] as String,
-        'encryptedAESKey': messageData['encryptedAESKey'] as String,
-        'iv': messageData['iv'] as String,
-      };
+      final keyToUse = privateKey ?? await KeyManager.getPrivateKey();
+      if (keyToUse == null) return '[Key error]';
+
+      // Check if current user is the sender
+      final isSender = messageData['senderUid'] == currentUser.uid ||
+                       messageData['sendBy'] == currentUser.displayName;
+
+      Map<String, String> encryptedData;
+
+      if (isSender && messageData['senderEncryptedMessage'] != null) {
+        // Sender reading their own message - use sender's encrypted version
+        encryptedData = {
+          'encryptedMessage': messageData['senderEncryptedMessage'] as String,
+          'encryptedAESKey': messageData['senderEncryptedAESKey'] as String,
+          'iv': messageData['senderIv'] as String,
+        };
+        if (kDebugMode) {
+          debugPrint('🔐 [E2EE] Decrypting as SENDER');
+        }
+      } else {
+        // Recipient reading message - use recipient's encrypted version
+        encryptedData = {
+          'encryptedMessage': messageData['encryptedMessage'] as String,
+          'encryptedAESKey': messageData['encryptedAESKey'] as String,
+          'iv': messageData['iv'] as String,
+        };
+        if (kDebugMode) {
+          debugPrint('🔐 [E2EE] Decrypting as RECIPIENT');
+        }
+      }
 
       // Decrypt message
       final decryptedMessage = EncryptionService.decryptMessage(
         encryptedData,
-        privateKey,
+        keyToUse,
       );
 
-      return decryptedMessage;
-    } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ Error decrypting message: $e');
+        debugPrint('✅ [E2EE] Message decrypted successfully');
+      }
+
+      return decryptedMessage;
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint('❌ [E2EE] Error decrypting message: $e');
+        debugPrint('❌ [E2EE] Stack trace: $stackTrace');
       }
       return '[Decryption failed]';
     }
@@ -127,14 +199,39 @@ class EncryptedChatService {
       final hasCurrentUserKeys = await KeyManager.hasKeys();
 
       if (!hasCurrentUserKeys) {
-        return false;
+        if (kDebugMode) {
+          debugPrint('⚠️ [E2EE] Current user has no keys - initializing...');
+        }
+        // Try to initialize keys
+        await KeyManager.ensureKeysReady();
+        final hasKeysNow = await KeyManager.hasKeys();
+        if (!hasKeysNow) {
+          if (kDebugMode) {
+            debugPrint('❌ [E2EE] Failed to initialize keys for current user');
+          }
+          return false;
+        }
       }
 
       // Check if other user has encryption enabled
       final otherUserPublicKey = await KeyManager.getUserPublicKey(otherUserId);
 
-      return otherUserPublicKey != null;
+      if (otherUserPublicKey == null) {
+        if (kDebugMode) {
+          debugPrint('⚠️ [E2EE] Other user ($otherUserId) has no public key');
+        }
+        return false;
+      }
+
+      if (kDebugMode) {
+        debugPrint('✅ [E2EE] Both users have encryption enabled');
+      }
+
+      return true;
     } catch (e) {
+      if (kDebugMode) {
+        debugPrint('❌ [E2EE] Error checking encryption capability: $e');
+      }
       return false;
     }
   }
@@ -146,8 +243,12 @@ class EncryptedChatService {
     Map<String, dynamic>? additionalData,
   }) async {
     try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) return false;
+
       final messageData = {
-        'sendBy': _auth.currentUser!.displayName,
+        'sendBy': currentUser.displayName,
+        'senderUid': currentUser.uid,
         'message': message,
         'encrypted': false,
         'type': 'text',
@@ -164,9 +265,28 @@ class EncryptedChatService {
       return true;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ Error sending message: $e');
+        debugPrint('❌ [E2EE] Error sending message: $e');
       }
       return false;
     }
+  }
+
+  /// Debug: Check E2EE status for a chat
+  static Future<Map<String, dynamic>> debugE2EEStatus(String otherUserId) async {
+    final currentUser = _auth.currentUser;
+    final hasLocalKeys = await KeyManager.hasKeys();
+    final localPublicKey = await KeyManager.getPublicKey();
+    final localPrivateKey = await KeyManager.getPrivateKey();
+    final otherPublicKey = await KeyManager.getUserPublicKey(otherUserId);
+
+    return {
+      'currentUserId': currentUser?.uid,
+      'hasLocalKeys': hasLocalKeys,
+      'hasLocalPublicKey': localPublicKey != null,
+      'hasLocalPrivateKey': localPrivateKey != null,
+      'otherUserId': otherUserId,
+      'otherUserHasPublicKey': otherPublicKey != null,
+      'canEncrypt': hasLocalKeys && otherPublicKey != null,
+    };
   }
 }
