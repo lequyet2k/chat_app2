@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -96,7 +97,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                 ),
               ],
             ),
-            backgroundColor: Colors.green[700],
+            backgroundColor: AppTheme.success,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
@@ -112,7 +113,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
               const Expanded(child: Text('Failed to send verification email')),
             ],
           ),
-          backgroundColor: Colors.red[700],
+          backgroundColor: AppTheme.error,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
@@ -131,14 +132,14 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         ),
         title: Row(
           children: [
-            Icon(Icons.verified, color: Colors.green[700], size: 32),
+            Icon(Icons.verified, color: AppTheme.success, size: 32),
             const SizedBox(width: 12),
             Text(
               'Email Verified!',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey[900],
+                color: AppTheme.primaryDark,
               ),
             ),
           ],
@@ -149,12 +150,12 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.green[50],
+                color: AppTheme.success.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 Icons.check_circle,
-                color: Colors.green[700],
+                color: AppTheme.success,
                 size: 64,
               ),
             ),
@@ -164,7 +165,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[700],
+                color: AppTheme.gray700,
                 height: 1.5,
               ),
             ),
@@ -190,7 +191,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green[700],
+                backgroundColor: AppTheme.success,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -218,14 +219,14 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         ),
         title: Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.orange[700], size: 28),
+            Icon(Icons.warning_amber_rounded, color: AppTheme.warning, size: 28),
             const SizedBox(width: 12),
             Text(
               'Cancel Verification?',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey[900],
+                color: AppTheme.primaryDark,
               ),
             ),
           ],
@@ -234,7 +235,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           'Your account will be deleted if you cancel. You will need to register again.',
           style: TextStyle(
             fontSize: 14,
-            color: Colors.grey[700],
+            color: AppTheme.gray700,
             height: 1.4,
           ),
         ),
@@ -243,7 +244,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Continue Verification',
-              style: TextStyle(color: Colors.grey[600]),
+              style: TextStyle(color: AppTheme.gray600),
             ),
           ),
           ElevatedButton(
@@ -263,7 +264,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red[700],
+              backgroundColor: AppTheme.error,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -309,13 +310,13 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   width: 120,
                   height: 120,
                   decoration: BoxDecoration(
-                    color: Colors.blue[50],
+                    color: AppTheme.accent.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.mark_email_unread_rounded,
                     size: 60,
-                    color: Colors.blue[700],
+                    color: AppTheme.accent,
                   ),
                 ),
                 
@@ -338,7 +339,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   'We\'ve sent a verification link to:',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey[600],
+                    color: AppTheme.gray600,
                   ),
                 ),
                 
@@ -350,12 +351,12 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey[300]!),
+                    border: Border.all(color: AppTheme.gray300!),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.email, color: Colors.blue[700], size: 20),
+                      Icon(Icons.email, color: AppTheme.accent, size: 20),
                       const SizedBox(width: 8),
                       Text(
                         widget.email,
@@ -391,7 +392,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.info_outline, color: Colors.blue[700], size: 20),
+                          Icon(Icons.info_outline, color: AppTheme.accent, size: 20),
                           const SizedBox(width: 8),
                           const Text(
                             'Instructions',
@@ -419,7 +420,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: isEmailVerified ? Colors.green[50] : Colors.orange[50],
+                    color: isEmailVerified ? AppTheme.success.withValues(alpha: 0.1) : AppTheme.warning.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isEmailVerified ? Colors.green[200]! : Colors.orange[200]!,
@@ -433,11 +434,11 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.orange[700],
+                            color: AppTheme.warning,
                           ),
                         )
                       else
-                        Icon(Icons.check_circle, color: Colors.green[700], size: 20),
+                        Icon(Icons.check_circle, color: AppTheme.success, size: 20),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -447,7 +448,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: isEmailVerified ? Colors.green[700] : Colors.orange[700],
+                            color: isEmailVerified ? AppTheme.success : AppTheme.warning,
                           ),
                         ),
                       ),
@@ -472,8 +473,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
-                      disabledBackgroundColor: Colors.grey[300],
-                      disabledForegroundColor: Colors.grey[600],
+                      disabledBackgroundColor: AppTheme.gray300,
+                      disabledForegroundColor: AppTheme.gray600,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -523,7 +524,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   'Didn\'t receive the email?',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey[600],
+                    color: AppTheme.gray600,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -531,7 +532,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   '• Check your spam/junk folder\n• Make sure the email address is correct',
                   style: TextStyle(
                     fontSize: 13,
-                    color: Colors.grey[500],
+                    color: AppTheme.gray500,
                     height: 1.5,
                   ),
                   textAlign: TextAlign.center,
@@ -553,7 +554,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
             width: 24,
             height: 24,
             decoration: BoxDecoration(
-              color: Colors.blue[700],
+              color: AppTheme.accent,
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -572,7 +573,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
             text,
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey[700],
+              color: AppTheme.gray700,
             ),
           ),
         ],

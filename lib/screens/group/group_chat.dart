@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -39,7 +40,7 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
           child: Text(
             'My Groups',
             style: TextStyle(
-              color: Colors.grey[800],
+              color: AppTheme.gray800,
               fontSize: 16,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.3,
@@ -81,7 +82,7 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                 right: 20.0,
                 bottom: 20.0,
                 child: FloatingActionButton(
-                  backgroundColor: Colors.blue[700],
+                  backgroundColor: AppTheme.accent,
                   foregroundColor: Colors.white,
                   elevation: 4,
                   onPressed: () {
@@ -161,7 +162,7 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                     child: Container(
                       padding: EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Colors.blue,
+                        color: AppTheme.accent,
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: Colors.white,
@@ -189,7 +190,7 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey[800],
+                        color: AppTheme.gray800,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -209,14 +210,14 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                               Icon(
                                 Icons.people_outline,
                                 size: 14,
-                                color: Colors.grey[600],
+                                color: AppTheme.gray600,
                               ),
                               SizedBox(width: 4),
                               Text(
                                 '${length.length} members',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: Colors.grey[600],
+                                  color: AppTheme.gray600,
                                 ),
                               ),
                             ],
@@ -231,7 +232,7 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
               ),
               Icon(
                 Icons.chevron_right,
-                color: Colors.grey[400],
+                color: AppTheme.gray400,
                 size: 24,
               ),
             ],

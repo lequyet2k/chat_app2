@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/file_sharing_service.dart';
@@ -41,7 +42,7 @@ class FileMessageWidget extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isMe ? Colors.grey[800] : Colors.grey[900],
+          color: isMe ? AppTheme.gray800 : AppTheme.primaryDark,
           borderRadius: BorderRadius.circular(15),
         ),
         child: Row(
@@ -52,7 +53,7 @@ class FileMessageWidget extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: isMe ? Colors.grey[700] : Colors.grey[800],
+                color: isMe ? AppTheme.gray700 : AppTheme.gray800,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Center(
@@ -89,7 +90,7 @@ class FileMessageWidget extends StatelessWidget {
                       Text(
                         fileSizeFormatted,
                         style: TextStyle(
-                          color: Colors.grey[400],
+                          color: AppTheme.gray400,
                           fontSize: 12,
                         ),
                       ),
@@ -101,14 +102,14 @@ class FileMessageWidget extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: isMe 
-                              ? Colors.grey[700]?.withValues(alpha: 0.5)
-                              : Colors.grey[800]?.withValues(alpha: 0.5),
+                              ? AppTheme.gray700?.withValues(alpha: 0.5)
+                              : AppTheme.gray800?.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           '.${fileExtension.toUpperCase()}',
                           style: TextStyle(
-                            color: Colors.grey[300],
+                            color: AppTheme.gray300,
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                           ),
@@ -124,7 +125,7 @@ class FileMessageWidget extends StatelessWidget {
             // Download icon
             Icon(
               Icons.download_rounded,
-              color: Colors.grey[400],
+              color: AppTheme.gray400,
               size: 20,
             ),
           ],
@@ -152,7 +153,7 @@ class FileUploadProgressWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey[800],
+        color: AppTheme.gray800,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Row(
@@ -169,7 +170,7 @@ class FileUploadProgressWidget extends StatelessWidget {
                   value: progress,
                   strokeWidth: 3,
                   valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
-                  backgroundColor: Colors.grey[700],
+                  backgroundColor: AppTheme.gray700,
                 ),
                 Text(
                   '${(progress * 100).toInt()}%',
@@ -204,7 +205,7 @@ class FileUploadProgressWidget extends StatelessWidget {
                 Text(
                   'Đang tải lên...',
                   style: TextStyle(
-                    color: Colors.grey[400],
+                    color: AppTheme.gray400,
                     fontSize: 12,
                   ),
                 ),
@@ -217,7 +218,7 @@ class FileUploadProgressWidget extends StatelessWidget {
             const SizedBox(width: 8),
             IconButton(
               icon: const Icon(Icons.close, size: 20),
-              color: Colors.grey[400],
+              color: AppTheme.gray400,
               onPressed: onCancel,
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),

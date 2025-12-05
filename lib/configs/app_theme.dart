@@ -2,32 +2,45 @@ import 'package:flutter/material.dart';
 
 /// App Theme Configuration
 /// Centralized theme for consistent UI across all screens
+/// Color Palette: Black - Gray - Green (Modern Dark Theme)
 class AppTheme {
   // ============ COLORS ============
   
-  // Primary colors - Dark theme inspired
-  static const Color primaryDark = Color(0xFF1A1A2E);  // Deep navy
-  static const Color primaryMedium = Color(0xFF16213E); // Navy
-  static const Color primaryLight = Color(0xFF0F3460);  // Blue navy
+  // Primary colors - Black/Dark theme
+  static const Color primaryDark = Color(0xFF0D0D0D);   // Pure black
+  static const Color primaryMedium = Color(0xFF1A1A1A); // Dark gray
+  static const Color primaryLight = Color(0xFF2D2D2D);  // Medium dark gray
   
-  // Accent colors
-  static const Color accent = Color(0xFF4A90E2);       // Blue accent
-  static const Color accentLight = Color(0xFF64B5F6);  // Light blue
-  static const Color accentDark = Color(0xFF1976D2);   // Dark blue
+  // Accent colors - Green theme
+  static const Color accent = Color(0xFF10B981);        // Emerald green (main)
+  static const Color accentLight = Color(0xFF34D399);   // Light emerald
+  static const Color accentDark = Color(0xFF059669);    // Dark emerald
   
   // Background colors
-  static const Color backgroundLight = Color(0xFFF8F9FA);
-  static const Color backgroundWhite = Colors.white;
-  static const Color backgroundDark = Color(0xFF121212);
-  static const Color surfaceLight = Colors.white;
-  static const Color surfaceDark = Color(0xFF1E1E1E);
+  static const Color backgroundLight = Color(0xFFF0F2F5);  // Light gray background
+  static const Color backgroundWhite = Color(0xFFFAFAFA); // Off-white
+  static const Color backgroundDark = Color(0xFF0A0A0A);  // Near black
+  static const Color surfaceLight = Color(0xFFFFFFFF);    // White surface
+  static const Color surfaceDark = Color(0xFF141414);     // Dark surface
+  
+  // Gray scale
+  static const Color gray50 = Color(0xFFF9FAFB);
+  static const Color gray100 = Color(0xFFF3F4F6);
+  static const Color gray200 = Color(0xFFE5E7EB);
+  static const Color gray300 = Color(0xFFD1D5DB);
+  static const Color gray400 = Color(0xFF9CA3AF);
+  static const Color gray500 = Color(0xFF6B7280);
+  static const Color gray600 = Color(0xFF4B5563);
+  static const Color gray700 = Color(0xFF374151);
+  static const Color gray800 = Color(0xFF1F2937);
+  static const Color gray900 = Color(0xFF111827);
   
   // Text colors
-  static const Color textPrimary = Color(0xFF1A1A2E);
-  static const Color textSecondary = Color(0xFF6B7280);
-  static const Color textHint = Color(0xFF9CA3AF);
+  static const Color textPrimary = Color(0xFF111827);    // Near black
+  static const Color textSecondary = Color(0xFF6B7280);  // Gray
+  static const Color textHint = Color(0xFF9CA3AF);       // Light gray
   static const Color textWhite = Colors.white;
-  static const Color textDark = Color(0xFF111827);
+  static const Color textDark = Color(0xFF0D0D0D);       // Pure black
   
   // Status colors
   static const Color success = Color(0xFF10B981);
@@ -40,10 +53,10 @@ class AppTheme {
   static const Color infoLight = Color(0xFFDBEAFE);
   
   // Chat bubble colors
-  static const Color sentBubble = Color(0xFF1A1A2E);     // Dark navy for sent
-  static const Color receivedBubble = Color(0xFFE8E8EC); // Light gray for received
+  static const Color sentBubble = Color(0xFF10B981);     // Green for sent messages
+  static const Color receivedBubble = Color(0xFFE5E7EB); // Light gray for received
   static const Color sentText = Colors.white;
-  static const Color receivedText = Color(0xFF1A1A2E);
+  static const Color receivedText = Color(0xFF111827);
   
   // Online status
   static const Color online = Color(0xFF10B981);
@@ -59,7 +72,7 @@ class AppTheme {
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [primaryDark, primaryLight],
+    colors: [primaryDark, primaryMedium],
   );
   
   static const LinearGradient accentGradient = LinearGradient(
@@ -71,7 +84,21 @@ class AppTheme {
   static const LinearGradient headerGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [primaryDark, primaryMedium],
+    colors: [Color(0xFF0D0D0D), Color(0xFF1A1A1A)],
+  );
+  
+  // Green gradient for buttons and highlights
+  static const LinearGradient greenGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF10B981), Color(0xFF059669)],
+  );
+  
+  // Dark gradient for cards
+  static const LinearGradient darkGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF1A1A1A), Color(0xFF2D2D2D)],
   );
   
   // ============ TEXT STYLES ============

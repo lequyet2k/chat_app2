@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -480,7 +481,7 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer>
                 fontFeatures: const [FontFeature.tabularFigures()],
                 color: widget.isMe
                     ? Colors.white.withValues(alpha: 0.95)
-                    : Colors.grey[700],
+                    : AppTheme.gray700,
               ),
             ),
             Text(
@@ -491,7 +492,7 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer>
                 fontFeatures: const [FontFeature.tabularFigures()],
                 color: widget.isMe
                     ? Colors.white.withValues(alpha: 0.6)
-                    : Colors.grey[400],
+                    : AppTheme.gray400,
               ),
             ),
           ],
@@ -539,7 +540,7 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer>
                     size: 16,
                     color: widget.isMe
                         ? Colors.white.withValues(alpha: 0.8)
-                        : Colors.grey[500],
+                        : AppTheme.gray500,
                   ),
                 );
               },
@@ -592,7 +593,7 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer>
                 'Voice unavailable',
                 style: TextStyle(
                   fontSize: 13,
-                  color: Colors.red[700],
+                  color: AppTheme.error,
                   fontWeight: FontWeight.w600,
                 ),
               ),

@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,7 @@ class CustomSearch extends SearchDelegate {
       : super(
           searchFieldLabel: 'Search users...',
           searchFieldStyle: TextStyle(
-            color: Colors.grey[100],
+            color: AppTheme.gray100,
             fontSize: 16,
           ),
         );
@@ -23,20 +24,20 @@ class CustomSearch extends SearchDelegate {
   ThemeData appBarTheme(BuildContext context) {
     return ThemeData(
       appBarTheme: AppBarTheme(
-        backgroundColor: Colors.grey[900],
+        backgroundColor: AppTheme.primaryDark,
         elevation: 2,
-        iconTheme: IconThemeData(color: Colors.grey[100]),
+        iconTheme: IconThemeData(color: AppTheme.gray100),
         titleTextStyle: TextStyle(
-          color: Colors.grey[100],
+          color: AppTheme.gray100,
           fontSize: 18,
           fontWeight: FontWeight.w500,
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
-        hintStyle: TextStyle(color: Colors.grey[400]),
+        hintStyle: TextStyle(color: AppTheme.gray400),
         border: InputBorder.none,
       ),
-      scaffoldBackgroundColor: Colors.grey[50],
+      scaffoldBackgroundColor: AppTheme.gray50,
     );
   }
 
@@ -129,7 +130,7 @@ class CustomSearch extends SearchDelegate {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: Colors.grey[600],
+                              color: AppTheme.gray600,
                               fontSize: 13,
                             ),
                           ),
@@ -148,7 +149,7 @@ class CustomSearch extends SearchDelegate {
                           ),
                           trailing: Icon(
                             Icons.chat_bubble_outline,
-                            color: Colors.blue,
+                            color: AppTheme.accent,
                             size: 20,
                           ),
                         ),
@@ -215,7 +216,7 @@ class CustomSearch extends SearchDelegate {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: Colors.grey[600],
+                              color: AppTheme.gray600,
                               fontSize: 13,
                             ),
                           ),
@@ -234,7 +235,7 @@ class CustomSearch extends SearchDelegate {
                           ),
                           trailing: Icon(
                             Icons.chat_bubble_outline,
-                            color: Colors.blue,
+                            color: AppTheme.accent,
                             size: 20,
                           ),
                           onTap: () async {

@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/call_log_list_container.dart';
@@ -13,7 +14,7 @@ class _CallLogScreenState extends State<CallLogScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.grey[50],
+      color: AppTheme.gray50,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -22,7 +23,7 @@ class _CallLogScreenState extends State<CallLogScreen> {
             child: Text(
               'Recent Calls',
               style: TextStyle(
-                color: Colors.grey[800],
+                color: AppTheme.gray800,
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.3,

@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 // ignore_for_file: must_be_immutable
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -132,17 +133,17 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
             child: Scaffold(
               appBar: AppBar(
-                backgroundColor: Colors.grey[900],
+                backgroundColor: AppTheme.primaryDark,
                 elevation: 2,
                 shadowColor: Colors.black.withValues(alpha: 0.3),
                 leading: IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.grey[100]),
+                  icon: Icon(Icons.arrow_back, color: AppTheme.gray100),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
                 title: Text(
                   "Add Members to Group",
                   style: TextStyle(
-                    color: Colors.grey[100],
+                    color: AppTheme.gray100,
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                   ),
@@ -190,7 +191,7 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(16),
                               borderSide: BorderSide(
-                                color: Colors.blue,
+                                color: AppTheme.accent,
                                 width: 2,
                               ),
                             ),
@@ -283,7 +284,7 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  color: Colors.grey[600],
+                                  color: AppTheme.gray600,
                                   fontSize: 13,
                                 ),
                               ),
@@ -308,7 +309,7 @@ class _AddMemberInGroupState extends State<AddMemberInGroup> {
                                 ),
                                 child: Icon(
                                   Icons.person_add,
-                                  color: Colors.blue,
+                                  color: AppTheme.accent,
                                   size: 20,
                                 ),
                               ),

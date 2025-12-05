@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -76,7 +77,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppTheme.gray50,
       appBar: _buildAppBar(),
       body: Column(
         children: [
@@ -103,7 +104,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
       backgroundColor: Colors.white,
       elevation: 0,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: Colors.grey[800]),
+        icon: Icon(Icons.arrow_back, color: AppTheme.gray800),
         onPressed: () => Navigator.pop(context),
       ),
       title: Row(
@@ -128,7 +129,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
                 Text(
                   'AI Assistant',
                   style: TextStyle(
-                    color: Colors.grey[900],
+                    color: AppTheme.primaryDark,
                     fontSize: 17,
                     fontWeight: FontWeight.w600,
                   ),
@@ -141,7 +142,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
                       decoration: BoxDecoration(
                         color: AIChatService.isInitialized 
                             ? Colors.green 
-                            : Colors.orange,
+                            : AppTheme.warning,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -151,7 +152,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
                           ? 'Powered by Gemini' 
                           : 'Setup required',
                       style: TextStyle(
-                        color: Colors.grey[500],
+                        color: AppTheme.gray500,
                         fontSize: 12,
                       ),
                     ),
@@ -164,11 +165,11 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
       ),
       actions: [
         IconButton(
-          icon: Icon(Icons.settings_outlined, color: Colors.grey[700]),
+          icon: Icon(Icons.settings_outlined, color: AppTheme.gray700),
           onPressed: _showSettingsDialog,
         ),
         PopupMenuButton<String>(
-          icon: Icon(Icons.more_vert, color: Colors.grey[700]),
+          icon: Icon(Icons.more_vert, color: AppTheme.gray700),
           onSelected: (value) {
             if (value == 'clear') {
               _showClearHistoryDialog();
@@ -204,7 +205,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
       ),
       child: Row(
         children: [
-          Icon(Icons.key, color: Colors.orange[700], size: 20),
+          Icon(Icons.key, color: AppTheme.warning, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -221,7 +222,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
             child: Text(
               'Setup',
               style: TextStyle(
-                color: Colors.orange[700],
+                color: AppTheme.warning,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -260,13 +261,13 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: AppTheme.gray200,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 "${groupByValue.substring(11, 16)}, ${groupByValue.substring(0, 10)}",
                 style: TextStyle(
-                  color: Colors.grey[600],
+                  color: AppTheme.gray600,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),
@@ -310,7 +311,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
-                color: Colors.grey[900],
+                color: AppTheme.primaryDark,
               ),
             ),
             const SizedBox(height: 12),
@@ -318,7 +319,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
               'I can help you with questions, ideas, writing, coding, and much more!',
               style: TextStyle(
                 fontSize: 15,
-                color: Colors.grey[600],
+                color: AppTheme.gray600,
               ),
               textAlign: TextAlign.center,
             ),
@@ -398,7 +399,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
               child: SelectableText(
                 map['message'] ?? '',
                 style: TextStyle(
-                  color: isUser ? Colors.white : Colors.grey[800],
+                  color: isUser ? Colors.white : AppTheme.gray800,
                   fontSize: 15,
                   height: 1.4,
                 ),
@@ -409,11 +410,11 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
             const SizedBox(width: 10),
             CircleAvatar(
               radius: 18,
-              backgroundColor: Colors.grey[200],
+              backgroundColor: AppTheme.gray200,
               child: Text(
                 (widget.user.displayName ?? 'U')[0].toUpperCase(),
                 style: TextStyle(
-                  color: Colors.grey[700],
+                  color: AppTheme.gray700,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -442,11 +443,11 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
                 suggestions[index],
                 style: TextStyle(
                   fontSize: 13,
-                  color: Colors.grey[700],
+                  color: AppTheme.gray700,
                 ),
               ),
               backgroundColor: Colors.white,
-              side: BorderSide(color: Colors.grey[300]!),
+              side: BorderSide(color: AppTheme.gray300!),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
@@ -482,7 +483,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey[100],
+                  color: AppTheme.gray100,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Row(
@@ -497,7 +498,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
                           hintText: AIChatService.isInitialized 
                               ? 'Ask me anything...' 
                               : 'Setup API key first...',
-                          hintStyle: TextStyle(color: Colors.grey[500]),
+                          hintStyle: TextStyle(color: AppTheme.gray500),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 20,
@@ -524,7 +525,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
                         end: Alignment.bottomRight,
                       )
                     : null,
-                color: AIChatService.isInitialized ? null : Colors.grey[300],
+                color: AIChatService.isInitialized ? null : AppTheme.gray300,
                 shape: BoxShape.circle,
               ),
               child: _isTyping
@@ -639,7 +640,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: Colors.grey[900],
+                  color: AppTheme.primaryDark,
                 ),
               ),
             ],
@@ -652,7 +653,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
                 'Enter your Google Gemini API key:',
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey[700],
+                  color: AppTheme.gray700,
                 ),
               ),
               const SizedBox(height: 12),
@@ -679,19 +680,19 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue[50],
+                  color: AppTheme.accent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline, color: Colors.blue[700], size: 20),
+                    Icon(Icons.info_outline, color: AppTheme.accent, size: 20),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         'Get your free API key from:\nmakersuite.google.com/app/apikey',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.blue[700],
+                          color: AppTheme.accent,
                         ),
                       ),
                     ),
@@ -703,7 +704,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+              child: Text('Cancel', style: TextStyle(color: AppTheme.gray600)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -721,7 +722,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('API key saved successfully!'),
-                    backgroundColor: Colors.green,
+                    backgroundColor: AppTheme.success,
                   ),
                 );
               },
@@ -758,7 +759,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+            child: Text('Cancel', style: TextStyle(color: AppTheme.gray600)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -787,7 +788,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Chat history cleared'),
-                  backgroundColor: Colors.green,
+                  backgroundColor: AppTheme.success,
                 ),
               );
             },

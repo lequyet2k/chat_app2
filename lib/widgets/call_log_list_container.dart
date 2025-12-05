@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/db/log_repository.dart';
@@ -21,14 +22,14 @@ class _CallLogListContainerState extends State<CallLogListContainer> {
         _icon = Icon(
           Icons.call_made,
           size: _iconSize,
-          color: Colors.green,
+          color: AppTheme.success,
         );
         break;
 
       case 'missed':
         _icon = Icon(
           Icons.call_missed,
-          color: Colors.red,
+          color: AppTheme.error,
           size: _iconSize,
         );
         break;
@@ -148,7 +149,7 @@ class _CallLogListContainerState extends State<CallLogListContainer> {
                                     '${_log.timeStamp!.substring(11, 16)} • ${_log.timeStamp!.substring(0, 10)}',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.grey[600],
+                                      color: AppTheme.gray600,
                                     ),
                                   ),
                                 ],
@@ -162,7 +163,7 @@ class _CallLogListContainerState extends State<CallLogListContainer> {
                               ),
                               child: Icon(
                                 Icons.phone,
-                                color: Colors.blue,
+                                color: AppTheme.accent,
                                 size: 20,
                               ),
                             ),
@@ -183,7 +184,7 @@ class _CallLogListContainerState extends State<CallLogListContainer> {
                     Icon(
                       Icons.call_outlined,
                       size: 64,
-                      color: Colors.grey[400],
+                      color: AppTheme.gray400,
                     ),
                     SizedBox(height: 16),
                     Text(
@@ -191,7 +192,7 @@ class _CallLogListContainerState extends State<CallLogListContainer> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey[800],
+                        color: AppTheme.gray800,
                       ),
                     ),
                     SizedBox(height: 8),
@@ -199,7 +200,7 @@ class _CallLogListContainerState extends State<CallLogListContainer> {
                       'Your call history will appear here',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[600],
+                        color: AppTheme.gray600,
                       ),
                     ),
                   ],

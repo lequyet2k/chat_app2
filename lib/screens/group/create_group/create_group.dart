@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -120,17 +121,17 @@ class _CreateGroupState extends State<CreateGroup> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.grey[900],
+        backgroundColor: AppTheme.primaryDark,
         elevation: 2,
         shadowColor: Colors.black.withValues(alpha: 0.3),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.grey[100]),
+          icon: Icon(Icons.arrow_back, color: AppTheme.gray100),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           "Create New Group",
           style: TextStyle(
-            color: Colors.grey[100],
+            color: AppTheme.gray100,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -171,7 +172,7 @@ class _CreateGroupState extends State<CreateGroup> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Colors.grey[800],
+                            color: AppTheme.gray800,
                           ),
                         ),
                         SizedBox(height: 12),
@@ -198,7 +199,7 @@ class _CreateGroupState extends State<CreateGroup> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: Colors.blue,
+                                color: AppTheme.accent,
                                 width: 2,
                               ),
                             ),
@@ -209,7 +210,7 @@ class _CreateGroupState extends State<CreateGroup> {
                           'Leave empty to auto-generate from member names',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey[600],
+                            color: AppTheme.gray600,
                           ),
                         ),
                       ],
@@ -223,7 +224,7 @@ class _CreateGroupState extends State<CreateGroup> {
                     height: 50,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: AppTheme.accent,
                         foregroundColor: Colors.white,
                         elevation: 2,
                         shadowColor: Colors.blue.withValues(alpha: 0.3),

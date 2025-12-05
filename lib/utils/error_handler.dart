@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -24,18 +25,18 @@ class ErrorHandler {
       }
       // In release, show a clean error widget
       return Container(
-        color: Colors.grey[100],
+        color: AppTheme.gray100,
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 48, color: Colors.grey[400]),
+              Icon(Icons.error_outline, size: 48, color: AppTheme.gray400),
               const SizedBox(height: 16),
               Text(
                 'Something went wrong',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey[600],
+                  color: AppTheme.gray600,
                 ),
               ),
             ],
@@ -105,14 +106,14 @@ class ErrorHandler {
         ),
         title: Row(
           children: [
-            Icon(Icons.error_outline, color: Colors.red[700], size: 28),
+            Icon(Icons.error_outline, color: AppTheme.error, size: 28),
             const SizedBox(width: 12),
             Text(
               title,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey[900],
+                color: AppTheme.primaryDark,
               ),
             ),
           ],
@@ -121,7 +122,7 @@ class ErrorHandler {
           message,
           style: TextStyle(
             fontSize: 14,
-            color: Colors.grey[700],
+            color: AppTheme.gray700,
             height: 1.4,
           ),
         ),
@@ -137,7 +138,7 @@ class ErrorHandler {
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue[700],
+              backgroundColor: AppTheme.accent,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -167,7 +168,7 @@ class ErrorHandler {
             ),
           ],
         ),
-        backgroundColor: Colors.red[700],
+        backgroundColor: AppTheme.error,
         behavior: SnackBarBehavior.floating,
         duration: duration,
         shape: RoundedRectangleBorder(

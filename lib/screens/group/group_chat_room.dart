@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -342,12 +343,12 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: Colors.blue[50],
+                  color: AppTheme.accent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(Icons.photo_library_outlined, color: Colors.blue[700], size: 24),
+                child: Icon(Icons.photo_library_outlined, color: AppTheme.accent, size: 24),
               ),
-              title: Text('Photo & Video', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey[900])),
+              title: Text('Photo & Video', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.primaryDark)),
               onTap: () {
                 Navigator.pop(context);
                 getImage();
@@ -360,12 +361,12 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: Colors.purple[50],
+                  color: AppTheme.accentDark.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(Icons.insert_drive_file_outlined, color: Colors.purple[700], size: 24),
+                child: Icon(Icons.insert_drive_file_outlined, color: AppTheme.accentDark, size: 24),
               ),
-              title: Text('Document', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey[900])),
+              title: Text('Document', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.primaryDark)),
               onTap: () {
                 Navigator.pop(context);
                 _pickDocument();
@@ -378,12 +379,12 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: Colors.green[50],
+                  color: AppTheme.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(Icons.location_on_outlined, color: Colors.green[700], size: 24),
+                child: Icon(Icons.location_on_outlined, color: AppTheme.success, size: 24),
               ),
-              title: Text('Location', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey[900])),
+              title: Text('Location', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.primaryDark)),
               onTap: () {
                 Navigator.pop(context);
                 if (widget.isDeviceConnected == false) {
@@ -425,7 +426,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         builder: (context) => WillPopScope(
           onWillPop: () async => false,
           child: AlertDialog(
-            backgroundColor: Colors.grey[900],
+            backgroundColor: AppTheme.primaryDark,
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -475,7 +476,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                 Expanded(child: Text('File đã được gửi thành công!')),
               ],
             ),
-            backgroundColor: Colors.green[700],
+            backgroundColor: AppTheme.success,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 2),
           ),
@@ -499,7 +500,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                 Expanded(child: Text(e.message)),
               ],
             ),
-            backgroundColor: Colors.red[700],
+            backgroundColor: AppTheme.error,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 3),
           ),
@@ -523,7 +524,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                 Expanded(child: Text('Lỗi khi gửi file. Vui lòng thử lại!')),
               ],
             ),
-            backgroundColor: Colors.red[700],
+            backgroundColor: AppTheme.error,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -577,7 +578,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          backgroundColor: Colors.grey[900],
+          backgroundColor: AppTheme.primaryDark,
           elevation: 2,
           shadowColor: Colors.black.withAlpha(76),
           flexibleSpace: SafeArea(
@@ -594,7 +595,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                     },
                     icon: Icon(
                       Icons.arrow_back_ios,
-                      color: Colors.grey[100],
+                      color: AppTheme.gray100,
                       size: 22,
                     ),
                   ),
@@ -617,14 +618,14 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w600,
-                            color: Colors.grey[100],
+                            color: AppTheme.gray100,
                           ),
                         ),
                         Text(
                           '${memberList.length} members',
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.grey[400],
+                            color: AppTheme.gray400,
                           ),
                         ),
                       ],
@@ -645,7 +646,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                     },
                     icon: Icon(
                       Icons.more_vert,
-                      color: Colors.grey[300],
+                      color: AppTheme.gray300,
                       size: 24,
                     ),
                   ),
@@ -739,7 +740,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       border: Border(
-                        top: BorderSide(color: Colors.grey[200]!, width: 0.5),
+                        top: BorderSide(color: AppTheme.gray200!, width: 0.5),
                       ),
                     ),
                     child: Row(
@@ -757,7 +758,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                             },
                             icon: Icon(
                               Icons.add_circle_outline,
-                              color: Colors.grey[700],
+                              color: AppTheme.gray700,
                               size: 28,
                             ),
                           ),
@@ -773,7 +774,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(24),
                               border: Border.all(
-                                color: Colors.grey[300]!,
+                                color: AppTheme.gray300!,
                                 width: 1.5,
                               ),
                               boxShadow: [
@@ -801,7 +802,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                                     showEmoji 
                                       ? Icons.keyboard_rounded
                                       : Icons.emoji_emotions_rounded,
-                                    color: Colors.grey[700],
+                                    color: AppTheme.gray700,
                                   ),
                                   iconSize: 26,
                                   padding: const EdgeInsets.all(8),
@@ -818,14 +819,14 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                                     maxLines: null,
                                     style: TextStyle(
                                       fontSize: 16, 
-                                      color: Colors.grey[900], 
+                                      color: AppTheme.primaryDark, 
                                       height: 1.5,
                                       fontWeight: FontWeight.w400,
                                     ),
                                     decoration: InputDecoration(
                                       hintText: 'Type a message...',
                                       hintStyle: TextStyle(
-                                        color: Colors.grey[500], 
+                                        color: AppTheme.gray500, 
                                         fontSize: 16,
                                         fontWeight: FontWeight.w400,
                                       ),
@@ -852,7 +853,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                               height: 44,
                               margin: const EdgeInsets.only(left: 6),
                               decoration: BoxDecoration(
-                                color: Colors.grey[800],
+                                color: AppTheme.gray800,
                                 shape: BoxShape.circle,
                               ),
                               child: IconButton(
@@ -995,7 +996,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                             vertical: 5, horizontal: 8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                          color: Colors.blueAccent,
+                          color: AppTheme.accent,
                         ),
                         child: Column(
                           children: [
@@ -1141,8 +1142,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     color: chatMap['sendBy'] == widget.user.displayName
-                        ? Colors.grey[800]
-                        : Colors.grey[900],
+                        ? AppTheme.gray800
+                        : AppTheme.primaryDark,
                   ),
                   child: VoiceMessagePlayer(
                     audioUrl: chatMap['message'],
@@ -1280,7 +1281,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                               padding: const EdgeInsets.all(4.0),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(100),
-                                color: Colors.blueAccent,
+                                color: AppTheme.accent,
                               ),
                               child: const Icon(
                                 Icons.location_on_outlined,
@@ -1394,7 +1395,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                               padding: const EdgeInsets.all(4.0),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(100),
-                                color: Colors.blueAccent,
+                                color: AppTheme.accent,
                               ),
                               child: const Icon(
                                 Icons.location_on_outlined,
@@ -1468,7 +1469,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Colors.grey[300],
+                      color: AppTheme.gray300,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -1490,7 +1491,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                             ),
                             child: Icon(
                               Icons.location_on,
-                              color: Colors.blue[700],
+                              color: AppTheme.accent,
                               size: 24,
                             ),
                           ),
@@ -1504,7 +1505,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 16,
-                                    color: Colors.grey[900],
+                                    color: AppTheme.primaryDark,
                                   ),
                                 ),
                                 SizedBox(height: 4),
@@ -1512,13 +1513,13 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                                   "Send your current location to group",
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: Colors.grey[600],
+                                    color: AppTheme.gray600,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 16),
+                          Icon(Icons.arrow_forward_ios, color: AppTheme.gray400, size: 16),
                         ],
                       ),
                     ),
@@ -1631,7 +1632,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Colors.grey[300],
+                      color: AppTheme.gray300,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -1653,7 +1654,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                             ),
                             child: Icon(
                               Icons.location_off,
-                              color: Colors.red[700],
+                              color: AppTheme.error,
                               size: 24,
                             ),
                           ),
@@ -1667,7 +1668,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 16,
-                                    color: Colors.red[700],
+                                    color: AppTheme.error,
                                   ),
                                 ),
                                 SizedBox(height: 4),
@@ -1675,13 +1676,13 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                                   "Turn off location sharing",
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: Colors.grey[600],
+                                    color: AppTheme.gray600,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 16),
+                          Icon(Icons.arrow_forward_ios, color: AppTheme.gray400, size: 16),
                         ],
                       ),
                     ),
@@ -1734,7 +1735,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         builder: (BuildContext context) {
           return Container(
             decoration: BoxDecoration(
-              color: Colors.grey[50],
+              color: AppTheme.gray50,
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(20)),
             ),
@@ -1748,7 +1749,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                    color: Colors.grey[400],
+                    color: AppTheme.gray400,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -1758,7 +1759,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: Colors.grey[200]!, width: 1),
+                    side: BorderSide(color: AppTheme.gray200!, width: 1),
                   ),
                   child: ListTile(
                     contentPadding: const EdgeInsets.symmetric(
@@ -1766,17 +1767,17 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                     leading: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.red[50],
+                        color: AppTheme.error.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.delete_outline,
-                          color: Colors.red[700]),
+                          color: AppTheme.error),
                     ),
                     title: const Text('Remove message',
                         style: TextStyle(fontWeight: FontWeight.w600)),
                     subtitle: Text('Delete this message for everyone',
                         style: TextStyle(
-                            color: Colors.grey[600], fontSize: 13)),
+                            color: AppTheme.gray600, fontSize: 13)),
                     onTap: () {
                       removeMessage(index, length);
                       Navigator.pop(context);
@@ -1790,7 +1791,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                     color: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: Colors.grey[200]!, width: 1),
+                      side: BorderSide(color: AppTheme.gray200!, width: 1),
                     ),
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(
@@ -1798,17 +1799,17 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                       leading: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.blue[50],
+                          color: AppTheme.accent.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(Icons.edit_outlined,
-                            color: Colors.blue[700]),
+                            color: AppTheme.accent),
                       ),
                       title: const Text('Edit message',
                           style: TextStyle(fontWeight: FontWeight.w600)),
                       subtitle: Text('Modify your message',
                           style: TextStyle(
-                              color: Colors.grey[600], fontSize: 13)),
+                              color: AppTheme.gray600, fontSize: 13)),
                       onTap: () {
                         showEditForm(index, length, message);
                       },
@@ -2001,7 +2002,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to send voice message: $e'),
-            backgroundColor: Colors.red[700],
+            backgroundColor: AppTheme.error,
           ),
         );
       }
@@ -2061,7 +2062,7 @@ class _VoiceRecordingBottomSheetState extends State<_VoiceRecordingBottomSheet> 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Microphone permission denied'),
-            backgroundColor: Colors.red[700],
+            backgroundColor: AppTheme.error,
           ),
         );
       }
@@ -2090,7 +2091,7 @@ class _VoiceRecordingBottomSheetState extends State<_VoiceRecordingBottomSheet> 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text('Failed to upload voice message'),
-              backgroundColor: Colors.red[700],
+              backgroundColor: AppTheme.error,
             ),
           );
         }
@@ -2128,7 +2129,7 @@ class _VoiceRecordingBottomSheetState extends State<_VoiceRecordingBottomSheet> 
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.grey[900],
+        color: AppTheme.primaryDark,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
@@ -2141,7 +2142,7 @@ class _VoiceRecordingBottomSheetState extends State<_VoiceRecordingBottomSheet> 
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.grey[700],
+              color: AppTheme.gray700,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -2151,13 +2152,13 @@ class _VoiceRecordingBottomSheetState extends State<_VoiceRecordingBottomSheet> 
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.grey[100],
+              color: AppTheme.gray100,
             ),
           ),
           const SizedBox(height: 32),
           if (_isUploading)
             CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[400]!),
+              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.accentLight!),
             )
           else
             AnimatedBuilder(
@@ -2195,7 +2196,7 @@ class _VoiceRecordingBottomSheetState extends State<_VoiceRecordingBottomSheet> 
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[100],
+                color: AppTheme.gray100,
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
@@ -2210,12 +2211,12 @@ class _VoiceRecordingBottomSheetState extends State<_VoiceRecordingBottomSheet> 
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: Colors.grey[800],
+                      color: AppTheme.gray800,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.close,
-                      color: Colors.grey[300],
+                      color: AppTheme.gray300,
                       size: 28,
                     ),
                   ),
@@ -2226,7 +2227,7 @@ class _VoiceRecordingBottomSheetState extends State<_VoiceRecordingBottomSheet> 
                     width: 70,
                     height: 70,
                     decoration: BoxDecoration(
-                      color: Colors.blue[700],
+                      color: AppTheme.accent,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(

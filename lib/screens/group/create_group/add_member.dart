@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 // import 'dart:js';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -130,7 +131,7 @@ class _AddMemberState extends State<AddMember> {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  color: Colors.grey[600],
+                                  color: AppTheme.gray600,
                                   fontSize: 13,
                                 ),
                               ),
@@ -155,7 +156,7 @@ class _AddMemberState extends State<AddMember> {
                                 ),
                                 child: Icon(
                                   Icons.add,
-                                  color: Colors.blue,
+                                  color: AppTheme.accent,
                                   size: 20,
                                 ),
                               ),
@@ -189,17 +190,17 @@ class _AddMemberState extends State<AddMember> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.grey[900],
+          backgroundColor: AppTheme.primaryDark,
           elevation: 2,
           shadowColor: Colors.black.withValues(alpha: 0.3),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.grey[100]),
+            icon: Icon(Icons.arrow_back, color: AppTheme.gray100),
             onPressed: () => Navigator.of(context).pop(),
           ),
           title: Text(
             "Add Members",
             style: TextStyle(
-              color: Colors.grey[100],
+              color: AppTheme.gray100,
               fontSize: 20,
               fontWeight: FontWeight.w600,
             ),
@@ -244,7 +245,7 @@ class _AddMemberState extends State<AddMember> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide(
-                      color: Colors.blue,
+                      color: AppTheme.accent,
                       width: 2,
                     ),
                   ),
@@ -302,7 +303,7 @@ class _AddMemberState extends State<AddMember> {
                                     height: 24,
                                     width: 24,
                                     decoration: BoxDecoration(
-                                      color: isCurrentUser ? Colors.blue : Colors.red,
+                                      color: isCurrentUser ? Colors.blue : AppTheme.error,
                                       shape: BoxShape.circle,
                                       border: Border.all(
                                         color: Colors.white,
@@ -327,7 +328,7 @@ class _AddMemberState extends State<AddMember> {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: isCurrentUser ? FontWeight.w600 : FontWeight.normal,
-                                color: Colors.grey[800],
+                                color: AppTheme.gray800,
                               ),
                             ),
                           ],
@@ -354,7 +355,7 @@ class _AddMemberState extends State<AddMember> {
         ),
         floatingActionButton: memberList.length >= 2
             ? FloatingActionButton.extended(
-                backgroundColor: Colors.blue,
+                backgroundColor: AppTheme.accent,
                 foregroundColor: Colors.white,
                 elevation: 4,
                 icon: Icon(Icons.arrow_forward),

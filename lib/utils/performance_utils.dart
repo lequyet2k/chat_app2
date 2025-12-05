@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -32,7 +33,7 @@ class OptimizedNetworkImage extends StatelessWidget {
       placeholder: (context, url) => Container(
         width: width,
         height: height,
-        color: Colors.grey[200],
+        color: AppTheme.gray200,
         child: const Center(
           child: SizedBox(
             width: 20,
@@ -44,8 +45,8 @@ class OptimizedNetworkImage extends StatelessWidget {
       errorWidget: (context, url, error) => Container(
         width: width,
         height: height,
-        color: Colors.grey[300],
-        child: Icon(Icons.error, color: Colors.grey[600]),
+        color: AppTheme.gray300,
+        child: Icon(Icons.error, color: AppTheme.gray600),
       ),
     );
 
@@ -77,11 +78,11 @@ class OptimizedAvatar extends StatelessWidget {
     if (imageUrl == null || imageUrl!.isEmpty) {
       return CircleAvatar(
         radius: radius,
-        backgroundColor: Colors.grey[300],
+        backgroundColor: AppTheme.gray300,
         child: Text(
           fallbackText?.substring(0, 1).toUpperCase() ?? '?',
           style: TextStyle(
-            color: Colors.grey[700],
+            color: AppTheme.gray700,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -96,7 +97,7 @@ class OptimizedAvatar extends StatelessWidget {
       ),
       placeholder: (context, url) => CircleAvatar(
         radius: radius,
-        backgroundColor: Colors.grey[300],
+        backgroundColor: AppTheme.gray300,
         child: const SizedBox(
           width: 16,
           height: 16,
@@ -105,8 +106,8 @@ class OptimizedAvatar extends StatelessWidget {
       ),
       errorWidget: (context, url, error) => CircleAvatar(
         radius: radius,
-        backgroundColor: Colors.grey[300],
-        child: Icon(Icons.person, color: Colors.grey[600], size: radius),
+        backgroundColor: AppTheme.gray300,
+        child: Icon(Icons.person, color: AppTheme.gray600, size: radius),
       ),
     );
   }
@@ -216,7 +217,7 @@ class OptimizedChatTile extends StatelessWidget {
                         Text(
                           time!,
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            color: AppTheme.gray600,
                             fontSize: 12,
                           ),
                         ),
@@ -226,7 +227,7 @@ class OptimizedChatTile extends StatelessWidget {
                   Text(
                     message,
                     style: TextStyle(
-                      color: isUnread ? Colors.grey[900] : Colors.grey[600],
+                      color: isUnread ? AppTheme.primaryDark : AppTheme.gray600,
                       fontWeight: isUnread ? FontWeight.w500 : FontWeight.normal,
                       fontSize: 14,
                     ),
@@ -242,7 +243,7 @@ class OptimizedChatTile extends StatelessWidget {
                 height: 10,
                 margin: const EdgeInsets.only(left: 8),
                 decoration: BoxDecoration(
-                  color: Colors.blue,
+                  color: AppTheme.accent,
                   shape: BoxShape.circle,
                 ),
               ),

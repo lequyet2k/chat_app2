@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -81,10 +82,10 @@ class _GroupInfoState extends State<GroupInfo> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: Colors.red[50],
+                  color: AppTheme.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(Icons.person_remove_outlined, color: Colors.red[700], size: 22),
+                child: Icon(Icons.person_remove_outlined, color: AppTheme.error, size: 22),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -93,7 +94,7 @@ class _GroupInfoState extends State<GroupInfo> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: Colors.grey[900],
+                    color: AppTheme.primaryDark,
                   ),
                 ),
               ),
@@ -103,7 +104,7 @@ class _GroupInfoState extends State<GroupInfo> {
             'Are you sure you want to remove ${membersList[index]['name']} from this group?',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey[700],
+              color: AppTheme.gray700,
               height: 1.4,
             ),
           ),
@@ -111,7 +112,7 @@ class _GroupInfoState extends State<GroupInfo> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               style: TextButton.styleFrom(
-                foregroundColor: Colors.grey[700],
+                foregroundColor: AppTheme.gray700,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
               child: const Text('Cancel', style: TextStyle(fontSize: 15)),
@@ -122,7 +123,7 @@ class _GroupInfoState extends State<GroupInfo> {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red[700],
+                backgroundColor: AppTheme.error,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -231,7 +232,7 @@ class _GroupInfoState extends State<GroupInfo> {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: AppTheme.gray300,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -243,10 +244,10 @@ class _GroupInfoState extends State<GroupInfo> {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: Colors.orange[50],
+                    color: AppTheme.warning.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(Icons.auto_delete, color: Colors.orange[700], size: 24),
+                  child: Icon(Icons.auto_delete, color: AppTheme.warning, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -258,14 +259,14 @@ class _GroupInfoState extends State<GroupInfo> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey[900],
+                          color: AppTheme.primaryDark,
                         ),
                       ),
                       Text(
                         'Automatically delete old messages',
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.grey[600],
+                          color: AppTheme.gray600,
                         ),
                       ),
                     ],
@@ -290,7 +291,7 @@ class _GroupInfoState extends State<GroupInfo> {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[200]!),
+        border: Border.all(color: AppTheme.gray200!),
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
@@ -302,24 +303,24 @@ class _GroupInfoState extends State<GroupInfo> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: Colors.grey[100],
+            color: AppTheme.gray100,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: Colors.grey[700], size: 20),
+          child: Icon(icon, color: AppTheme.gray700, size: 20),
         ),
         title: Text(
           title,
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w500,
-            color: Colors.grey[900],
+            color: AppTheme.primaryDark,
           ),
         ),
         subtitle: Text(
           subtitle,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey[600],
+            color: AppTheme.gray600,
           ),
         ),
       ),
@@ -341,7 +342,7 @@ class _GroupInfoState extends State<GroupInfo> {
             content: Text(minutes == null 
               ? 'Auto-delete disabled' 
               : 'Auto-delete set to ${_getDurationText(minutes)}'),
-            backgroundColor: Colors.green,
+            backgroundColor: AppTheme.success,
           ),
         );
       }
@@ -350,7 +351,7 @@ class _GroupInfoState extends State<GroupInfo> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.error,
           ),
         );
       }
@@ -431,13 +432,13 @@ class _GroupInfoState extends State<GroupInfo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppTheme.gray50,
       appBar: AppBar(
-        backgroundColor: Colors.grey[900],
+        backgroundColor: AppTheme.primaryDark,
         elevation: 2,
         shadowColor: Colors.black.withAlpha(76),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Colors.grey[100], size: 22),
+          icon: Icon(Icons.arrow_back_ios, color: AppTheme.gray100, size: 22),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -445,12 +446,12 @@ class _GroupInfoState extends State<GroupInfo> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: Colors.grey[100],
+            color: AppTheme.gray100,
           ),
         ),
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator(color: Colors.grey[900]))
+          ? Center(child: CircularProgressIndicator(color: AppTheme.primaryDark))
           : SingleChildScrollView(
               child: Column(
                 children: [
@@ -479,7 +480,7 @@ class _GroupInfoState extends State<GroupInfo> {
                           height: 80,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.grey[300]!, width: 2),
+                            border: Border.all(color: AppTheme.gray300!, width: 2),
                           ),
                           child: const CircleAvatar(
                             backgroundImage: CachedNetworkImageProvider(
@@ -497,7 +498,7 @@ class _GroupInfoState extends State<GroupInfo> {
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
-                            color: Colors.grey[900],
+                            color: AppTheme.primaryDark,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -506,7 +507,7 @@ class _GroupInfoState extends State<GroupInfo> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.grey[100],
+                            color: AppTheme.gray100,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -514,7 +515,7 @@ class _GroupInfoState extends State<GroupInfo> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: Colors.grey[700],
+                              color: AppTheme.gray700,
                             ),
                           ),
                         ),
@@ -559,20 +560,20 @@ class _GroupInfoState extends State<GroupInfo> {
                         width: 44,
                         height: 44,
                         decoration: BoxDecoration(
-                          color: Colors.blue[50],
+                          color: AppTheme.accent.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(Icons.person_add_outlined, color: Colors.blue[700], size: 22),
+                        child: Icon(Icons.person_add_outlined, color: AppTheme.accent, size: 22),
                       ),
                       title: Text(
                         'Add Member',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey[900],
+                          color: AppTheme.primaryDark,
                         ),
                       ),
-                      trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
+                      trailing: Icon(Icons.chevron_right, color: AppTheme.gray400),
                     ),
                   ),
 
@@ -601,7 +602,7 @@ class _GroupInfoState extends State<GroupInfo> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Only admins can change auto-delete settings'),
-                              backgroundColor: Colors.orange,
+                              backgroundColor: AppTheme.warning,
                             ),
                           );
                         }
@@ -610,27 +611,27 @@ class _GroupInfoState extends State<GroupInfo> {
                         width: 44,
                         height: 44,
                         decoration: BoxDecoration(
-                          color: Colors.orange[50],
+                          color: AppTheme.warning.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(Icons.auto_delete_outlined, color: Colors.orange[700], size: 22),
+                        child: Icon(Icons.auto_delete_outlined, color: AppTheme.warning, size: 22),
                       ),
                       title: Text(
                         'Auto-delete Messages',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey[900],
+                          color: AppTheme.primaryDark,
                         ),
                       ),
                       subtitle: Text(
                         'Automatically delete old messages',
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.grey[600],
+                          color: AppTheme.gray600,
                         ),
                       ),
-                      trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
+                      trailing: Icon(Icons.chevron_right, color: AppTheme.gray400),
                     ),
                   ),
 
@@ -659,11 +660,11 @@ class _GroupInfoState extends State<GroupInfo> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: Colors.grey[800],
+                              color: AppTheme.gray800,
                             ),
                           ),
                         ),
-                        Divider(height: 1, color: Colors.grey[200]),
+                        Divider(height: 1, color: AppTheme.gray200),
                         ListView.builder(
                           itemCount: membersList.length,
                           shrinkWrap: true,
@@ -696,7 +697,7 @@ class _GroupInfoState extends State<GroupInfo> {
                                         width: 16,
                                         height: 16,
                                         decoration: BoxDecoration(
-                                          color: Colors.blue[700],
+                                          color: AppTheme.accent,
                                           shape: BoxShape.circle,
                                           border: Border.all(color: Colors.white, width: 2),
                                         ),
@@ -714,21 +715,21 @@ class _GroupInfoState extends State<GroupInfo> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.grey[900],
+                                  color: AppTheme.primaryDark,
                                 ),
                               ),
                               subtitle: Text(
                                 membersList[index]['email'],
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey[600],
+                                  color: AppTheme.gray600,
                                 ),
                               ),
                               trailing: isAdmin
                                   ? Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: Colors.blue[50],
+                                        color: AppTheme.accent.withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
@@ -736,12 +737,12 @@ class _GroupInfoState extends State<GroupInfo> {
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
-                                          color: Colors.blue[700],
+                                          color: AppTheme.accent,
                                         ),
                                       ),
                                     )
                                   : (checkAdmin() && !isCurrentUser)
-                                      ? Icon(Icons.more_vert, color: Colors.grey[400], size: 20)
+                                      ? Icon(Icons.more_vert, color: AppTheme.gray400, size: 20)
                                       : null,
                             );
                           },
@@ -777,20 +778,20 @@ class _GroupInfoState extends State<GroupInfo> {
                         width: 44,
                         height: 44,
                         decoration: BoxDecoration(
-                          color: Colors.red[50],
+                          color: AppTheme.error.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(Icons.logout, color: Colors.red[700], size: 22),
+                        child: Icon(Icons.logout, color: AppTheme.error, size: 22),
                       ),
                       title: Text(
                         'Leave Group',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.red[700],
+                          color: AppTheme.error,
                         ),
                       ),
-                      trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
+                      trailing: Icon(Icons.chevron_right, color: AppTheme.gray400),
                     ),
                   ),
                   const SizedBox(height: 16),

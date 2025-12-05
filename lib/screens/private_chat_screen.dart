@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +89,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: Colors.grey[900],
+                  color: AppTheme.primaryDark,
                 ),
               ),
               const SizedBox(height: 8),
@@ -97,7 +98,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
-                  color: Colors.grey[600],
+                  color: AppTheme.gray600,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -153,7 +154,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                 Navigator.pop(context);
                 Navigator.pop(context); // Go back from private screen
               },
-              child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+              child: Text('Cancel', style: TextStyle(color: AppTheme.gray600)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -232,7 +233,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: Colors.grey[900],
+                  color: AppTheme.primaryDark,
                 ),
               ),
               const SizedBox(height: 8),
@@ -241,7 +242,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
-                  color: Colors.grey[600],
+                  color: AppTheme.gray600,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -279,7 +280,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Too many failed attempts. Try again later.'),
-                      backgroundColor: Colors.red,
+                      backgroundColor: AppTheme.error,
                     ),
                   );
                 } else {
@@ -300,7 +301,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                 Navigator.pop(context);
                 Navigator.pop(context);
               },
-              child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+              child: Text('Cancel', style: TextStyle(color: AppTheme.gray600)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -317,7 +318,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Too many failed attempts. Try again later.'),
-                        backgroundColor: Colors.red,
+                        backgroundColor: AppTheme.error,
                       ),
                     );
                   } else {
@@ -349,7 +350,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: Colors.grey[50],
+        backgroundColor: AppTheme.gray50,
         body: const Center(
           child: CircularProgressIndicator(color: Color(0xFF6366F1)),
         ),
@@ -358,18 +359,18 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
 
     if (!_isAuthenticated) {
       return Scaffold(
-        backgroundColor: Colors.grey[50],
+        backgroundColor: AppTheme.gray50,
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.grey[800]),
+            icon: Icon(Icons.arrow_back, color: AppTheme.gray800),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             'Private Chats',
             style: TextStyle(
-              color: Colors.grey[900],
+              color: AppTheme.primaryDark,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -378,14 +379,14 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.lock_outline, size: 80, color: Colors.grey[400]),
+              Icon(Icons.lock_outline, size: 80, color: AppTheme.gray400),
               const SizedBox(height: 20),
               Text(
                 'Authentication Required',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey[700],
+                  color: AppTheme.gray700,
                 ),
               ),
               const SizedBox(height: 12),
@@ -407,12 +408,12 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppTheme.gray50,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.grey[800]),
+          icon: Icon(Icons.arrow_back, color: AppTheme.gray800),
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
@@ -433,7 +434,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
             Text(
               'Private Chats',
               style: TextStyle(
-                color: Colors.grey[900],
+                color: AppTheme.primaryDark,
                 fontWeight: FontWeight.w600,
                 fontSize: 18,
               ),
@@ -442,7 +443,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
         ),
         actions: [
           PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert, color: Colors.grey[700]),
+            icon: Icon(Icons.more_vert, color: AppTheme.gray700),
             onSelected: (value) async {
               switch (value) {
                 case 'change_password':
@@ -532,7 +533,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: Colors.grey[900],
+              color: AppTheme.primaryDark,
             ),
           ),
           const SizedBox(height: 8),
@@ -542,7 +543,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
               'Move important conversations here to keep them protected with a password',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[600],
+                color: AppTheme.gray600,
               ),
               textAlign: TextAlign.center,
             ),
@@ -607,7 +608,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                     CircleAvatar(
                       radius: 28,
                       backgroundImage: NetworkImage(chat['chatAvatar'] ?? ''),
-                      backgroundColor: Colors.grey[200],
+                      backgroundColor: AppTheme.gray200,
                     ),
                     Positioned(
                       right: 0,
@@ -635,7 +636,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.grey[900],
+                          color: AppTheme.primaryDark,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -672,7 +673,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                   ),
                 ),
                 // Arrow
-                Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
+                Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.gray400),
               ],
             ),
           ),
@@ -717,7 +718,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to open chat: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.error,
           ),
         );
       }
@@ -734,17 +735,17 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: Colors.grey[900],
+            color: AppTheme.primaryDark,
           ),
         ),
         content: Text(
           'This chat will be moved back to your regular chat list.',
-          style: TextStyle(color: Colors.grey[600]),
+          style: TextStyle(color: AppTheme.gray600),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+            child: Text('Cancel', style: TextStyle(color: AppTheme.gray600)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -754,13 +755,13 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Chat removed from Private'),
-                    backgroundColor: Colors.green,
+                    backgroundColor: AppTheme.success,
                   ),
                 );
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: AppTheme.error,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
@@ -793,7 +794,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey[900],
+                  color: AppTheme.primaryDark,
                 ),
               ),
             ],
@@ -847,7 +848,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+              child: Text('Cancel', style: TextStyle(color: AppTheme.gray600)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -875,14 +876,14 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Password changed successfully'),
-                      backgroundColor: Colors.green,
+                      backgroundColor: AppTheme.success,
                     ),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Current password is incorrect'),
-                      backgroundColor: Colors.red,
+                      backgroundColor: AppTheme.error,
                     ),
                   );
                 }

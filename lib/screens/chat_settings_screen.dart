@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -71,7 +72,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Settings saved successfully'),
-            backgroundColor: Colors.green,
+            backgroundColor: AppTheme.success,
             duration: Duration(seconds: 2),
           ),
         );
@@ -81,7 +82,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error saving settings: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.error,
             duration: const Duration(seconds: 3),
           ),
         );
@@ -108,10 +109,10 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isSelected
-              ? Colors.grey[800]
+              ? AppTheme.gray800
               : Colors.white,
           border: Border.all(
-            color: isSelected ? Colors.grey[700]! : Colors.grey[300]!,
+            color: isSelected ? AppTheme.gray700! : AppTheme.gray300!,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12),
@@ -123,7 +124,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
               color: isSelected
                   ? Colors.white
                   : _autoDeleteEnabled
-                      ? Colors.grey[800]
+                      ? AppTheme.gray800
                       : Colors.grey,
               size: 28,
             ),
@@ -137,7 +138,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                      color: isSelected ? Colors.white : (_autoDeleteEnabled ? Colors.grey[900] : Colors.grey),
+                      color: isSelected ? Colors.white : (_autoDeleteEnabled ? AppTheme.primaryDark : Colors.grey),
                     ),
                   ),
                   if (minutes > 0)
@@ -145,8 +146,8 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                       'Messages will be deleted after $label',
                       style: TextStyle(
                         fontSize: 12,
-                        color: isSelected ? Colors.grey[300] : (_autoDeleteEnabled
-                            ? Colors.grey[600]
+                        color: isSelected ? AppTheme.gray300 : (_autoDeleteEnabled
+                            ? AppTheme.gray600
                             : Colors.grey),
                       ),
                     ),
@@ -170,10 +171,10 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
     return LoadingOverlay(
       isLoading: _isLoading,
       child: Scaffold(
-        backgroundColor: Colors.grey[50],
+        backgroundColor: AppTheme.gray50,
         appBar: AppBar(
           title: const Text('Chat Settings'),
-          backgroundColor: Colors.grey[900],
+          backgroundColor: AppTheme.primaryDark,
           foregroundColor: Colors.white,
           elevation: 0,
         ),
@@ -188,7 +189,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                       children: [
                         CircleAvatar(
                           radius: 24,
-                          backgroundColor: Colors.grey[800],
+                          backgroundColor: AppTheme.gray800,
                           child: const Icon(
                             Icons.auto_delete,
                             color: Colors.white,
@@ -211,7 +212,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                                 'Chat with ${widget.userMap['name']}',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey[600],
+                                  color: AppTheme.gray600,
                                 ),
                               ),
                             ],
@@ -229,7 +230,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.grey[300]!,
+                          color: AppTheme.gray300!,
                         ),
                       ),
                       child: Row(
@@ -240,7 +241,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                                 : Icons.toggle_off,
                             size: 48,
                             color: _autoDeleteEnabled
-                                ? Colors.grey[800]
+                                ? AppTheme.gray800
                                 : Colors.grey,
                           ),
                           const SizedBox(width: 12),
@@ -261,7 +262,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                                       : 'Messages will not be deleted',
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: Colors.grey[600],
+                                    color: AppTheme.gray600,
                                   ),
                                 ),
                               ],
@@ -278,7 +279,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                               });
                               _saveSettings();
                             },
-                            activeTrackColor: Colors.grey[700],
+                            activeTrackColor: AppTheme.gray700,
                             activeThumbColor: Colors.white,
                           ),
                         ],
@@ -301,7 +302,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                         'Choose how long messages should be kept',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey[600],
+                          color: AppTheme.gray600,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -378,7 +379,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                         children: [
                           Icon(
                             Icons.lock_outline,
-                            color: Colors.green[700],
+                            color: AppTheme.success,
                             size: 24,
                           ),
                           const SizedBox(width: 12),
@@ -413,7 +414,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red[700],
+                          backgroundColor: AppTheme.error,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -442,7 +443,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
         ),
         title: Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.red[700], size: 28),
+            Icon(Icons.warning_amber_rounded, color: AppTheme.error, size: 28),
             const SizedBox(width: 12),
             const Text(
               'Delete All Messages?',
@@ -461,7 +462,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
               'This will permanently delete ALL messages in this chat.',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[700],
+                color: AppTheme.gray700,
                 height: 1.4,
               ),
             ),
@@ -474,7 +475,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline, color: Colors.red[700], size: 20),
+                  Icon(Icons.info_outline, color: AppTheme.error, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -482,7 +483,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: Colors.red[700],
+                        color: AppTheme.error,
                       ),
                     ),
                   ),
@@ -496,7 +497,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Cancel',
-              style: TextStyle(color: Colors.grey[600]),
+              style: TextStyle(color: AppTheme.gray600),
             ),
           ),
           ElevatedButton(
@@ -505,7 +506,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
               await _deleteAllMessages();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red[700],
+              backgroundColor: AppTheme.error,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -559,7 +560,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                 ),
               ],
             ),
-            backgroundColor: success ? Colors.green[700] : Colors.red[700],
+            backgroundColor: success ? AppTheme.success : AppTheme.error,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -572,7 +573,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
-            backgroundColor: Colors.red[700],
+            backgroundColor: AppTheme.error,
             behavior: SnackBarBehavior.floating,
           ),
         );

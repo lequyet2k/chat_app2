@@ -1,3 +1,4 @@
+import 'package:my_porject/configs/app_theme.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
@@ -178,7 +179,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 height: 60,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.grey[800],
+                  color: AppTheme.gray800,
                 ),
                 child: widget.userAvatar != null && widget.userAvatar!.isNotEmpty
                     ? ClipOval(
@@ -270,7 +271,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 height: 120,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.grey[800],
+                  color: AppTheme.gray800,
                   border: Border.all(color: Colors.white24, width: 3),
                 ),
                 child: widget.calleeAvatar != null && widget.calleeAvatar!.isNotEmpty
@@ -310,7 +311,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 height: 24,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.grey[600]!),
+                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.gray600!),
                 ),
               ),
             ],
@@ -448,7 +449,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                   _buildControlButton(
                     icon: Icons.call_end,
                     onPressed: _onCallEnd,
-                    backgroundColor: Colors.red,
+                    backgroundColor: AppTheme.error,
                     iconColor: Colors.white,
                     size: 64,
                     iconSize: 32,
