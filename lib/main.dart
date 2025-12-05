@@ -1,34 +1,48 @@
+import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode;
+import 'package:provider/provider.dart';
+
+// Firebase config
 import 'package:my_porject/resources/firebase_options.dart';
+
+// Providers
+import 'package:my_porject/provider/user_provider.dart';
+
+// Screens
 import 'package:my_porject/screens/login_screen.dart';
 import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/screens/biometric_lock_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
-import 'package:my_porject/provider/user_provider.dart';
-import 'package:my_porject/services/key_manager.dart';
+
+// Services
+import 'package:my_porject/services/fcm_service.dart';
 import 'package:my_porject/services/biometric_auth_service.dart';
 import 'package:my_porject/services/user_presence_service.dart';
-import 'package:my_porject/services/fcm_service.dart';
-import 'package:my_porject/utils/error_handler.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+
+// Background message handler - must be top-level function
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  if (kDebugMode) {
+    debugPrint('🔔 [FCM] Background message: ${message.messageId}');
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize global error handler
-  ErrorHandler.initialize();
-  
+
+  // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Initialize FCM background handler (must be before runApp)
-  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  // Set up background message handler
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  // Initialize FCM service
+  // Initialize FCM Service (skip on web for now to avoid issues)
   if (!kIsWeb) {
     await FCMService().initialize();
   }
@@ -46,18 +60,68 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => UserProvider()),
       ],
       child: MaterialApp(
-        title: 'E2EE Chat App',
+        title: 'SecureChat',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue,
+            brightness: Brightness.light,
+          ),
           useMaterial3: true,
+          fontFamily: 'OpenSans',
+          appBarTheme: const AppBarTheme(
+            centerTitle: true,
+            elevation: 0,
+          ),
+          cardTheme: CardThemeData(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+          ),
         ),
+        darkTheme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue,
+            brightness: Brightness.dark,
+          ),
+          useMaterial3: true,
+          fontFamily: 'OpenSans',
+          appBarTheme: const AppBarTheme(
+            centerTitle: true,
+            elevation: 0,
+          ),
+          cardTheme: CardThemeData(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+          ),
+        ),
+        themeMode: ThemeMode.system,
         home: const AuthWrapper(),
       ),
     );
   }
 }
 
+/// Wrapper widget to handle authentication state
 class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
 
@@ -66,17 +130,16 @@ class AuthWrapper extends StatefulWidget {
 }
 
 class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
-  bool _keysInitialized = false;
   final BiometricAuthService _biometricService = BiometricAuthService();
   final UserPresenceService _presenceService = UserPresenceService();
-  bool _needsBiometricAuth = false;
   bool _isCheckingBiometric = true;
+  bool _needsBiometric = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _checkBiometricRequirement();
+    _checkBiometric();
   }
 
   @override
@@ -88,80 +151,87 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final user = FirebaseAuth.instance.currentUser;
-    
-    if (user != null) {
-      // Update user presence based on app lifecycle
-      if (state == AppLifecycleState.resumed) {
-        print('📱 [Lifecycle] App RESUMED - setting user ONLINE');
+    if (user == null) return;
+
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // App came to foreground - set online
         _presenceService.setUserOnline();
-        _checkBiometricRequirement();
-      } else if (state == AppLifecycleState.paused) {
-        print('📱 [Lifecycle] App PAUSED - setting user OFFLINE');
+        // Check if biometric needed
+        _checkBiometricOnResume();
+        break;
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
+        // App went to background - set offline
         _presenceService.setUserOffline();
-      } else if (state == AppLifecycleState.inactive) {
-        print('📱 [Lifecycle] App INACTIVE');
-        // Don't change status for inactive (e.g., phone call)
-      } else if (state == AppLifecycleState.detached) {
-        print('📱 [Lifecycle] App DETACHED - setting user OFFLINE');
-        _presenceService.setUserOffline();
-      }
+        break;
     }
   }
 
-  Future<void> _checkBiometricRequirement() async {
-    print('🔐 [Biometric] Checking biometric requirement...');
-    
-    // Skip biometric auth on web platform
-    if (kIsWeb) {
-      print('🌐 [Biometric] Web platform - skipping biometric');
-      if (mounted) {
-        setState(() {
-          _needsBiometricAuth = false;
-          _isCheckingBiometric = false;
-        });
-      }
+  Future<void> _checkBiometric() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      setState(() {
+        _isCheckingBiometric = false;
+        _needsBiometric = false;
+      });
       return;
     }
-    
-    print('📱 [Biometric] Mobile platform - checking authentication need');
-    final needsAuth = await _biometricService.needsReAuthentication();
-    print('${needsAuth ? "🔒" : "🔓"} [Biometric] Needs auth: $needsAuth');
-    
-    if (mounted) {
+
+    // Skip biometric on web
+    if (kIsWeb) {
       setState(() {
-        _needsBiometricAuth = needsAuth;
         _isCheckingBiometric = false;
+        _needsBiometric = false;
       });
+      return;
     }
+
+    final needsAuth = await _biometricService.needsReAuthentication();
+    setState(() {
+      _isCheckingBiometric = false;
+      _needsBiometric = needsAuth;
+    });
   }
 
-  Future<void> _ensureEncryptionReady(User user) async {
-    if (!_keysInitialized) {
-      await KeyManager.ensureKeysReady();
-      _keysInitialized = true;
+  Future<void> _checkBiometricOnResume() async {
+    if (kIsWeb) return;
+    
+    final needsAuth = await _biometricService.needsReAuthentication(
+      timeout: const Duration(minutes: 1),
+    );
+    
+    if (needsAuth && mounted) {
+      setState(() {
+        _needsBiometric = true;
+      });
     }
   }
 
   void _onBiometricSuccess() {
     setState(() {
-      _needsBiometricAuth = false;
+      _needsBiometric = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Show biometric lock if needed
-    if (_needsBiometricAuth && !_isCheckingBiometric) {
-      return BiometricLockScreen(
-        onAuthenticationSuccess: _onBiometricSuccess,
+    // Show loading while checking
+    if (_isCheckingBiometric) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
       );
     }
 
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        // Show loading indicator while checking authentication
-        if (snapshot.connectionState == ConnectionState.waiting || _isCheckingBiometric) {
+        // Still loading
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(
               child: CircularProgressIndicator(),
@@ -169,39 +239,29 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
           );
         }
 
-        // If user is logged in, ensure encryption keys and show home screen
+        // User logged in
         if (snapshot.hasData && snapshot.data != null) {
-          // Set user online when authenticated
-          _presenceService.setUserOnline();
+          final user = snapshot.data!;
           
-          return FutureBuilder(
-            future: _ensureEncryptionReady(snapshot.data!),
-            builder: (context, keySnapshot) {
-              if (keySnapshot.connectionState == ConnectionState.waiting) {
-                return const Scaffold(
-                  body: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(),
-                        SizedBox(height: 16),
-                        Text('Initializing encryption...'),
-                      ],
-                    ),
-                  ),
-                );
-              }
-              return HomeScreen(user: snapshot.data!);
-            },
-          );
+          // Check email verification
+          if (!user.emailVerified && 
+              user.providerData.any((p) => p.providerId == 'password')) {
+            // Email/password user not verified - go to login
+            return Login();
+          }
+
+          // Check biometric
+          if (_needsBiometric && !kIsWeb) {
+            return BiometricLockScreen(
+              onAuthenticationSuccess: _onBiometricSuccess,
+            );
+          }
+
+          // All checks passed - show home
+          return HomeScreen(user: user);
         }
 
-        // If user logged out, set offline
-        if (snapshot.hasData == false) {
-          _presenceService.setUserOffline();
-        }
-
-        // Otherwise, show login screen
+        // User not logged in
         return Login();
       },
     );
