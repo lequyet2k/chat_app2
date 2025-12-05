@@ -37,6 +37,10 @@ class AutoDeleteService {
         final autoDeleteEnabled = data['autoDeleteEnabled'] ?? false;
         final autoDeleteDuration = data['autoDeleteDuration'] ?? 0;
 
+        if (kDebugMode) {
+          print('🗑️ [AutoDelete] Settings changed - Enabled: $autoDeleteEnabled, Duration: $autoDeleteDuration mins');
+        }
+
         if (autoDeleteEnabled && autoDeleteDuration > 0) {
           _startAutoDeleteTimer(chatRoomId, autoDeleteDuration);
         } else {
@@ -65,6 +69,7 @@ class AutoDeleteService {
 
     if (kDebugMode) {
       print('🗑️ [AutoDelete] Starting timer for $chatRoomId - Duration: $durationMinutes minutes');
+      print('🗑️ [AutoDelete] Will check every 30 seconds for messages older than $durationMinutes minutes');
     }
 
     // Chạy ngay lập tức lần đầu
@@ -94,7 +99,11 @@ class AutoDeleteService {
       final cutoffTime = DateTime.now().subtract(Duration(minutes: durationMinutes));
       
       if (kDebugMode) {
-        print('🗑️ [AutoDelete] Checking messages older than: $cutoffTime');
+        print('🗑️ [AutoDelete] ========================================');
+        print('🗑️ [AutoDelete] Checking chatroom: $chatRoomId');
+        print('🗑️ [AutoDelete] Current time: ${DateTime.now()}');
+        print('🗑️ [AutoDelete] Cutoff time: $cutoffTime');
+        print('🗑️ [AutoDelete] Delete messages older than $durationMinutes minutes');
       }
 
       // Query các tin nhắn cũ hơn cutoff time
@@ -107,17 +116,23 @@ class AutoDeleteService {
 
       if (oldMessages.docs.isEmpty) {
         if (kDebugMode) {
-          print('🗑️ [AutoDelete] No old messages to delete');
+          print('🗑️ [AutoDelete] No old messages found to delete');
+          print('🗑️ [AutoDelete] ========================================');
         }
         return;
       }
 
       if (kDebugMode) {
-        print('🗑️ [AutoDelete] Found ${oldMessages.docs.length} messages to delete');
+        print('🗑️ [AutoDelete] Found ${oldMessages.docs.length} messages to delete!');
+        for (var doc in oldMessages.docs) {
+          final data = doc.data();
+          final msgTime = (data['timeStamp'] as Timestamp?)?.toDate();
+          print('🗑️ [AutoDelete]   - Message from $msgTime: "${(data['message'] ?? '').toString().substring(0, (data['message'] ?? '').toString().length > 30 ? 30 : (data['message'] ?? '').toString().length)}..."');
+        }
       }
 
       // Batch delete để tối ưu performance
-      final batch = _firestore.batch();
+      WriteBatch batch = _firestore.batch();
       int deleteCount = 0;
 
       for (final doc in oldMessages.docs) {
@@ -128,8 +143,9 @@ class AutoDeleteService {
         if (deleteCount >= 450) {
           await batch.commit();
           if (kDebugMode) {
-            print('🗑️ [AutoDelete] Deleted batch of $deleteCount messages');
+            print('🗑️ [AutoDelete] Committed batch of $deleteCount deletes');
           }
+          batch = _firestore.batch();
           deleteCount = 0;
         }
       }
@@ -138,7 +154,7 @@ class AutoDeleteService {
       if (deleteCount > 0) {
         await batch.commit();
         if (kDebugMode) {
-          print('🗑️ [AutoDelete] Deleted final batch of $deleteCount messages');
+          print('🗑️ [AutoDelete] Committed final batch of $deleteCount deletes');
         }
       }
 
@@ -148,10 +164,16 @@ class AutoDeleteService {
 
       // Cập nhật last message trong chatroom nếu cần
       await _updateLastMessage(chatRoomId);
+      
+      if (kDebugMode) {
+        print('🗑️ [AutoDelete] ========================================');
+      }
 
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (kDebugMode) {
         print('❌ [AutoDelete] Error deleting messages: $e');
+        print('❌ [AutoDelete] Stack trace: $stackTrace');
+        print('🗑️ [AutoDelete] ========================================');
       }
     }
   }
@@ -174,12 +196,18 @@ class AutoDeleteService {
           'lastMessage': latestMessage['message'] ?? '',
           'type': latestMessage['type'] ?? 'text',
         });
+        if (kDebugMode) {
+          print('🗑️ [AutoDelete] Updated last message to: "${latestMessage['message']}"');
+        }
       } else {
         // Không còn tin nhắn nào
         await _firestore.collection('chatroom').doc(chatRoomId).update({
           'lastMessage': '',
           'type': 'text',
         });
+        if (kDebugMode) {
+          print('🗑️ [AutoDelete] No messages left, cleared last message');
+        }
       }
     } catch (e) {
       if (kDebugMode) {
@@ -202,11 +230,18 @@ class AutoDeleteService {
           .get();
 
       if (allMessages.docs.isEmpty) {
+        if (kDebugMode) {
+          print('🗑️ [AutoDelete] No messages to delete');
+        }
         return true;
       }
 
+      if (kDebugMode) {
+        print('🗑️ [AutoDelete] Found ${allMessages.docs.length} messages to delete');
+      }
+
       // Batch delete
-      final batch = _firestore.batch();
+      WriteBatch batch = _firestore.batch();
       int deleteCount = 0;
 
       for (final doc in allMessages.docs) {
@@ -215,6 +250,10 @@ class AutoDeleteService {
 
         if (deleteCount >= 450) {
           await batch.commit();
+          if (kDebugMode) {
+            print('🗑️ [AutoDelete] Committed batch of $deleteCount deletes');
+          }
+          batch = _firestore.batch();
           deleteCount = 0;
         }
       }
@@ -259,6 +298,21 @@ class AutoDeleteService {
         print('❌ [AutoDelete] Error getting settings: $e');
       }
       return null;
+    }
+  }
+
+  /// Trigger xóa ngay lập tức (gọi thủ công khi cần test)
+  Future<void> triggerDeleteNow(String chatRoomId) async {
+    final settings = await getAutoDeleteSettings(chatRoomId);
+    if (settings != null && settings['enabled'] == true && settings['duration'] > 0) {
+      if (kDebugMode) {
+        print('🗑️ [AutoDelete] Manual trigger delete for $chatRoomId');
+      }
+      await _deleteOldMessages(chatRoomId, settings['duration']);
+    } else {
+      if (kDebugMode) {
+        print('🗑️ [AutoDelete] Auto-delete is not enabled for $chatRoomId');
+      }
     }
   }
 
