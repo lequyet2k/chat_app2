@@ -286,9 +286,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
               const SizedBox(height: 8),
               // User name - compact for small preview
               Text(
-                widget.userName.length > 10 
-                    ? '${widget.userName.substring(0, 10)}...'
-                    : widget.userName,
+                widget.userName,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,

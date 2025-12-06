@@ -2,6 +2,7 @@ import 'package:my_porject/configs/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/db/log_repository.dart';
+import 'package:my_porject/resources/methods.dart';
 
 import '../models/log_model.dart';
 
@@ -146,7 +147,7 @@ class _CallLogListContainerState extends State<CallLogListContainer> {
                                   getIcon(_log.callStatus),
                                   SizedBox(width: 4),
                                   Text(
-                                    '${_log.timeStamp!.substring(11, 16)} • ${_log.timeStamp!.substring(0, 10)}',
+                                    formatTimestampSafe(_log.timeStamp),
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: AppTheme.gray600,

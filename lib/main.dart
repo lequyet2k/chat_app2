@@ -45,10 +45,8 @@ void main() async {
   // Set up background message handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  // Initialize FCM Service (skip on web for now to avoid issues)
-  if (!kIsWeb) {
-    await FCMService().initialize();
-  }
+  // Initialize FCM Service for Android
+  await FCMService().initialize();
 
   runApp(const MyApp());
 }
@@ -134,15 +132,6 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
       return;
     }
 
-    // Skip biometric on web
-    if (kIsWeb) {
-      setState(() {
-        _isCheckingBiometric = false;
-        _needsBiometric = false;
-      });
-      return;
-    }
-
     final needsAuth = await _biometricService.needsReAuthentication();
     setState(() {
       _isCheckingBiometric = false;
@@ -151,8 +140,6 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
   }
 
   Future<void> _checkBiometricOnResume() async {
-    if (kIsWeb) return;
-    
     final needsAuth = await _biometricService.needsReAuthentication(
       timeout: const Duration(minutes: 1),
     );
@@ -214,7 +201,7 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
           }
 
           // Check biometric
-          if (_needsBiometric && !kIsWeb) {
+          if (_needsBiometric) {
             return BiometricLockScreen(
               onAuthenticationSuccess: _onBiometricSuccess,
             );

@@ -993,7 +993,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
-                                    "${groupByValue.substring(11, 16)}, ${groupByValue.substring(0, 10)}",
+                                    "formatTimestampSafe(groupByValue)",
                                     style: TextStyle(
                                         color: Colors.grey[700],
                                         fontSize: 12,

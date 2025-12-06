@@ -322,8 +322,16 @@ class _ConversationListState extends State<ConversationList> {
                   ),
                 ),
                 child: CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider(widget.chatHistory['avatar']),
+                  backgroundImage: widget.chatHistory['avatar'] != null && 
+                                   widget.chatHistory['avatar'].toString().isNotEmpty
+                      ? CachedNetworkImageProvider(widget.chatHistory['avatar'])
+                      : null,
+                  backgroundColor: Colors.grey.shade300,
                   radius: 28,
+                  child: widget.chatHistory['avatar'] == null || 
+                         widget.chatHistory['avatar'].toString().isEmpty
+                      ? Icon(Icons.person, color: Colors.grey.shade600, size: 28)
+                      : null,
                 ),
               ),
               const SizedBox(width: 12),
@@ -384,7 +392,7 @@ class _ConversationListState extends State<ConversationList> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '${widget.chatHistory['time'].toString().substring(11, 16)}',
+                          extractTimeSafe(widget.chatHistory['time']?.toString()),
                           style: TextStyle(
                             fontSize: 11,
                             color: Colors.grey[500],

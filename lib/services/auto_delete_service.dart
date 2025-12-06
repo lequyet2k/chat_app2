@@ -178,7 +178,7 @@ class AutoDeleteService {
     }
   }
 
-  /// Cập nhật last message trong chatroom sau khi xóa
+  /// Cập nhật last message trong chatroom và chat history sau khi xóa
   Future<void> _updateLastMessage(String chatRoomId) async {
     try {
       // Lấy tin nhắn mới nhất còn lại
@@ -190,14 +190,22 @@ class AutoDeleteService {
           .limit(1)
           .get();
 
+      String newLastMessage = '';
+      String newType = 'text';
+      String newTime = '';
+
       if (latestMessages.docs.isNotEmpty) {
         final latestMessage = latestMessages.docs.first.data();
+        newLastMessage = latestMessage['message'] ?? '';
+        newType = latestMessage['type'] ?? 'text';
+        newTime = latestMessage['time'] ?? '';
+        
         await _firestore.collection('chatroom').doc(chatRoomId).update({
-          'lastMessage': latestMessage['message'] ?? '',
-          'type': latestMessage['type'] ?? 'text',
+          'lastMessage': newLastMessage,
+          'type': newType,
         });
         if (kDebugMode) {
-          print('🗑️ [AutoDelete] Updated last message to: "${latestMessage['message']}"');
+          print('🗑️ [AutoDelete] Updated last message to: "$newLastMessage"');
         }
       } else {
         // Không còn tin nhắn nào
@@ -209,9 +217,66 @@ class AutoDeleteService {
           print('🗑️ [AutoDelete] No messages left, cleared last message');
         }
       }
+      
+      // IMPORTANT: Also update chat history for all users to reflect in home screen
+      await _updateChatHistoryForAllUsers(chatRoomId, newLastMessage, newType, newTime);
+      
     } catch (e) {
       if (kDebugMode) {
         print('❌ [AutoDelete] Error updating last message: $e');
+      }
+    }
+  }
+  
+  /// Update chat history for all users in the chatroom
+  Future<void> _updateChatHistoryForAllUsers(String chatRoomId, String lastMessage, String type, String time) async {
+    try {
+      // Get chatroom info to find participants
+      final chatroomDoc = await _firestore.collection('chatroom').doc(chatRoomId).get();
+      if (!chatroomDoc.exists) return;
+      
+      final chatroomData = chatroomDoc.data()!;
+      final users = chatroomData['users'] as List<dynamic>? ?? [];
+      
+      if (kDebugMode) {
+        print('🗑️ [AutoDelete] Updating chat history for ${users.length} users');
+      }
+      
+      // Update chat history for each user
+      for (final userId in users) {
+        try {
+          final historyDoc = await _firestore
+              .collection('users')
+              .doc(userId.toString())
+              .collection('chatHistory')
+              .doc(chatRoomId)
+              .get();
+          
+          if (historyDoc.exists) {
+            await _firestore
+                .collection('users')
+                .doc(userId.toString())
+                .collection('chatHistory')
+                .doc(chatRoomId)
+                .update({
+              'lastMessage': lastMessage.isEmpty ? 'No messages' : lastMessage,
+              'type': type,
+              if (time.isNotEmpty) 'time': time,
+            });
+            
+            if (kDebugMode) {
+              print('🗑️ [AutoDelete] Updated chat history for user: $userId');
+            }
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('⚠️ [AutoDelete] Failed to update history for user $userId: $e');
+          }
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ [AutoDelete] Error updating chat history: $e');
       }
     }
   }
@@ -262,11 +327,14 @@ class AutoDeleteService {
         await batch.commit();
       }
 
-      // Reset last message
+      // Reset last message in chatroom
       await _firestore.collection('chatroom').doc(chatRoomId).update({
         'lastMessage': '',
         'type': 'text',
       });
+      
+      // Also update chat history for all users
+      await _updateChatHistoryForAllUsers(chatRoomId, '', 'text', '');
 
       if (kDebugMode) {
         print('✅ [AutoDelete] Successfully deleted all ${allMessages.docs.length} messages');

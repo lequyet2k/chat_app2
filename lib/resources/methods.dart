@@ -60,3 +60,54 @@ String timeForMessage(String dateString) {
   var formatter = DateFormat('dd/MM/yyyy' + " " + 'HH:mm');
   return formatter.format(dateTime);
 }
+
+/// Safely format timestamp string for display
+/// Handles cases where timestamp might be malformed or too short
+/// Returns formatted string like "14:30, 06/12/2025" or "Invalid time" if malformed
+String formatTimestampSafe(String? timestamp) {
+  if (timestamp == null || timestamp.isEmpty) {
+    return 'Unknown time';
+  }
+  
+  try {
+    // Expected format from timeForMessage: "dd/MM/yyyy HH:mm" (16 chars)
+    // Example: "06/12/2025 14:30"
+    if (timestamp.length >= 16) {
+      // Format: time, date
+      return "${timestamp.substring(11, 16)}, ${timestamp.substring(0, 10)}";
+    } else if (timestamp.length >= 10) {
+      // Only date available
+      return timestamp.substring(0, 10);
+    } else {
+      // Try parsing as DateTime
+      final dt = DateTime.tryParse(timestamp);
+      if (dt != null) {
+        return DateFormat('HH:mm, dd/MM/yyyy').format(dt);
+      }
+      return timestamp; // Return as-is if can't parse
+    }
+  } catch (e) {
+    return 'Invalid time';
+  }
+}
+
+/// Safely extract time (HH:mm) from timestamp
+/// Returns "HH:mm" format or empty string if invalid
+String extractTimeSafe(String? timestamp) {
+  if (timestamp == null || timestamp.isEmpty) {
+    return '';
+  }
+  
+  try {
+    if (timestamp.length >= 16) {
+      return timestamp.substring(11, 16);
+    } else if (timestamp.length >= 5) {
+      // Maybe already in HH:mm format
+      return timestamp.substring(0, 5);
+    } else {
+      return '';
+    }
+  } catch (e) {
+    return '';
+  }
+}

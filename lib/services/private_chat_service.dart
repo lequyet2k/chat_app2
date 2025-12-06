@@ -26,18 +26,14 @@ class PrivateChatService {
   static DateTime? _lastAuthTime;
   
   /// Check if user has set up Private Chat password
-  /// First checks local storage, then falls back to Firestore
+  /// Checks Firestore first (reliable), then local storage as backup
   static Future<bool> hasPassword() async {
     try {
-      // Try local storage first
-      final localPassword = await _secureStorage.read(key: _privatePasswordKey);
-      if (localPassword != null && localPassword.isNotEmpty) {
-        return true;
-      }
-      
-      // Fallback to Firestore (cloud backup)
+      // Check Firestore FIRST (most reliable, persists across reinstalls)
       final userId = _auth.currentUser?.uid;
       if (userId != null) {
+        debugPrint('🔐 PrivateChatService: Checking password for user: $userId');
+        
         final doc = await _firestore
             .collection('users')
             .doc(userId)
@@ -46,14 +42,34 @@ class PrivateChatService {
             .get();
         
         if (doc.exists && doc.data()?['passwordHash'] != null) {
-          // Sync to local storage for faster future access
           final cloudHash = doc.data()!['passwordHash'] as String;
-          await _secureStorage.write(key: _privatePasswordKey, value: cloudHash);
-          debugPrint('✅ PrivateChatService: Synced password from cloud to local');
-          return true;
+          if (cloudHash.isNotEmpty) {
+            debugPrint('✅ PrivateChatService: Password found in Firestore');
+            // Sync to local storage for faster future access
+            try {
+              await _secureStorage.write(key: _privatePasswordKey, value: cloudHash);
+              debugPrint('✅ PrivateChatService: Synced password to local storage');
+            } catch (localError) {
+              debugPrint('⚠️ PrivateChatService: Could not sync to local: $localError');
+            }
+            return true;
+          }
         }
+        debugPrint('⚠️ PrivateChatService: No password in Firestore');
       }
       
+      // Fallback to local storage (in case Firestore fails)
+      try {
+        final localPassword = await _secureStorage.read(key: _privatePasswordKey);
+        if (localPassword != null && localPassword.isNotEmpty) {
+          debugPrint('✅ PrivateChatService: Password found in local storage');
+          return true;
+        }
+      } catch (localError) {
+        debugPrint('⚠️ PrivateChatService: Local storage read error: $localError');
+      }
+      
+      debugPrint('❌ PrivateChatService: No password found anywhere');
       return false;
     } catch (e) {
       debugPrint('❌ PrivateChatService: Error checking password: $e');
