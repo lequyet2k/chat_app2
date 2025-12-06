@@ -68,6 +68,19 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _autoDeleteEnabled = false;
   int _autoDeleteDuration = 0;
 
+  // Helper function to format call duration in seconds to readable format
+  String _formatCallDuration(dynamic seconds) {
+    if (seconds == null) return '';
+    final int secs = seconds is int ? seconds : int.tryParse(seconds.toString()) ?? 0;
+    if (secs < 60) return '${secs}s';
+    final int mins = secs ~/ 60;
+    final int remainingSecs = secs % 60;
+    if (mins < 60) return '${mins}m ${remainingSecs}s';
+    final int hours = mins ~/ 60;
+    final int remainingMins = mins % 60;
+    return '${hours}h ${remainingMins}m';
+  }
+
   // Helper function to format Timestamp to readable time string
   String _formatTimestamp(dynamic timestamp) {
     if (timestamp == null) return '';
@@ -848,7 +861,9 @@ class _ChatScreenState extends State<ChatScreen> {
                               userName: widget.user.displayName ?? 'You',
                               userAvatar: widget.user.photoURL,
                               calleeName: widget.userMap['name'] ?? 'Unknown',
-                              calleeAvatar: widget.userMap['image'],
+                              calleeAvatar: widget.userMap['avatar'] ?? widget.userMap['image'],
+                              chatRoomId: widget.chatRoomId,
+                              calleeUid: widget.userMap['uid'],
                             ),
                           ),
                         );
@@ -1463,23 +1478,23 @@ class _ChatScreenState extends State<ChatScreen> {
                         width: 5,
                       ),
                       Column(
-                        children: const [
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Text(
-                            "Video Call",
+                            map['callStatus'] == 'missed' ? "Missed Call" : "Video Call",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Colors.white70,
+                              color: map['callStatus'] == 'missed' ? Colors.redAccent : Colors.white70,
                             ),
                           ),
-                          // Text(
-                          //   // int.parse(map['timeSpend'].toString()) < 60 ?
-                          //   map['timeSpend'].toString() + "s" ,
-                          //   // : (map['timeSpend'] / 60).toString() + "p "+ (map['timeSpend'] % 60).toString() + "s",
-                          //   style: TextStyle(
-                          //     fontSize: 13,
-                          //     color: Colors.grey.shade300,
-                          //   ),
-                          // ),
+                          if (map['timeSpend'] != null && map['timeSpend'] > 0)
+                            Text(
+                              _formatCallDuration(map['timeSpend']),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade300,
+                              ),
+                            ),
                         ],
                       ),
                     ],

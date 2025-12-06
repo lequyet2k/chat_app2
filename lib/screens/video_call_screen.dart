@@ -3,7 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../configs/agora_configs.dart';
+import '../db/log_repository.dart';
+import '../models/log_model.dart';
 
 class VideoCallScreen extends StatefulWidget {
   final String channelName;
@@ -12,6 +15,8 @@ class VideoCallScreen extends StatefulWidget {
   final String calleeName;
   final String? calleeAvatar;  // Nullable
   final bool isGroupCall;
+  final String? chatRoomId;  // For sending call message to chat
+  final String? calleeUid;   // For identifying callee
 
   const VideoCallScreen({
     Key? key,
@@ -21,6 +26,8 @@ class VideoCallScreen extends StatefulWidget {
     required this.calleeName,
     this.calleeAvatar,  // Optional
     this.isGroupCall = false,
+    this.chatRoomId,
+    this.calleeUid,
   }) : super(key: key);
 
   @override
@@ -159,8 +166,91 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     await _engine.setEnableSpeakerphone(_isSpeakerOn);
   }
 
-  void _onCallEnd() {
+  void _onCallEnd() async {
+    // Save call log to SQLite
+    await _saveCallLog();
+    
+    // Send call message to chat
+    await _sendCallMessageToChat();
+    
     Navigator.pop(context);
+  }
+
+  /// Save call log to local SQLite database for Recent Calls
+  Future<void> _saveCallLog() async {
+    try {
+      final log = Log(
+        callerName: widget.userName,
+        callerPic: widget.userAvatar ?? '',
+        receiverName: widget.calleeName,
+        receiverPic: widget.calleeAvatar ?? '',
+        callStatus: _remoteUid != null ? 'Completed' : 'Missed',
+        timeStamp: DateTime.now().toString(),
+      );
+      
+      await LogRepository.addLogs(log);
+      debugPrint('📞 VideoCall: Call log saved - Duration: ${_formatDuration(_callDuration)}');
+    } catch (e) {
+      debugPrint('❌ VideoCall: Error saving call log: $e');
+    }
+  }
+
+  /// Send call message to chat screen
+  Future<void> _sendCallMessageToChat() async {
+    if (widget.chatRoomId == null) {
+      debugPrint('⚠️ VideoCall: No chatRoomId provided, skipping chat message');
+      return;
+    }
+
+    try {
+      final firestore = FirebaseFirestore.instance;
+      final callStatus = _remoteUid != null ? 'completed' : 'missed';
+      final callMessage = _remoteUid != null 
+          ? 'Video call - ${_formatDuration(_callDuration)}'
+          : 'Missed video call';
+
+      // Add call message to chat
+      await firestore
+          .collection('chatroom')
+          .doc(widget.chatRoomId)
+          .collection('chats')
+          .add({
+        'sendBy': widget.userName,
+        'message': callMessage,
+        'type': 'videocall',
+        'callStatus': callStatus,
+        'callDuration': _callDuration,
+        'timeSpend': _callDuration,
+        'time': '${DateTime.now().hour}:${DateTime.now().minute.toString().padLeft(2, '0')}',
+        'timeStamp': FieldValue.serverTimestamp(),
+      });
+
+      // Update last message in chatroom
+      await firestore.collection('chatroom').doc(widget.chatRoomId).update({
+        'lastMessage': callMessage,
+        'type': 'videocall',
+        'time': FieldValue.serverTimestamp(),
+      });
+
+      // Update chat history for both users
+      if (widget.calleeUid != null) {
+        // Update caller's chat history
+        await firestore
+            .collection('users')
+            .doc(widget.calleeUid)
+            .collection('chatHistory')
+            .doc(widget.chatRoomId)
+            .update({
+          'lastMessage': callMessage,
+          'time': FieldValue.serverTimestamp(),
+          'isRead': false,
+        });
+      }
+
+      debugPrint('📞 VideoCall: Call message sent to chat - $callMessage');
+    } catch (e) {
+      debugPrint('❌ VideoCall: Error sending call message: $e');
+    }
   }
 
   Widget _buildLocalPreview() {
