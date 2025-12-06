@@ -5,12 +5,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_porject/screens/login_screen.dart';
 import 'package:my_porject/services/biometric_auth_service.dart';
 import 'package:my_porject/services/fcm_service.dart';
 import 'package:my_porject/services/user_presence_service.dart';
 import 'package:my_porject/configs/app_theme.dart';
+import 'package:my_porject/widgets/page_transitions.dart';
 import 'package:uuid/uuid.dart';
 
 // ignore: must_be_immutable
@@ -47,9 +49,9 @@ class _SettingState extends State<Setting> {
   }
   
   Future<void> _checkBiometricAvailability() async {
-    print('⚙️ [Settings] Checking biometric availability...');
+    if (kDebugMode) { debugPrint('⚙️ [Settings] Checking biometric availability...'); }
     final isAvailable = await _biometricService.isBiometricAvailable();
-    print('⚙️ [Settings] Biometric available: $isAvailable');
+    if (kDebugMode) { debugPrint('⚙️ [Settings] Biometric available: $isAvailable'); }
     if (mounted) {
       setState(() {
         _isBiometricAvailable = isAvailable;
@@ -58,9 +60,9 @@ class _SettingState extends State<Setting> {
   }
   
   Future<void> _loadBiometricSetting() async {
-    print('⚙️ [Settings] Loading biometric setting...');
+    if (kDebugMode) { debugPrint('⚙️ [Settings] Loading biometric setting...'); }
     final isEnabled = await _biometricService.isBiometricEnabled();
-    print('⚙️ [Settings] Biometric enabled: $isEnabled');
+    if (kDebugMode) { debugPrint('⚙️ [Settings] Biometric enabled: $isEnabled'); }
     if (mounted) {
       setState(() {
         _isBiometricEnabled = isEnabled;
@@ -69,10 +71,10 @@ class _SettingState extends State<Setting> {
   }
   
   Future<void> _toggleBiometric(bool value) async {
-    print('🔄 [Settings] Toggle biometric: $value');
+    if (kDebugMode) { debugPrint('🔄 [Settings] Toggle biometric: $value'); }
     
     if (!_isBiometricAvailable) {
-      print('❌ [Settings] Biometric not available on this device');
+      if (kDebugMode) { debugPrint('❌ [Settings] Biometric not available on this device'); }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -88,23 +90,23 @@ class _SettingState extends State<Setting> {
     
     if (value) {
       // Enable biometric - require authentication first
-      print('🔐 [Settings] Requesting biometric authentication...');
+      if (kDebugMode) { debugPrint('🔐 [Settings] Requesting biometric authentication...'); }
       
       try {
         final authenticated = await _biometricService.authenticate(
           localizedReason: 'Authenticate to enable biometric lock',
         );
         
-        print('🔐 [Settings] Authentication result: $authenticated');
+        if (kDebugMode) { debugPrint('🔐 [Settings] Authentication result: $authenticated'); }
         
         if (authenticated) {
-          print('✅ [Settings] Enabling biometric lock...');
+          if (kDebugMode) { debugPrint('✅ [Settings] Enabling biometric lock...'); }
           await _biometricService.setBiometricEnabled(true);
           if (mounted) {
             setState(() {
               _isBiometricEnabled = true;
             });
-            print('✅ [Settings] Biometric lock enabled!');
+            if (kDebugMode) { debugPrint('✅ [Settings] Biometric lock enabled!'); }
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: const Text('Biometric lock enabled successfully'),
@@ -114,7 +116,7 @@ class _SettingState extends State<Setting> {
             );
           }
         } else {
-          print('❌ [Settings] Authentication failed');
+          if (kDebugMode) { debugPrint('❌ [Settings] Authentication failed'); }
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -126,7 +128,7 @@ class _SettingState extends State<Setting> {
           }
         }
       } catch (e) {
-        print('❌ [Settings] Error during authentication: $e');
+        if (kDebugMode) { debugPrint('❌ [Settings] Error during authentication: $e'); }
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -140,14 +142,14 @@ class _SettingState extends State<Setting> {
       }
     } else {
       // Disable biometric
-      print('🔓 [Settings] Disabling biometric lock...');
+      if (kDebugMode) { debugPrint('🔓 [Settings] Disabling biometric lock...'); }
       await _biometricService.setBiometricEnabled(false);
       await _biometricService.clearAuthenticationState();
       if (mounted) {
         setState(() {
           _isBiometricEnabled = false;
         });
-        print('✅ [Settings] Biometric lock disabled!');
+        if (kDebugMode) { debugPrint('✅ [Settings] Biometric lock disabled!'); }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Biometric lock disabled'),
@@ -279,7 +281,7 @@ class _SettingState extends State<Setting> {
               });
               if (mounted) {
                 Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => Login()),
+                    SlideRightRoute(page: Login()),
                     (Route<dynamic> route) => false);
               }
             },
@@ -302,12 +304,12 @@ class _SettingState extends State<Setting> {
     try {
       // 1. Clear FCM token from Firestore (prevent notifications to logged out user)
       await FCMService().clearToken();
-      print('✅ [Logout] FCM token cleared');
+      if (kDebugMode) { debugPrint('✅ [Logout] FCM token cleared'); }
 
       // 2. Clear biometric authentication state
       await _biometricService.clearAuthenticationState();
       await _biometricService.setBiometricEnabled(false);
-      print('✅ [Logout] Biometric state cleared');
+      if (kDebugMode) { debugPrint('✅ [Logout] Biometric state cleared'); }
 
       // 3. Update user status to Offline before logout
       if (_auth.currentUser != null) {
@@ -316,18 +318,18 @@ class _SettingState extends State<Setting> {
           'lastSeen': FieldValue.serverTimestamp(),
           'isStatusLocked': false,
         });
-        print('✅ [Logout] User status set to Offline');
+        if (kDebugMode) { debugPrint('✅ [Logout] User status set to Offline'); }
       }
 
       // 4. Set user offline via presence service
       await UserPresenceService().setUserOffline();
-      print('✅ [Logout] User status set to offline via presence service');
+      if (kDebugMode) { debugPrint('✅ [Logout] User status set to offline via presence service'); }
 
       // 5. Sign out from Firebase Auth
       await _auth.signOut();
-      print('✅ [Logout] Firebase signOut completed');
+      if (kDebugMode) { debugPrint('✅ [Logout] Firebase signOut completed'); }
     } catch (e) {
-      print('❌ [Logout] Error during logout: $e');
+      if (kDebugMode) { debugPrint('❌ [Logout] Error during logout: $e'); }
       // Still try to sign out even if other operations fail
       await _auth.signOut();
     }

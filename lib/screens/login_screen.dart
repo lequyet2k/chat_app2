@@ -4,9 +4,11 @@ import 'package:my_porject/screens/signup_screen.dart';
 import 'package:my_porject/screens/email_verification_screen.dart';
 import 'package:my_porject/screens/forgot_password_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:my_porject/screens/auth_screen.dart';
 import 'package:my_porject/components/upside.dart';
 import 'package:my_porject/configs/app_theme.dart';
+import 'package:my_porject/widgets/page_transitions.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -158,8 +160,8 @@ class LoginPage extends State<Login> {
               Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => EmailVerificationScreen(
+                SlideRightRoute(
+                  page: EmailVerificationScreen(
                     email: _email?.text ?? '',
                     password: _password?.text ?? '',
                   ),
@@ -288,19 +290,17 @@ class LoginPage extends State<Login> {
                                               });
                                               Navigator.of(context)
                                                   .pushAndRemoveUntil(
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              HomeScreen(
-                                                                  user: user)),
+                                                      SlideRightRoute(
+                                                          page: HomeScreen(user: user)),
                                                       (Route<dynamic> route) =>
                                                           false);
-                                              print("Login Successfull");
+                                              if (kDebugMode) { debugPrint("Login Successful"); }
                                             } else {
                                               setState(() {
                                                 isLoading = false;
                                               });
                                               showLoginDialog('Google sign in failed or was cancelled.');
-                                              print("Login Failed");
+                                              if (kDebugMode) { debugPrint("Login Failed"); }
                                             }
                                           });
                                         },
@@ -412,8 +412,8 @@ class LoginPage extends State<Login> {
                                     onPressed: () {
                                       Navigator.push(
                                         context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ForgotPasswordScreen(
+                                        SlideRightRoute(
+                                          page: ForgotPasswordScreen(
                                             initialEmail: _email?.text,
                                           ),
                                         ),
@@ -468,16 +468,14 @@ class LoginPage extends State<Login> {
                                             });
                                             Navigator.of(context)
                                                 .pushAndRemoveUntil(
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            HomeScreen(
-                                                                user: result.user!)),
+                                                    SlideRightRoute(
+                                                        page: HomeScreen(user: result.user!)),
                                                     (Route<dynamic> route) =>
                                                         false);
-                                            print("Login Successful");
+                                            if (kDebugMode) { debugPrint("Login Successful"); }
                                           } else {
                                             showLoginDialog(result.errorMessage ?? 'Login failed. Please try again.');
-                                            print("Login Failed: ${result.errorMessage}");
+                                            if (kDebugMode) { debugPrint("Login Failed: ${result.errorMessage}"); }
                                           }
                                         });
                                       } else {}
@@ -517,9 +515,8 @@ class LoginPage extends State<Login> {
                                       onPressed: () {
                                         Navigator.push(
                                             context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const SignUp(),
+                                            SlideRightRoute(
+                                              page: const SignUp(),
                                             ));
                                       },
                                       child: const Text(

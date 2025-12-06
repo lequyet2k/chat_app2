@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_porject/services/private_chat_service.dart';
 import 'package:my_porject/screens/chat_screen.dart';
+import 'package:my_porject/widgets/page_transitions.dart';
+import 'package:my_porject/widgets/animated_avatar.dart';
 
 /// Private Chat Screen - Hiển thị các đoạn chat được bảo mật bằng mật khẩu
 class PrivateChatScreen extends StatefulWidget {
@@ -605,10 +607,11 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                 // Avatar with lock badge
                 Stack(
                   children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundImage: NetworkImage(chat['chatAvatar'] ?? ''),
-                      backgroundColor: AppTheme.gray200,
+                    AnimatedAvatar(
+                      imageUrl: chat['chatAvatar'] ?? '',
+                      name: chat['chatName'] ?? 'Private',
+                      size: 56,
+                      showStatus: false,
                     ),
                     Positioned(
                       right: 0,
@@ -700,8 +703,8 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
           if (mounted) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => ChatScreen(
+              SlideRightRoute(
+                page: ChatScreen(
                   chatRoomId: chatRoomId,
                   userMap: userMap,
                   user: widget.user,
@@ -713,7 +716,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
         }
       }
     } catch (e) {
-      debugPrint('Error opening private chat: $e');
+      // Error logged
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:my_porject/screens/auth_screen.dart';
 import 'package:my_porject/screens/login_screen.dart';
 import 'package:my_porject/screens/chathome_screen.dart';
 import 'package:my_porject/screens/email_verification_screen.dart';
 import 'package:my_porject/components/upside_signup.dart';
 import 'package:my_porject/configs/app_theme.dart';
+import 'package:my_porject/widgets/page_transitions.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({key});
@@ -102,8 +104,8 @@ class _SignUpScreen extends State<SignUp> {
                 Navigator.pop(context);
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => EmailVerificationScreen(
+                  SlideRightRoute(
+                    page: EmailVerificationScreen(
                       email: email.text,
                       password: password.text,
                     ),
@@ -298,19 +300,18 @@ class _SignUpScreen extends State<SignUp> {
                                             });
                                             Navigator.of(context)
                                                 .pushAndRemoveUntil(
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            HomeScreen(
+                                                    SlideRightRoute(
+                                                        page: HomeScreen(
                                                                 user: user)),
                                                     (Route<dynamic> route) =>
                                                         false);
-                                            print("Login Successfully");
+                                            if (kDebugMode) { debugPrint("Login Successfully"); }
                                           } else {
                                             setState(() {
                                               isLoading = false;
                                             });
                                             showRegisterFailedDialog('Google sign in failed or was cancelled.');
-                                            print("Login Failed");
+                                            if (kDebugMode) { debugPrint("Login Failed"); }
                                           }
                                         });
                                       },
@@ -495,10 +496,10 @@ class _SignUpScreen extends State<SignUp> {
                                             isLoading = false;
                                           });
                                           showRegisterSuccessDialog();
-                                          print("Registration Successful");
+                                          if (kDebugMode) { debugPrint("Registration Successful"); }
                                         } else {
                                           showRegisterFailedDialog(result.errorMessage ?? 'Registration failed. Please try again.');
-                                          print("Registration Failed: ${result.errorMessage}");
+                                          if (kDebugMode) { debugPrint("Registration Failed: ${result.errorMessage}"); }
                                         }
                                       });
                                     }
@@ -535,8 +536,8 @@ class _SignUpScreen extends State<SignUp> {
                                     onPressed: () {
                                       Navigator.push(
                                           context,
-                                          MaterialPageRoute(
-                                            builder: (context) => Login(
+                                          SlideRightRoute(
+                                            page: Login(
                                               email: email.text,
                                               password: password.text,
                                             ),

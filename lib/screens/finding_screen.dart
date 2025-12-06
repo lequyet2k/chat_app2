@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/screens/chat_screen.dart';
 import 'package:my_porject/resources/methods.dart';
+import 'package:my_porject/widgets/page_transitions.dart';
+import 'package:my_porject/widgets/animated_avatar.dart';
 
 class CustomSearch extends SearchDelegate {
   User user;
@@ -107,8 +109,8 @@ class CustomSearch extends SearchDelegate {
                                 .chatRoomId(user.displayName, map['name']);
                             Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) => ChatScreen(
+                                SlideRightRoute(
+                                    page: ChatScreen(
                                           chatRoomId: roomId,
                                           userMap: map,
                                           user: user,
@@ -134,18 +136,12 @@ class CustomSearch extends SearchDelegate {
                               fontSize: 13,
                             ),
                           ),
-                          leading: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.grey.shade300,
-                                width: 2,
-                              ),
-                            ),
-                            child: CircleAvatar(
-                              radius: 24,
-                              backgroundImage: NetworkImage(map['avatar']),
-                            ),
+                          leading: AnimatedAvatar(
+                            imageUrl: map['avatar'],
+                            name: map['name'],
+                            size: 48,
+                            isOnline: map['status'] == 'Online',
+                            showStatus: true,
                           ),
                           trailing: Icon(
                             Icons.chat_bubble_outline,
@@ -220,18 +216,12 @@ class CustomSearch extends SearchDelegate {
                               fontSize: 13,
                             ),
                           ),
-                          leading: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.grey.shade300,
-                                width: 2,
-                              ),
-                            ),
-                            child: CircleAvatar(
-                              radius: 24,
-                              backgroundImage: NetworkImage(map['avatar']),
-                            ),
+                          leading: AnimatedAvatar(
+                            imageUrl: map['avatar'],
+                            name: map['name'],
+                            size: 48,
+                            isOnline: map['status'] == 'Online',
+                            showStatus: true,
                           ),
                           trailing: Icon(
                             Icons.chat_bubble_outline,
@@ -243,8 +233,8 @@ class CustomSearch extends SearchDelegate {
                                 _auth.currentUser!.displayName, map['name']);
                             Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) => ChatScreen(
+                                SlideRightRoute(
+                                    page: ChatScreen(
                                           chatRoomId: roomId,
                                           userMap: map,
                                           user: user,
