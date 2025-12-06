@@ -92,6 +92,9 @@ dependencies:
   record: ^5.2.1
   audioplayers: ^6.1.0
   path: any
+  
+  # Firebase Remote Config for AI API key
+  firebase_remote_config: ^6.1.2
 dependency_overrides:
   # Force upgrade win32 to fix Flutter 3.38.0 compatibility
   win32: ^5.15.0

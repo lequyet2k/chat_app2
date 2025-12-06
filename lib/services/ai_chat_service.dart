@@ -1,36 +1,92 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'remote_config_service.dart';
 
 /// AI Chat Service using Google Gemini API
 /// Hỗ trợ chat thông minh với AI, có memory và context
+/// Tự động lấy API key từ Firebase Remote Config
 class AIChatService {
   // Google Gemini API configuration
-  // User cần cung cấp API key từ: https://makersuite.google.com/app/apikey
   static String? _apiKey;
+  static String? _customApiKey; // User's custom API key (priority over Remote Config)
   static const String _baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
-  static const String _model = 'gemini-1.5-flash'; // Fast, free model
+  static String _model = 'gemini-1.5-flash'; // Can be updated from Remote Config
   
   // Conversation history for context
   static final List<Map<String, String>> _conversationHistory = [];
   static const int _maxHistoryLength = 20; // Keep last 20 messages for context
   
-  /// Initialize with API key
+  /// Initialize with API key (manual)
   static void initialize(String apiKey) {
+    _customApiKey = apiKey;
     _apiKey = apiKey;
-    debugPrint('✅ AIChatService: Initialized with API key');
+    debugPrint('✅ AIChatService: Initialized with custom API key');
+  }
+  
+  /// Initialize from Remote Config (automatic)
+  static Future<void> initializeFromRemoteConfig() async {
+    final remoteConfig = RemoteConfigService();
+    
+    if (!remoteConfig.isInitialized) {
+      await remoteConfig.initialize();
+    }
+    
+    // Get API key from Remote Config (if no custom key set)
+    if (_customApiKey == null || _customApiKey!.isEmpty) {
+      final remoteApiKey = remoteConfig.geminiApiKey;
+      if (remoteApiKey.isNotEmpty) {
+        _apiKey = remoteApiKey;
+        debugPrint('✅ AIChatService: Using API key from Remote Config');
+      }
+    }
+    
+    // Get model name from Remote Config
+    final modelName = remoteConfig.aiModelName;
+    if (modelName.isNotEmpty) {
+      _model = modelName;
+      debugPrint('📡 AIChatService: Using model: $_model');
+    }
   }
   
   /// Check if service is initialized
-  static bool get isInitialized => _apiKey != null && _apiKey!.isNotEmpty;
+  static bool get isInitialized {
+    // Priority: custom key > remote config key
+    if (_customApiKey != null && _customApiKey!.isNotEmpty) return true;
+    if (_apiKey != null && _apiKey!.isNotEmpty) return true;
+    return false;
+  }
   
-  /// Set API key
+  /// Check if using Remote Config key
+  static bool get isUsingRemoteConfig {
+    return (_customApiKey == null || _customApiKey!.isEmpty) && 
+           (_apiKey != null && _apiKey!.isNotEmpty);
+  }
+  
+  /// Set custom API key (user provided)
   static void setApiKey(String apiKey) {
+    _customApiKey = apiKey;
     _apiKey = apiKey;
   }
   
-  /// Get API key
-  static String? get apiKey => _apiKey;
+  /// Clear custom API key (revert to Remote Config)
+  static Future<void> clearCustomApiKey() async {
+    _customApiKey = null;
+    await initializeFromRemoteConfig();
+  }
+  
+  /// Get current API key (masked for security)
+  static String? get apiKey => _customApiKey ?? _apiKey;
+  
+  /// Get API key source
+  static String get apiKeySource {
+    if (_customApiKey != null && _customApiKey!.isNotEmpty) {
+      return 'Custom (User provided)';
+    } else if (_apiKey != null && _apiKey!.isNotEmpty) {
+      return 'Remote Config (Server)';
+    }
+    return 'Not configured';
+  }
   
   /// Clear conversation history
   static void clearHistory() {

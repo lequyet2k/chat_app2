@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../resources/methods.dart';
 import '../../services/ai_chat_service.dart';
+import '../../services/remote_config_service.dart';
 
 /// Modern AI ChatBot Screen with Google Gemini
 class ChatBot extends StatefulWidget {
@@ -31,12 +32,40 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
   // API Key storage
   String? _apiKey;
   static const String _apiKeyPrefKey = 'gemini_api_key';
+  bool _isLoadingRemoteConfig = true;
 
   @override
   void initState() {
     super.initState();
-    _loadApiKey();
+    _initializeAI();
     _initTypingAnimation();
+  }
+
+  /// Initialize AI Service (Remote Config first, then local key)
+  Future<void> _initializeAI() async {
+    setState(() {
+      _isLoadingRemoteConfig = true;
+    });
+
+    try {
+      // Step 1: Initialize Remote Config and get API key from server
+      await AIChatService.initializeFromRemoteConfig();
+      
+      // Step 2: Load local custom key (if user has set one)
+      await _loadApiKey();
+      
+      // Update state after initialization
+      setState(() {
+        _isLoadingRemoteConfig = false;
+      });
+    } catch (e) {
+      debugPrint('❌ ChatBot: Failed to initialize AI: $e');
+      // Fallback to local key only
+      await _loadApiKey();
+      setState(() {
+        _isLoadingRemoteConfig = false;
+      });
+    }
   }
 
   void _initTypingAnimation() {
@@ -81,8 +110,8 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
       appBar: _buildAppBar(),
       body: Column(
         children: [
-          // API Key Warning Banner
-          if (!AIChatService.isInitialized) _buildApiKeyBanner(),
+          // API Key Banner (loading, success, or setup required)
+          _buildApiKeyBanner(),
           
           // Chat messages
           Expanded(
@@ -90,7 +119,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
           ),
           
           // Suggestions chips
-          if (_showSuggestions && AIChatService.isInitialized) _buildSuggestionChips(),
+          if (_showSuggestions && AIChatService.isInitialized && !_isLoadingRemoteConfig) _buildSuggestionChips(),
           
           // Input area
           _buildInputArea(),
@@ -140,17 +169,23 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: AIChatService.isInitialized 
-                            ? Colors.green 
-                            : AppTheme.warning,
+                        color: _isLoadingRemoteConfig
+                            ? AppTheme.warning
+                            : (AIChatService.isInitialized 
+                                ? AppTheme.success 
+                                : AppTheme.error),
                         shape: BoxShape.circle,
                       ),
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      AIChatService.isInitialized 
-                          ? 'Powered by Gemini' 
-                          : 'Setup required',
+                      _isLoadingRemoteConfig
+                          ? 'Connecting...'
+                          : (AIChatService.isInitialized 
+                              ? (AIChatService.isUsingRemoteConfig 
+                                  ? 'Server API Key' 
+                                  : 'Custom API Key')
+                              : 'Setup required'),
                       style: TextStyle(
                         color: AppTheme.gray500,
                         fontSize: 12,
@@ -193,43 +228,128 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
   }
 
   Widget _buildApiKeyBanner() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.amber[100]!, Colors.orange[100]!],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
+    // If loading, show loading state
+    if (_isLoadingRemoteConfig) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppTheme.accent.withValues(alpha: 0.1), AppTheme.accentLight.withValues(alpha: 0.1)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.key, color: AppTheme.warning, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Set up your Gemini API key to start chatting',
-              style: TextStyle(
-                color: Colors.orange[900],
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
+        child: Row(
+          children: [
+            SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.accent),
               ),
             ),
-          ),
-          TextButton(
-            onPressed: _showSettingsDialog,
-            child: Text(
-              'Setup',
-              style: TextStyle(
-                color: AppTheme.warning,
-                fontWeight: FontWeight.w600,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Connecting to server for API key...',
+                style: TextStyle(
+                  color: AppTheme.accent,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
+          ],
+        ),
+      );
+    }
+
+    // If using Remote Config key, show success banner
+    if (AIChatService.isInitialized && AIChatService.isUsingRemoteConfig) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppTheme.success.withValues(alpha: 0.1), AppTheme.accent.withValues(alpha: 0.1)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
           ),
-        ],
-      ),
-    );
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.cloud_done, color: AppTheme.success, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Using server API key - Ready to chat!',
+                style: TextStyle(
+                  color: AppTheme.success,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: _showSettingsDialog,
+              child: Text(
+                'Settings',
+                style: TextStyle(
+                  color: AppTheme.accent,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // If no API key available, show setup banner
+    if (!AIChatService.isInitialized) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.amber[100]!, Colors.orange[100]!],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.key, color: AppTheme.warning, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Server API key not found. Set up your own key.',
+                style: TextStyle(
+                  color: Colors.orange[900],
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: _showSettingsDialog,
+              child: Text(
+                'Setup',
+                style: TextStyle(
+                  color: AppTheme.warning,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // If using custom key, show nothing (or minimal indicator)
+    return const SizedBox.shrink();
   }
 
   Widget _buildChatArea() {
@@ -447,7 +567,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
                 ),
               ),
               backgroundColor: Colors.white,
-              side: BorderSide(color: AppTheme.gray300!),
+              side: BorderSide(color: AppTheme.gray300),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
@@ -616,6 +736,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
       text: _apiKey ?? '',
     );
     bool obscureKey = true;
+    final remoteConfig = RemoteConfigService();
 
     showDialog(
       context: context,
@@ -645,61 +766,172 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
               ),
             ],
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Enter your Google Gemini API key:',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.gray700,
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: apiKeyController,
-                obscureText: obscureKey,
-                decoration: InputDecoration(
-                  hintText: 'AIza...',
-                  prefixIcon: const Icon(Icons.vpn_key_outlined),
-                  suffixIcon: IconButton(
-                    icon: Icon(obscureKey ? Icons.visibility_off : Icons.visibility),
-                    onPressed: () => setDialogState(() => obscureKey = !obscureKey),
-                  ),
-                  border: OutlineInputBorder(
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Current API Key Source Status
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AIChatService.isInitialized 
+                        ? AppTheme.success.withValues(alpha: 0.1)
+                        : AppTheme.warning.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AIChatService.isInitialized 
+                          ? AppTheme.success.withValues(alpha: 0.3)
+                          : AppTheme.warning.withValues(alpha: 0.3),
+                    ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppTheme.accent.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.info_outline, color: AppTheme.accent, size: 20),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'Get your free API key from:\nmakersuite.google.com/app/apikey',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.accent,
+                  child: Row(
+                    children: [
+                      Icon(
+                        AIChatService.isInitialized ? Icons.check_circle : Icons.warning,
+                        color: AIChatService.isInitialized ? AppTheme.success : AppTheme.warning,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Current Status',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppTheme.gray500,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              AIChatService.apiKeySource,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: AIChatService.isInitialized ? AppTheme.success : AppTheme.warning,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+
+                // Server Key Option (if available)
+                if (remoteConfig.hasApiKey && _apiKey != null && _apiKey!.isNotEmpty) ...[
+                  Text(
+                    'API Key Options',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.gray800,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  InkWell(
+                    onTap: () async {
+                      // Clear custom key and use server key
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.remove(_apiKeyPrefKey);
+                      await AIChatService.clearCustomApiKey();
+                      setState(() {
+                        _apiKey = null;
+                      });
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Switched to server API key'),
+                          backgroundColor: AppTheme.success,
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.gray100,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppTheme.gray300),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.cloud, color: AppTheme.accent, size: 20),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Use Server API Key',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppTheme.gray800,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          Icon(Icons.arrow_forward_ios, color: AppTheme.gray400, size: 16),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                // Custom Key Input
+                Text(
+                  'Or enter your own API key:',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppTheme.gray700,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: apiKeyController,
+                  obscureText: obscureKey,
+                  decoration: InputDecoration(
+                    hintText: 'AIza...',
+                    prefixIcon: const Icon(Icons.vpn_key_outlined),
+                    suffixIcon: IconButton(
+                      icon: Icon(obscureKey ? Icons.visibility_off : Icons.visibility),
+                      onPressed: () => setDialogState(() => obscureKey = !obscureKey),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.accent.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, color: AppTheme.accent, size: 20),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Get your free API key from:\nmakersuite.google.com/app/apikey',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.accent,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -721,7 +953,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
                 
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('API key saved successfully!'),
+                    content: Text('Custom API key saved!'),
                     backgroundColor: AppTheme.success,
                   ),
                 );
@@ -733,7 +965,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('Save'),
+              child: const Text('Save Custom Key'),
             ),
           ],
         ),
