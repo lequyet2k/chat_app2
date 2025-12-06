@@ -385,7 +385,7 @@ class _ChatBotState extends State<ChatBot> with TickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                "formatTimestampSafe(groupByValue)",
+                formatTimestampSafe(groupByValue),
                 style: TextStyle(
                   color: AppTheme.gray600,
                   fontSize: 12,

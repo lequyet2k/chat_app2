@@ -291,7 +291,7 @@ class _GroupInfoState extends State<GroupInfo> {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        border: Border.all(color: AppTheme.gray200!),
+        border: Border.all(color: AppTheme.gray200 ?? Colors.grey.shade200),
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
@@ -315,6 +315,8 @@ class _GroupInfoState extends State<GroupInfo> {
             fontWeight: FontWeight.w500,
             color: AppTheme.primaryDark,
           ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
         ),
         subtitle: Text(
           subtitle,
@@ -322,6 +324,8 @@ class _GroupInfoState extends State<GroupInfo> {
             fontSize: 12,
             color: AppTheme.gray600,
           ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 2,
         ),
       ),
     );

@@ -993,7 +993,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
-                                    "formatTimestampSafe(groupByValue)",
+                                    formatTimestampSafe(groupByValue),
                                     style: TextStyle(
                                         color: Colors.grey[700],
                                         fontSize: 12,
@@ -1362,9 +1362,14 @@ class _ChatScreenState extends State<ChatScreen> {
                     height: size.width / 13,
                     width: size.width / 13,
                     child: CircleAvatar(
-                      backgroundImage:
-                          CachedNetworkImageProvider(userMap['avatar']),
+                      backgroundImage: userMap['avatar'] != null && userMap['avatar'].toString().isNotEmpty
+                          ? CachedNetworkImageProvider(userMap['avatar'])
+                          : null,
+                      backgroundColor: Colors.grey.shade300,
                       maxRadius: 30,
+                      child: userMap['avatar'] == null || userMap['avatar'].toString().isEmpty
+                          ? Icon(Icons.person, color: Colors.grey.shade600, size: 20)
+                          : null,
                     ),
                   )
                 : Container(),
@@ -1431,73 +1436,80 @@ class _ChatScreenState extends State<ChatScreen> {
                     height: size.width / 13,
                     width: size.width / 13,
                     child: CircleAvatar(
-                      backgroundImage:
-                          CachedNetworkImageProvider(userMap['avatar']),
+                      backgroundImage: userMap['avatar'] != null && userMap['avatar'].toString().isNotEmpty
+                          ? CachedNetworkImageProvider(userMap['avatar'])
+                          : null,
+                      backgroundColor: Colors.grey.shade300,
                       maxRadius: 30,
+                      child: userMap['avatar'] == null || userMap['avatar'].toString().isEmpty
+                          ? Icon(Icons.person, color: Colors.grey.shade600, size: 20)
+                          : null,
                     ),
                   )
                 : Container(),
-            GestureDetector(
-              onLongPress: () {
-                if (map['sendBy'] == widget.user.displayName) {
-                  changeMessage(index, length, map['message'], map['type']);
-                }
-              },
-              child: Container(
-                width: map['sendBy'] == widget.user.displayName
-                    ? size.width * 0.98
-                    : size.width * 0.77,
-                alignment: map['sendBy'] == widget.user.displayName
-                    ? Alignment.centerRight
-                    : Alignment.centerLeft,
+            Expanded(
+              child: GestureDetector(
+                onLongPress: () {
+                  if (map['sendBy'] == widget.user.displayName) {
+                    changeMessage(index, length, map['message'], map['type']);
+                  }
+                },
                 child: Container(
-                  width: size.width / 2.8,
-                  // constraints: BoxConstraints( maxWidth: size.width / 1.5),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: Colors.grey.shade700,
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(4.0),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          color: Colors.grey,
-                        ),
-                        child: const Icon(
-                          Icons.call_sharp,
-                          color: Colors.white70,
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            map['callStatus'] == 'missed' ? "Missed Call" : "Video Call",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: map['callStatus'] == 'missed' ? Colors.redAccent : Colors.white70,
-                            ),
+                  alignment: map['sendBy'] == widget.user.displayName
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
+                  child: Container(
+                    constraints: BoxConstraints(maxWidth: size.width / 2.8),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: Colors.grey.shade700,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(4.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            color: Colors.grey,
                           ),
-                          if (map['timeSpend'] != null && map['timeSpend'] > 0)
-                            Text(
-                              _formatCallDuration(map['timeSpend']),
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey.shade300,
+                          child: const Icon(
+                            Icons.call_sharp,
+                            color: Colors.white70,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                map['callStatus'] == 'missed' ? "Missed Call" : "Video Call",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: map['callStatus'] == 'missed' ? Colors.redAccent : Colors.white70,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                        ],
-                      ),
-                    ],
+                              if (map['timeSpend'] != null && map['timeSpend'] > 0)
+                                Text(
+                                  _formatCallDuration(map['timeSpend']),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade300,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -1522,8 +1534,14 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   child: CircleAvatar(
-                    backgroundImage: CachedNetworkImageProvider(userMap['avatar']),
+                    backgroundImage: userMap['avatar'] != null && userMap['avatar'].toString().isNotEmpty
+                        ? CachedNetworkImageProvider(userMap['avatar'])
+                        : null,
+                    backgroundColor: Colors.grey.shade300,
                     radius: 16,
+                    child: userMap['avatar'] == null || userMap['avatar'].toString().isEmpty
+                        ? Icon(Icons.person, color: Colors.grey.shade600, size: 14)
+                        : null,
                   ),
                 ),
                 SizedBox(width: 8),
@@ -1676,8 +1694,14 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   child: CircleAvatar(
-                    backgroundImage: CachedNetworkImageProvider(userMap['avatar']),
+                    backgroundImage: userMap['avatar'] != null && userMap['avatar'].toString().isNotEmpty
+                        ? CachedNetworkImageProvider(userMap['avatar'])
+                        : null,
+                    backgroundColor: Colors.grey.shade300,
                     radius: 16,
+                    child: userMap['avatar'] == null || userMap['avatar'].toString().isEmpty
+                        ? Icon(Icons.person, color: Colors.grey.shade600, size: 14)
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -1730,8 +1754,14 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   child: CircleAvatar(
-                    backgroundImage: CachedNetworkImageProvider(userMap['avatar']),
+                    backgroundImage: userMap['avatar'] != null && userMap['avatar'].toString().isNotEmpty
+                        ? CachedNetworkImageProvider(userMap['avatar'])
+                        : null,
+                    backgroundColor: Colors.grey.shade300,
                     radius: 16,
+                    child: userMap['avatar'] == null || userMap['avatar'].toString().isEmpty
+                        ? Icon(Icons.person, color: Colors.grey.shade600, size: 14)
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 8),

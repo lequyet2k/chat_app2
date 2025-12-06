@@ -710,7 +710,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                               alignment: Alignment.center,
                               height: 30,
                               child: Text(
-                                "formatTimestampSafe(groupByValue)",
+                                formatTimestampSafe(groupByValue),
                                 style: TextStyle(
                                     color: Colors.grey.shade600,
                                     fontWeight: FontWeight.bold),
