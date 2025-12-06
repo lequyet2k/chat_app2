@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 /// App Theme Configuration
 /// Centralized theme for consistent UI across all screens
 /// Color Palette: Black - Gray - Green (Modern Dark Theme)
+/// Font: Inter (Modern, Clean, UI-Optimized)
 class AppTheme {
+  // ============ FONT FAMILY ============
+  static const String fontFamily = 'Inter';
   // ============ COLORS ============
   
   // Primary colors - Black/Dark theme
@@ -104,65 +107,117 @@ class AppTheme {
   // ============ TEXT STYLES ============
   
   static const TextStyle headlineLarge = TextStyle(
+    fontFamily: fontFamily,
     fontSize: 28,
     fontWeight: FontWeight.bold,
     color: textPrimary,
     letterSpacing: -0.5,
+    height: 1.2,
   );
   
   static const TextStyle headlineMedium = TextStyle(
+    fontFamily: fontFamily,
     fontSize: 24,
     fontWeight: FontWeight.bold,
     color: textPrimary,
     letterSpacing: -0.3,
+    height: 1.2,
   );
   
   static const TextStyle headlineSmall = TextStyle(
+    fontFamily: fontFamily,
     fontSize: 20,
     fontWeight: FontWeight.w600,
     color: textPrimary,
+    height: 1.3,
   );
   
   static const TextStyle titleLarge = TextStyle(
+    fontFamily: fontFamily,
     fontSize: 18,
     fontWeight: FontWeight.w600,
     color: textPrimary,
+    height: 1.4,
   );
   
   static const TextStyle titleMedium = TextStyle(
+    fontFamily: fontFamily,
     fontSize: 16,
     fontWeight: FontWeight.w600,
     color: textPrimary,
+    height: 1.4,
   );
   
   static const TextStyle bodyLarge = TextStyle(
+    fontFamily: fontFamily,
     fontSize: 16,
     fontWeight: FontWeight.normal,
     color: textPrimary,
+    height: 1.5,
   );
   
   static const TextStyle bodyMedium = TextStyle(
+    fontFamily: fontFamily,
     fontSize: 14,
     fontWeight: FontWeight.normal,
     color: textSecondary,
+    height: 1.5,
   );
   
   static const TextStyle bodySmall = TextStyle(
+    fontFamily: fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.normal,
     color: textHint,
+    height: 1.5,
   );
   
   static const TextStyle labelLarge = TextStyle(
+    fontFamily: fontFamily,
     fontSize: 14,
     fontWeight: FontWeight.w600,
     color: textPrimary,
+    height: 1.4,
   );
   
   static const TextStyle labelMedium = TextStyle(
+    fontFamily: fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w500,
     color: textSecondary,
+    height: 1.4,
+  );
+
+  // Chat specific text styles
+  static const TextStyle chatName = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+    color: textPrimary,
+    height: 1.3,
+  );
+
+  static const TextStyle chatMessage = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 14,
+    fontWeight: FontWeight.normal,
+    color: textSecondary,
+    height: 1.4,
+  );
+
+  static const TextStyle chatTime = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    color: textHint,
+    height: 1.3,
+  );
+
+  static const TextStyle messageBubble = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 15,
+    fontWeight: FontWeight.normal,
+    height: 1.4,
   );
   
   // ============ DECORATIONS ============
@@ -310,6 +365,7 @@ class AppTheme {
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
+    fontFamily: fontFamily,
     primaryColor: primaryDark,
     scaffoldBackgroundColor: backgroundLight,
     
@@ -452,6 +508,7 @@ class AppTheme {
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
+    fontFamily: fontFamily,
     primaryColor: accent,
     scaffoldBackgroundColor: backgroundDark,
     
