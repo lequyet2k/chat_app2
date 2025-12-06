@@ -205,7 +205,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
       
       return decryptedMessage ?? '[Unable to decrypt message]';
     } catch (e) {
-      print('Error decrypting message: $e');
+      if (kDebugMode) { debugPrint('Error decrypting message: $e'); }
       return '[Decryption error]';
     }
   }
@@ -1956,7 +1956,7 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
           ));
 
   void _showVoiceRecording() {
-    print('🎤 [GroupChat] Voice recording button pressed');
+    if (kDebugMode) { debugPrint('🎤 [GroupChat] Voice recording button pressed'); }
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -1971,8 +1971,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
   }
 
   Future<void> _sendVoiceMessage(String audioUrl, int fileSize) async {
-    print('🎤 [GroupChat] Sending voice message...');
-    print('🎤 [GroupChat] Audio URL: $audioUrl');
+    if (kDebugMode) { debugPrint('🎤 [GroupChat] Sending voice message...'); }
+    if (kDebugMode) { debugPrint('🎤 [GroupChat] Audio URL: $audioUrl'); }
     
     try {
       setState(() {
@@ -1996,13 +1996,13 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
           .collection('chats')
           .add(chatData);
 
-      print('✅ [GroupChat] Voice message sent successfully');
+      if (kDebugMode) { debugPrint('✅ [GroupChat] Voice message sent successfully'); }
 
       setState(() {
         isLoading = false;
       });
     } catch (e) {
-      print('❌ [GroupChat] Error sending voice message: $e');
+      if (kDebugMode) { debugPrint('❌ [GroupChat] Error sending voice message: $e'); }
       setState(() {
         isLoading = false;
       });

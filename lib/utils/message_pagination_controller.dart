@@ -44,11 +44,11 @@ class MessagePaginationController extends ChangeNotifier {
       _hasMore = query.docs.length == PAGE_SIZE;
       
       if (kDebugMode) {
-        print('✅ Loaded ${_messages.length} messages, hasMore: $_hasMore');
+        if (kDebugMode) { debugPrint('✅ Loaded ${_messages.length} messages, hasMore: $_hasMore'); }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error loading messages: $e');
+        if (kDebugMode) { debugPrint('❌ Error loading messages: $e'); }
       }
     } finally {
       _isLoading = false;
@@ -78,11 +78,11 @@ class MessagePaginationController extends ChangeNotifier {
       _hasMore = query.docs.length == PAGE_SIZE;
       
       if (kDebugMode) {
-        print('✅ Loaded ${query.docs.length} more messages, total: ${_messages.length}, hasMore: $_hasMore');
+        if (kDebugMode) { debugPrint('✅ Loaded ${query.docs.length} more messages, total: ${_messages.length}, hasMore: $_hasMore'); }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error loading more messages: $e');
+        if (kDebugMode) { debugPrint('❌ Error loading more messages: $e'); }
       }
     } finally {
       _isLoading = false;

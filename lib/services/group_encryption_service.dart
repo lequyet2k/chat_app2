@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,20 +27,20 @@ class GroupEncryptionService {
     String groupId,
   ) async {
     try {
-      print('🔐 [GroupEncryption] Starting encryption for groupId: $groupId');
+      if (kDebugMode) { debugPrint('🔐 [GroupEncryption] Starting encryption for groupId: $groupId'); }
       
       // Get all group members
       final groupDoc = await _firestore.collection('groups').doc(groupId).get();
       if (!groupDoc.exists) {
-        print('❌ [GroupEncryption] Group document not found');
+        if (kDebugMode) { debugPrint('❌ [GroupEncryption] Group document not found'); }
         return null;
       }
 
       final List<dynamic> members = groupDoc.data()?['members'] ?? [];
-      print('👥 [GroupEncryption] Found ${members.length} members');
+      if (kDebugMode) { debugPrint('👥 [GroupEncryption] Found ${members.length} members'); }
       
       if (members.isEmpty) {
-        print('❌ [GroupEncryption] No members in group');
+        if (kDebugMode) { debugPrint('❌ [GroupEncryption] No members in group'); }
         return null;
       }
 
@@ -65,23 +66,23 @@ class GroupEncryptionService {
             encryptedForMembers[memberId] = encryptedData;
           }
         } catch (e) {
-          print('Error encrypting for member: $e');
+          if (kDebugMode) { debugPrint('Error encrypting for member: $e'); }
           // Continue with other members even if one fails
         }
       }
 
       if (encryptedForMembers.isEmpty) {
-        print('❌ [GroupEncryption] No members could be encrypted for');
+        if (kDebugMode) { debugPrint('❌ [GroupEncryption] No members could be encrypted for'); }
         return null;
       }
 
-      print('✅ [GroupEncryption] Successfully encrypted for ${encryptedForMembers.length} members');
+      if (kDebugMode) { debugPrint('✅ [GroupEncryption] Successfully encrypted for ${encryptedForMembers.length} members'); }
       
       // Return as JSON string
       return json.encode(encryptedForMembers);
       
     } catch (e) {
-      print('❌ [GroupEncryption] Error: $e');
+      if (kDebugMode) { debugPrint('❌ [GroupEncryption] Error: $e'); }
       return null;
     }
   }
@@ -130,7 +131,7 @@ class GroupEncryptionService {
       return decryptedMessage;
       
     } catch (e) {
-      print('Error in decryptGroupMessage: $e');
+      if (kDebugMode) { debugPrint('Error in decryptGroupMessage: $e'); }
       return '[Decryption error]';
     }
   }
@@ -194,7 +195,7 @@ class GroupEncryptionService {
       return true;
       
     } catch (e) {
-      print('Error in reEncryptForNewMembers: $e');
+      if (kDebugMode) { debugPrint('Error in reEncryptForNewMembers: $e'); }
       return false;
     }
   }

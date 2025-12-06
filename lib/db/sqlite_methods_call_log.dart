@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -24,7 +25,7 @@ class SqliteMethodsforCallLog {
     if (_db != null) {
       return _db;
     }
-    print('db was null, now awaiting it');
+    if (kDebugMode) { debugPrint('db was null, now awaiting it'); }
     _db = await init();
     return _db;
   }
@@ -45,12 +46,12 @@ class SqliteMethodsforCallLog {
         "CREATE TABLE $tableName ($id INTEGER PRIMARY KEY, $callerName TEXT, $callerPic TEXT , $receiverName TEXT, $receiverPic TEXT, $callStatus TEXT, $timeStamp TEXT)";
 
     await db.execute(createTableQuery);
-    print('table created');
+    if (kDebugMode) { debugPrint('table created'); }
   }
 
   addLogs(Log log) async {
     var dbClient = await db;
-    print("The log has been added in sqlite db");
+    if (kDebugMode) { debugPrint("The log has been added in sqlite db"); }
     await dbClient?.insert(tableName, log.toMap(log));
   }
 
@@ -96,7 +97,7 @@ class SqliteMethodsforCallLog {
 
       return logList;
     } catch (e) {
-      print(e);
+      if (kDebugMode) { debugPrint('$e'); }
       return null;
     }
   }

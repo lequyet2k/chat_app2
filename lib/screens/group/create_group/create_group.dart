@@ -2,7 +2,9 @@ import 'package:my_porject/configs/app_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:my_porject/screens/group/group_chat_room.dart';
+import 'package:my_porject/widgets/page_transitions.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../resources/methods.dart';
@@ -38,7 +40,7 @@ class _CreateGroupState extends State<CreateGroup> {
     for (int i = 0; i < widget.memberList.length; i++) {
       usersName.add(widget.memberList[i]['name']);
     }
-    print(usersName.join(", "));
+    if (kDebugMode) { debugPrint(usersName.join(", ")); }
     return usersName.join(", ");
   }
 
@@ -105,8 +107,8 @@ class _CreateGroupState extends State<CreateGroup> {
     }
 
     Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-            builder: (context) => GroupChatRoom(
+        SlideRightRoute(
+            page: GroupChatRoom(
                   groupChatId: groupId,
                   groupName: groupName,
                   user: widget.user,

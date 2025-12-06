@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/screens/group/group_chat_room.dart';
 import 'package:my_porject/screens/group/create_group/add_member.dart';
+import 'package:my_porject/widgets/page_transitions.dart';
 
 // ignore: must_be_immutable
 class GroupChatHomeScreen extends StatefulWidget {
@@ -91,8 +92,8 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
                     } else {
                       Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => AddMember(
+                          SlideRightRoute(
+                              page: AddMember(
                                     user: widget.user,
                                     isDeviceConnected: widget.isDeviceConnected,
                                   )));
@@ -115,8 +116,8 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
       onTap: () {
         Navigator.push(
             context,
-            MaterialPageRoute(
-                builder: (context) => GroupChatRoom(
+            SlideRightRoute(
+                page: GroupChatRoom(
                       groupChatId: map['id'],
                       groupName: map['name'],
                       user: widget.user,

@@ -1,10 +1,10 @@
 import 'package:my_porject/configs/app_theme.dart';
-// import 'dart:js';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_porject/screens/group/create_group/create_group.dart';
+import 'package:my_porject/widgets/page_transitions.dart';
+import 'package:my_porject/widgets/animated_avatar.dart';
 
 class AddMember extends StatefulWidget {
   User user;
@@ -135,18 +135,12 @@ class _AddMemberState extends State<AddMember> {
                                   fontSize: 13,
                                 ),
                               ),
-                              leading: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.grey.shade300,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: CircleAvatar(
-                                  radius: 24,
-                                  backgroundImage: NetworkImage(map['avatar']),
-                                ),
+                              leading: AnimatedAvatar(
+                                imageUrl: map['avatar'],
+                                name: map['name'],
+                                size: 48,
+                                isOnline: map['status'] == 'Online',
+                                showStatus: true,
                               ),
                               trailing: Container(
                                 padding: EdgeInsets.all(8),
@@ -369,8 +363,8 @@ class _AddMemberState extends State<AddMember> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => CreateGroup(
+                    SlideRightRoute(
+                      page: CreateGroup(
                         memberList: memberList,
                         user: widget.user,
                         isDeviceConnected: widget.isDeviceConnected,

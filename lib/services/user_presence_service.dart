@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -11,7 +12,7 @@ class UserPresenceService {
     try {
       final user = _auth.currentUser;
       if (user == null) {
-        print('⚠️ [Presence] No authenticated user - cannot set online');
+        if (kDebugMode) { debugPrint('⚠️ [Presence] No authenticated user - cannot set online'); }
         return;
       }
 
@@ -24,17 +25,17 @@ class UserPresenceService {
         await _firestore.collection('users').doc(user.uid).update({
           'lastSeen': FieldValue.serverTimestamp(),
         });
-        print('🔒 [Presence] Status locked - keeping OFFLINE: ${user.uid}');
+        if (kDebugMode) { debugPrint('🔒 [Presence] Status locked - keeping OFFLINE: ${user.uid}'); }
       } else {
         // Normal case - set status to Online
         await _firestore.collection('users').doc(user.uid).update({
           'status': 'Online',
           'lastSeen': FieldValue.serverTimestamp(),
         });
-        print('✅ [Presence] User set to ONLINE: ${user.uid}');
+        if (kDebugMode) { debugPrint('✅ [Presence] User set to ONLINE: ${user.uid}'); }
       }
     } catch (e) {
-      print('❌ [Presence] Error setting user online: $e');
+      if (kDebugMode) { debugPrint('❌ [Presence] Error setting user online: $e'); }
     }
   }
 
@@ -43,7 +44,7 @@ class UserPresenceService {
     try {
       final user = _auth.currentUser;
       if (user == null) {
-        print('⚠️ [Presence] No authenticated user - cannot set offline');
+        if (kDebugMode) { debugPrint('⚠️ [Presence] No authenticated user - cannot set offline'); }
         return;
       }
 
@@ -53,9 +54,9 @@ class UserPresenceService {
         'lastSeen': FieldValue.serverTimestamp(),
       });
       
-      print('✅ [Presence] User set to OFFLINE: ${user.uid}');
+      if (kDebugMode) { debugPrint('✅ [Presence] User set to OFFLINE: ${user.uid}'); }
     } catch (e) {
-      print('❌ [Presence] Error setting user offline: $e');
+      if (kDebugMode) { debugPrint('❌ [Presence] Error setting user offline: $e'); }
     }
   }
 
@@ -74,7 +75,7 @@ class UserPresenceService {
       }
       return 'Offline';
     } catch (e) {
-      print('❌ [Presence] Error getting user status: $e');
+      if (kDebugMode) { debugPrint('❌ [Presence] Error getting user status: $e'); }
       return 'Offline';
     }
   }

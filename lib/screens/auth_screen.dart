@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart';
 // Google Sign In 7.x: Use GoogleSignIn.instance.authenticate() API
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_porject/services/key_manager.dart';
@@ -51,7 +52,7 @@ Future<AuthResult> createAccount(String name, String email, String password) asy
   try {
     UserCredential? userCredential = (await _auth
         .createUserWithEmailAndPassword(email: email, password: password));
-    print("Account created Succesfull");
+    if (kDebugMode) { debugPrint("Account created Succesfull"); }
     await userCredential.user!.updateDisplayName(name);
     await _firestore.collection('users').doc(_auth.currentUser?.uid).set({
       "name": name,
@@ -65,18 +66,18 @@ Future<AuthResult> createAccount(String name, String email, String password) asy
 
     // Send email verification
     await userCredential.user!.sendEmailVerification();
-    print("✅ Verification email sent to $email");
+    if (kDebugMode) { debugPrint("✅ Verification email sent to $email"); }
 
     // Initialize encryption keys for new user
     await KeyManager.initializeKeys();
-    print("✅ Encryption keys initialized");
+    if (kDebugMode) { debugPrint("✅ Encryption keys initialized"); }
 
     return AuthResult(user: userCredential.user);
   } on FirebaseAuthException catch (e) {
-    print('Firebase Auth Error: ${e.code}');
+    if (kDebugMode) { debugPrint('Firebase Auth Error: ${e.code}'); }
     return AuthResult(errorMessage: getAuthErrorMessage(e));
   } catch (e) {
-    print('Unexpected error: $e');
+    if (kDebugMode) { debugPrint('Unexpected error: $e'); }
     return AuthResult(errorMessage: 'An unexpected error occurred. Please try again.');
   }
 }
@@ -109,22 +110,22 @@ Future<AuthResult> logIn(String email, String password) async {
     });
 
     if (user != null) {
-      print("Login Successful");
+      if (kDebugMode) { debugPrint("Login Successful"); }
 
       // Initialize encryption keys if not already present
       await KeyManager.initializeKeys();
-      print("✅ Encryption keys ready");
+      if (kDebugMode) { debugPrint("✅ Encryption keys ready"); }
 
       return AuthResult(user: user);
     } else {
-      print("Login Failed");
+      if (kDebugMode) { debugPrint("Login Failed"); }
       return AuthResult(errorMessage: 'Login failed. Please try again.');
     }
   } on FirebaseAuthException catch (e) {
-    print('Firebase Auth Error: ${e.code}');
+    if (kDebugMode) { debugPrint('Firebase Auth Error: ${e.code}'); }
     return AuthResult(errorMessage: getAuthErrorMessage(e));
   } catch (e) {
-    print('Unexpected error: $e');
+    if (kDebugMode) { debugPrint('Unexpected error: $e'); }
     return AuthResult(errorMessage: 'An unexpected error occurred. Please try again.');
   }
 }
@@ -137,7 +138,7 @@ Future logOut() async {
     await GoogleSignIn.instance.signOut();
     await _auth.signOut();
   } catch (e) {
-    print("error");
+    if (kDebugMode) { debugPrint("error"); }
   }
 }
 
@@ -155,7 +156,7 @@ Future<User?> signInWithGoogle() async {
       googleUser = await GoogleSignIn.instance.authenticate();
     } on GoogleSignInException catch (e) {
       // User cancelled or error occurred
-      print('Google Sign In cancelled or failed: $e');
+      if (kDebugMode) { debugPrint('Google Sign In cancelled or failed: $e'); }
       return null;
     }
 
@@ -164,7 +165,7 @@ Future<User?> signInWithGoogle() async {
         await googleUser.authorizationClient.authorizationForScopes([]);
     
     if (auth == null) {
-      print('Failed to get authorization tokens');
+      if (kDebugMode) { debugPrint('Failed to get authorization tokens'); }
       return null;
     }
 
@@ -172,7 +173,7 @@ Future<User?> signInWithGoogle() async {
     final GoogleSignInAuthentication googleAuth = googleUser.authentication;
     final idToken = googleAuth.idToken;
     if (idToken == null) {
-      print('Failed to get ID token');
+      if (kDebugMode) { debugPrint('Failed to get ID token'); }
       return null;
     }
 
@@ -194,16 +195,16 @@ Future<User?> signInWithGoogle() async {
 
       // Initialize encryption keys
       await KeyManager.initializeKeys();
-      print("✅ Encryption keys initialized");
+      if (kDebugMode) { debugPrint("✅ Encryption keys initialized"); }
 
-      print("Login Successful");
+      if (kDebugMode) { debugPrint("Login Successful"); }
       return user;
     } else {
-      print("Login Failed");
+      if (kDebugMode) { debugPrint("Login Failed"); }
       return user;
     }
   } catch (e) {
-    print(e);
+    if (kDebugMode) { debugPrint('$e'); }
     return null;
   }
 }
@@ -235,16 +236,16 @@ Future<User?> signInWithFacebook() async {
 
       // Initialize encryption keys
       await KeyManager.initializeKeys();
-      print("✅ Encryption keys initialized");
+      if (kDebugMode) { debugPrint("✅ Encryption keys initialized"); }
 
-      print("Login Successful");
+      if (kDebugMode) { debugPrint("Login Successful"); }
       return user;
     } else {
-      print("Login Failed");
+      if (kDebugMode) { debugPrint("Login Failed"); }
       return user;
     }
   } else {
-    print(loginResult.message);
+    if (kDebugMode) { debugPrint('${loginResult.message}'); }
   }
   return null;
 }

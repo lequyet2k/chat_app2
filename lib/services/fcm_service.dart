@@ -9,9 +9,9 @@ import 'package:flutter/foundation.dart';
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   if (kDebugMode) {
-    print('🔔 [FCM] Background message: ${message.messageId}');
-    print('🔔 [FCM] Title: ${message.notification?.title}');
-    print('🔔 [FCM] Body: ${message.notification?.body}');
+    if (kDebugMode) { debugPrint('🔔 [FCM] Background message: ${message.messageId}'); }
+    if (kDebugMode) { debugPrint('🔔 [FCM] Title: ${message.notification?.title}'); }
+    if (kDebugMode) { debugPrint('🔔 [FCM] Body: ${message.notification?.body}'); }
   }
 }
 
@@ -62,11 +62,11 @@ class FCMService {
       await _checkInitialMessage();
 
       if (kDebugMode) {
-        print('✅ [FCM] Service initialized successfully');
+        if (kDebugMode) { debugPrint('✅ [FCM] Service initialized successfully'); }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [FCM] Initialization error: $e');
+        if (kDebugMode) { debugPrint('❌ [FCM] Initialization error: $e'); }
       }
     }
   }
@@ -84,7 +84,7 @@ class FCMService {
     );
 
     if (kDebugMode) {
-      print('🔔 [FCM] Permission status: ${settings.authorizationStatus}');
+      if (kDebugMode) { debugPrint('🔔 [FCM] Permission status: ${settings.authorizationStatus}'); }
     }
   }
 
@@ -120,14 +120,14 @@ class FCMService {
     try {
       _fcmToken = await _messaging.getToken();
       if (kDebugMode) {
-        print('🔑 [FCM] Token: $_fcmToken');
+        if (kDebugMode) { debugPrint('🔑 [FCM] Token: $_fcmToken'); }
       }
 
       // Save token to Firestore
       await _saveTokenToFirestore(_fcmToken);
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [FCM] Get token error: $e');
+        if (kDebugMode) { debugPrint('❌ [FCM] Get token error: $e'); }
       }
     }
   }
@@ -136,7 +136,7 @@ class FCMService {
   void _onTokenRefresh(String token) async {
     _fcmToken = token;
     if (kDebugMode) {
-      print('🔄 [FCM] Token refreshed: $token');
+      if (kDebugMode) { debugPrint('🔄 [FCM] Token refreshed: $token'); }
     }
     await _saveTokenToFirestore(token);
   }
@@ -154,11 +154,11 @@ class FCMService {
         'fcmTokenUpdatedAt': FieldValue.serverTimestamp(),
       });
       if (kDebugMode) {
-        print('✅ [FCM] Token saved to Firestore');
+        if (kDebugMode) { debugPrint('✅ [FCM] Token saved to Firestore'); }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [FCM] Save token error: $e');
+        if (kDebugMode) { debugPrint('❌ [FCM] Save token error: $e'); }
       }
     }
   }
@@ -166,9 +166,9 @@ class FCMService {
   /// Handle foreground messages
   void _handleForegroundMessage(RemoteMessage message) {
     if (kDebugMode) {
-      print('🔔 [FCM] Foreground message received');
-      print('🔔 [FCM] Title: ${message.notification?.title}');
-      print('🔔 [FCM] Body: ${message.notification?.body}');
+      if (kDebugMode) { debugPrint('🔔 [FCM] Foreground message received'); }
+      if (kDebugMode) { debugPrint('🔔 [FCM] Title: ${message.notification?.title}'); }
+      if (kDebugMode) { debugPrint('🔔 [FCM] Body: ${message.notification?.body}'); }
     }
 
     // Show local notification
@@ -210,8 +210,8 @@ class FCMService {
   /// Handle message opened app
   void _handleMessageOpenedApp(RemoteMessage message) {
     if (kDebugMode) {
-      print('🔔 [FCM] App opened from notification');
-      print('🔔 [FCM] Data: ${message.data}');
+      if (kDebugMode) { debugPrint('🔔 [FCM] App opened from notification'); }
+      if (kDebugMode) { debugPrint('🔔 [FCM] Data: ${message.data}'); }
     }
     _navigateToScreen(message.data);
   }
@@ -221,7 +221,7 @@ class FCMService {
     RemoteMessage? initialMessage = await _messaging.getInitialMessage();
     if (initialMessage != null) {
       if (kDebugMode) {
-        print('🔔 [FCM] App opened from terminated state');
+        if (kDebugMode) { debugPrint('🔔 [FCM] App opened from terminated state'); }
       }
       _navigateToScreen(initialMessage.data);
     }
@@ -235,7 +235,7 @@ class FCMService {
         _navigateToScreen(data);
       } catch (e) {
         if (kDebugMode) {
-          print('❌ [FCM] Parse payload error: $e');
+          if (kDebugMode) { debugPrint('❌ [FCM] Parse payload error: $e'); }
         }
       }
     }
@@ -249,7 +249,7 @@ class FCMService {
     final senderId = data['senderId'] as String?;
 
     if (kDebugMode) {
-      print('🔔 [FCM] Navigate - Type: $type, ChatId: $chatId, SenderId: $senderId');
+      if (kDebugMode) { debugPrint('🔔 [FCM] Navigate - Type: $type, ChatId: $chatId, SenderId: $senderId'); }
     }
 
     // TODO: Implement navigation based on notification type
@@ -278,7 +278,7 @@ class FCMService {
       final fcmToken = userDoc.data()?['fcmToken'] as String?;
       if (fcmToken == null) {
         if (kDebugMode) {
-          print('⚠️ [FCM] User $userId has no FCM token');
+          if (kDebugMode) { debugPrint('⚠️ [FCM] User $userId has no FCM token'); }
         }
         return;
       }
@@ -294,11 +294,11 @@ class FCMService {
       });
 
       if (kDebugMode) {
-        print('✅ [FCM] Notification queued for user $userId');
+        if (kDebugMode) { debugPrint('✅ [FCM] Notification queued for user $userId'); }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [FCM] Send notification error: $e');
+        if (kDebugMode) { debugPrint('❌ [FCM] Send notification error: $e'); }
       }
     }
   }
@@ -308,11 +308,11 @@ class FCMService {
     try {
       await _messaging.subscribeToTopic(topic);
       if (kDebugMode) {
-        print('✅ [FCM] Subscribed to topic: $topic');
+        if (kDebugMode) { debugPrint('✅ [FCM] Subscribed to topic: $topic'); }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [FCM] Subscribe error: $e');
+        if (kDebugMode) { debugPrint('❌ [FCM] Subscribe error: $e'); }
       }
     }
   }
@@ -322,11 +322,11 @@ class FCMService {
     try {
       await _messaging.unsubscribeFromTopic(topic);
       if (kDebugMode) {
-        print('✅ [FCM] Unsubscribed from topic: $topic');
+        if (kDebugMode) { debugPrint('✅ [FCM] Unsubscribed from topic: $topic'); }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [FCM] Unsubscribe error: $e');
+        if (kDebugMode) { debugPrint('❌ [FCM] Unsubscribe error: $e'); }
       }
     }
   }
@@ -340,11 +340,11 @@ class FCMService {
           'fcmToken': FieldValue.delete(),
         });
         if (kDebugMode) {
-          print('✅ [FCM] Token cleared from Firestore');
+          if (kDebugMode) { debugPrint('✅ [FCM] Token cleared from Firestore'); }
         }
       } catch (e) {
         if (kDebugMode) {
-          print('❌ [FCM] Clear token error: $e');
+          if (kDebugMode) { debugPrint('❌ [FCM] Clear token error: $e'); }
         }
       }
     }

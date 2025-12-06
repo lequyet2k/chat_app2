@@ -20,7 +20,7 @@ class AutoDeleteService {
   /// Gọi khi user mở ChatScreen
   Future<void> startMonitoring(String chatRoomId) async {
     if (kDebugMode) {
-      print('🗑️ [AutoDelete] Starting monitoring for chatroom: $chatRoomId');
+      if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Starting monitoring for chatroom: $chatRoomId'); }
     }
 
     // Hủy subscription cũ nếu có
@@ -38,7 +38,7 @@ class AutoDeleteService {
         final autoDeleteDuration = data['autoDeleteDuration'] ?? 0;
 
         if (kDebugMode) {
-          print('🗑️ [AutoDelete] Settings changed - Enabled: $autoDeleteEnabled, Duration: $autoDeleteDuration mins');
+          if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Settings changed - Enabled: $autoDeleteEnabled, Duration: $autoDeleteDuration mins'); }
         }
 
         if (autoDeleteEnabled && autoDeleteDuration > 0) {
@@ -54,7 +54,7 @@ class AutoDeleteService {
   /// Gọi khi user rời ChatScreen
   Future<void> stopMonitoring(String chatRoomId) async {
     if (kDebugMode) {
-      print('🗑️ [AutoDelete] Stopping monitoring for chatroom: $chatRoomId');
+      if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Stopping monitoring for chatroom: $chatRoomId'); }
     }
     
     await _activeSubscriptions[chatRoomId]?.cancel();
@@ -68,8 +68,8 @@ class AutoDeleteService {
     _activeTimers[chatRoomId]?.cancel();
 
     if (kDebugMode) {
-      print('🗑️ [AutoDelete] Starting timer for $chatRoomId - Duration: $durationMinutes minutes');
-      print('🗑️ [AutoDelete] Will check every 30 seconds for messages older than $durationMinutes minutes');
+      if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Starting timer for $chatRoomId - Duration: $durationMinutes minutes'); }
+      if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Will check every 30 seconds for messages older than $durationMinutes minutes'); }
     }
 
     // Chạy ngay lập tức lần đầu
@@ -88,7 +88,7 @@ class AutoDeleteService {
     _activeTimers.remove(chatRoomId);
     
     if (kDebugMode) {
-      print('🗑️ [AutoDelete] Timer stopped for $chatRoomId');
+      if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Timer stopped for $chatRoomId'); }
     }
   }
 
@@ -99,11 +99,11 @@ class AutoDeleteService {
       final cutoffTime = DateTime.now().subtract(Duration(minutes: durationMinutes));
       
       if (kDebugMode) {
-        print('🗑️ [AutoDelete] ========================================');
-        print('🗑️ [AutoDelete] Checking chatroom: $chatRoomId');
-        print('🗑️ [AutoDelete] Current time: ${DateTime.now()}');
-        print('🗑️ [AutoDelete] Cutoff time: $cutoffTime');
-        print('🗑️ [AutoDelete] Delete messages older than $durationMinutes minutes');
+        if (kDebugMode) { debugPrint('🗑️ [AutoDelete] ========================================'); }
+        if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Checking chatroom: $chatRoomId'); }
+        if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Current time: ${DateTime.now()}'); }
+        if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Cutoff time: $cutoffTime'); }
+        if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Delete messages older than $durationMinutes minutes'); }
       }
 
       // Query các tin nhắn cũ hơn cutoff time
@@ -116,18 +116,18 @@ class AutoDeleteService {
 
       if (oldMessages.docs.isEmpty) {
         if (kDebugMode) {
-          print('🗑️ [AutoDelete] No old messages found to delete');
-          print('🗑️ [AutoDelete] ========================================');
+          if (kDebugMode) { debugPrint('🗑️ [AutoDelete] No old messages found to delete'); }
+          if (kDebugMode) { debugPrint('🗑️ [AutoDelete] ========================================'); }
         }
         return;
       }
 
       if (kDebugMode) {
-        print('🗑️ [AutoDelete] Found ${oldMessages.docs.length} messages to delete!');
+        if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Found ${oldMessages.docs.length} messages to delete!'); }
         for (var doc in oldMessages.docs) {
           final data = doc.data();
           final msgTime = (data['timeStamp'] as Timestamp?)?.toDate();
-          print('🗑️ [AutoDelete]   - Message from $msgTime: "${(data['message'] ?? '').toString().substring(0, (data['message'] ?? '').toString().length > 30 ? 30 : (data['message'] ?? '').toString().length)}..."');
+          if (kDebugMode) { debugPrint('🗑️ [AutoDelete]   - Message from $msgTime: "${(data['message'] ?? '').toString().substring(0, (data['message'] ?? '').toString().length > 30 ? 30 : (data['message'] ?? '').toString().length)}..."'); }
         }
       }
 
@@ -143,7 +143,7 @@ class AutoDeleteService {
         if (deleteCount >= 450) {
           await batch.commit();
           if (kDebugMode) {
-            print('🗑️ [AutoDelete] Committed batch of $deleteCount deletes');
+            if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Committed batch of $deleteCount deletes'); }
           }
           batch = _firestore.batch();
           deleteCount = 0;
@@ -154,26 +154,26 @@ class AutoDeleteService {
       if (deleteCount > 0) {
         await batch.commit();
         if (kDebugMode) {
-          print('🗑️ [AutoDelete] Committed final batch of $deleteCount deletes');
+          if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Committed final batch of $deleteCount deletes'); }
         }
       }
 
       if (kDebugMode) {
-        print('✅ [AutoDelete] Successfully deleted ${oldMessages.docs.length} old messages');
+        if (kDebugMode) { debugPrint('✅ [AutoDelete] Successfully deleted ${oldMessages.docs.length} old messages'); }
       }
 
       // Cập nhật last message trong chatroom nếu cần
       await _updateLastMessage(chatRoomId);
       
       if (kDebugMode) {
-        print('🗑️ [AutoDelete] ========================================');
+        if (kDebugMode) { debugPrint('🗑️ [AutoDelete] ========================================'); }
       }
 
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        print('❌ [AutoDelete] Error deleting messages: $e');
-        print('❌ [AutoDelete] Stack trace: $stackTrace');
-        print('🗑️ [AutoDelete] ========================================');
+        if (kDebugMode) { debugPrint('❌ [AutoDelete] Error deleting messages: $e'); }
+        if (kDebugMode) { debugPrint('❌ [AutoDelete] Stack trace: $stackTrace'); }
+        if (kDebugMode) { debugPrint('🗑️ [AutoDelete] ========================================'); }
       }
     }
   }
@@ -205,7 +205,7 @@ class AutoDeleteService {
           'type': newType,
         });
         if (kDebugMode) {
-          print('🗑️ [AutoDelete] Updated last message to: "$newLastMessage"');
+          if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Updated last message to: "$newLastMessage"'); }
         }
       } else {
         // Không còn tin nhắn nào
@@ -214,7 +214,7 @@ class AutoDeleteService {
           'type': 'text',
         });
         if (kDebugMode) {
-          print('🗑️ [AutoDelete] No messages left, cleared last message');
+          if (kDebugMode) { debugPrint('🗑️ [AutoDelete] No messages left, cleared last message'); }
         }
       }
       
@@ -223,7 +223,7 @@ class AutoDeleteService {
       
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [AutoDelete] Error updating last message: $e');
+        if (kDebugMode) { debugPrint('❌ [AutoDelete] Error updating last message: $e'); }
       }
     }
   }
@@ -239,7 +239,7 @@ class AutoDeleteService {
       final users = chatroomData['users'] as List<dynamic>? ?? [];
       
       if (kDebugMode) {
-        print('🗑️ [AutoDelete] Updating chat history for ${users.length} users');
+        if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Updating chat history for ${users.length} users'); }
       }
       
       // Update chat history for each user
@@ -265,18 +265,18 @@ class AutoDeleteService {
             });
             
             if (kDebugMode) {
-              print('🗑️ [AutoDelete] Updated chat history for user: $userId');
+              if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Updated chat history for user: $userId'); }
             }
           }
         } catch (e) {
           if (kDebugMode) {
-            print('⚠️ [AutoDelete] Failed to update history for user $userId: $e');
+            if (kDebugMode) { debugPrint('⚠️ [AutoDelete] Failed to update history for user $userId: $e'); }
           }
         }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [AutoDelete] Error updating chat history: $e');
+        if (kDebugMode) { debugPrint('❌ [AutoDelete] Error updating chat history: $e'); }
       }
     }
   }
@@ -285,7 +285,7 @@ class AutoDeleteService {
   Future<bool> deleteAllMessages(String chatRoomId) async {
     try {
       if (kDebugMode) {
-        print('🗑️ [AutoDelete] Deleting ALL messages in chatroom: $chatRoomId');
+        if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Deleting ALL messages in chatroom: $chatRoomId'); }
       }
 
       final allMessages = await _firestore
@@ -296,13 +296,13 @@ class AutoDeleteService {
 
       if (allMessages.docs.isEmpty) {
         if (kDebugMode) {
-          print('🗑️ [AutoDelete] No messages to delete');
+          if (kDebugMode) { debugPrint('🗑️ [AutoDelete] No messages to delete'); }
         }
         return true;
       }
 
       if (kDebugMode) {
-        print('🗑️ [AutoDelete] Found ${allMessages.docs.length} messages to delete');
+        if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Found ${allMessages.docs.length} messages to delete'); }
       }
 
       // Batch delete
@@ -316,7 +316,7 @@ class AutoDeleteService {
         if (deleteCount >= 450) {
           await batch.commit();
           if (kDebugMode) {
-            print('🗑️ [AutoDelete] Committed batch of $deleteCount deletes');
+            if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Committed batch of $deleteCount deletes'); }
           }
           batch = _firestore.batch();
           deleteCount = 0;
@@ -337,13 +337,13 @@ class AutoDeleteService {
       await _updateChatHistoryForAllUsers(chatRoomId, '', 'text', '');
 
       if (kDebugMode) {
-        print('✅ [AutoDelete] Successfully deleted all ${allMessages.docs.length} messages');
+        if (kDebugMode) { debugPrint('✅ [AutoDelete] Successfully deleted all ${allMessages.docs.length} messages'); }
       }
 
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [AutoDelete] Error deleting all messages: $e');
+        if (kDebugMode) { debugPrint('❌ [AutoDelete] Error deleting all messages: $e'); }
       }
       return false;
     }
@@ -363,7 +363,7 @@ class AutoDeleteService {
       return null;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [AutoDelete] Error getting settings: $e');
+        if (kDebugMode) { debugPrint('❌ [AutoDelete] Error getting settings: $e'); }
       }
       return null;
     }
@@ -374,12 +374,12 @@ class AutoDeleteService {
     final settings = await getAutoDeleteSettings(chatRoomId);
     if (settings != null && settings['enabled'] == true && settings['duration'] > 0) {
       if (kDebugMode) {
-        print('🗑️ [AutoDelete] Manual trigger delete for $chatRoomId');
+        if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Manual trigger delete for $chatRoomId'); }
       }
       await _deleteOldMessages(chatRoomId, settings['duration']);
     } else {
       if (kDebugMode) {
-        print('🗑️ [AutoDelete] Auto-delete is not enabled for $chatRoomId');
+        if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Auto-delete is not enabled for $chatRoomId'); }
       }
     }
   }
@@ -408,7 +408,7 @@ class AutoDeleteService {
     _activeTimers.clear();
 
     if (kDebugMode) {
-      print('🗑️ [AutoDelete] Service disposed');
+      if (kDebugMode) { debugPrint('🗑️ [AutoDelete] Service disposed'); }
     }
   }
 }

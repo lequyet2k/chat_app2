@@ -30,7 +30,7 @@ class NotificationHelper {
       final notificationsEnabled = receiverData['notificationsEnabled'] ?? true;
       if (!notificationsEnabled) {
         if (kDebugMode) {
-          print('🔕 [Notification] User $receiverId has notifications disabled');
+          if (kDebugMode) { debugPrint('🔕 [Notification] User $receiverId has notifications disabled'); }
         }
         return;
       }
@@ -39,7 +39,7 @@ class NotificationHelper {
       final fcmToken = receiverData['fcmToken'] as String?;
       if (fcmToken == null || fcmToken.isEmpty) {
         if (kDebugMode) {
-          print('⚠️ [Notification] No FCM token for user $receiverId');
+          if (kDebugMode) { debugPrint('⚠️ [Notification] No FCM token for user $receiverId'); }
         }
         return;
       }
@@ -90,11 +90,11 @@ class NotificationHelper {
       });
 
       if (kDebugMode) {
-        print('✅ [Notification] Message notification queued for $receiverId');
+        if (kDebugMode) { debugPrint('✅ [Notification] Message notification queued for $receiverId'); }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [Notification] Error sending message notification: $e');
+        if (kDebugMode) { debugPrint('❌ [Notification] Error sending message notification: $e'); }
       }
     }
   }
@@ -141,11 +141,11 @@ class NotificationHelper {
       });
 
       if (kDebugMode) {
-        print('✅ [Notification] Call notification sent to $receiverId');
+        if (kDebugMode) { debugPrint('✅ [Notification] Call notification sent to $receiverId'); }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [Notification] Error sending call notification: $e');
+        if (kDebugMode) { debugPrint('❌ [Notification] Error sending call notification: $e'); }
       }
     }
   }
@@ -218,11 +218,11 @@ class NotificationHelper {
       }
 
       if (kDebugMode) {
-        print('✅ [Notification] Group notification sent to ${memberIds.length - 1} members');
+        if (kDebugMode) { debugPrint('✅ [Notification] Group notification sent to ${memberIds.length - 1} members'); }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [Notification] Error sending group notification: $e');
+        if (kDebugMode) { debugPrint('❌ [Notification] Error sending group notification: $e'); }
       }
     }
   }
@@ -240,11 +240,11 @@ class NotificationHelper {
       });
 
       if (kDebugMode) {
-        print('✅ [Notification] Settings updated: enabled=$enabled');
+        if (kDebugMode) { debugPrint('✅ [Notification] Settings updated: enabled=$enabled'); }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [Notification] Error updating settings: $e');
+        if (kDebugMode) { debugPrint('❌ [Notification] Error updating settings: $e'); }
       }
     }
   }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,7 +23,7 @@ class BiometricAuthService {
                                    await _localAuth.isDeviceSupported();
       return canAuthenticate;
     } on PlatformException catch (e) {
-      print('Error checking biometric availability: $e');
+      if (kDebugMode) { debugPrint('Error checking biometric availability: $e'); }
       return false;
     }
   }
@@ -33,7 +34,7 @@ class BiometricAuthService {
     try {
       return await _localAuth.getAvailableBiometrics();
     } on PlatformException catch (e) {
-      print('Error getting available biometrics: $e');
+      if (kDebugMode) { debugPrint('Error getting available biometrics: $e'); }
       return <BiometricType>[];
     }
   }
@@ -42,7 +43,7 @@ class BiometricAuthService {
   Future<bool> isBiometricEnabled() async {
     final prefs = await SharedPreferences.getInstance();
     final isEnabled = prefs.getBool(_biometricEnabledKey) ?? false;
-    print('📦 [BiometricService] Read from storage - enabled: $isEnabled');
+    if (kDebugMode) { debugPrint('📦 [BiometricService] Read from storage - enabled: $isEnabled'); }
     return isEnabled;
   }
 
@@ -50,7 +51,7 @@ class BiometricAuthService {
   Future<void> setBiometricEnabled(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_biometricEnabledKey, enabled);
-    print('💾 [BiometricService] Saved to storage - enabled: $enabled');
+    if (kDebugMode) { debugPrint('💾 [BiometricService] Saved to storage - enabled: $enabled'); }
   }
 
   /// Authenticate using biometric or device credentials
@@ -59,23 +60,23 @@ class BiometricAuthService {
     String localizedReason = 'Please authenticate to access the app',
     bool biometricOnly = false,
   }) async {
-    print('🔐 [BiometricService] authenticate() called');
-    print('🔐 [BiometricService] Reason: $localizedReason');
-    print('🔐 [BiometricService] BiometricOnly: $biometricOnly');
+    if (kDebugMode) { debugPrint('🔐 [BiometricService] authenticate() called'); }
+    if (kDebugMode) { debugPrint('🔐 [BiometricService] Reason: $localizedReason'); }
+    if (kDebugMode) { debugPrint('🔐 [BiometricService] BiometricOnly: $biometricOnly'); }
     
     try {
       // Check if device supports biometric
-      print('🔐 [BiometricService] Checking device availability...');
+      if (kDebugMode) { debugPrint('🔐 [BiometricService] Checking device availability...'); }
       final isAvailable = await isBiometricAvailable();
-      print('🔐 [BiometricService] Device available: $isAvailable');
+      if (kDebugMode) { debugPrint('🔐 [BiometricService] Device available: $isAvailable'); }
       
       if (!isAvailable) {
-        print('❌ [BiometricService] Biometric authentication not available on this device');
+        if (kDebugMode) { debugPrint('❌ [BiometricService] Biometric authentication not available on this device'); }
         return false;
       }
 
       // Attempt authentication
-      print('🔐 [BiometricService] Starting authentication dialog...');
+      if (kDebugMode) { debugPrint('🔐 [BiometricService] Starting authentication dialog...'); }
       final bool didAuthenticate = await _localAuth.authenticate(
         localizedReason: localizedReason,
         options: AuthenticationOptions(
@@ -86,30 +87,30 @@ class BiometricAuthService {
         ),
       );
 
-      print('🔐 [BiometricService] Authentication result: $didAuthenticate');
+      if (kDebugMode) { debugPrint('🔐 [BiometricService] Authentication result: $didAuthenticate'); }
 
       // Save last authentication time if successful
       if (didAuthenticate) {
-        print('✅ [BiometricService] Saving authentication time...');
+        if (kDebugMode) { debugPrint('✅ [BiometricService] Saving authentication time...'); }
         await _saveLastAuthTime();
       }
 
       return didAuthenticate;
     } on PlatformException catch (e) {
-      print('❌ [BiometricService] PlatformException: ${e.code} - ${e.message}');
+      if (kDebugMode) { debugPrint('❌ [BiometricService] PlatformException: ${e.code} - ${e.message}'); }
       
       // Handle specific error cases
       if (e.code == 'NotAvailable') {
-        print('❌ [BiometricService] Biometric not available');
+        if (kDebugMode) { debugPrint('❌ [BiometricService] Biometric not available'); }
       } else if (e.code == 'NotEnrolled') {
-        print('❌ [BiometricService] No biometrics enrolled');
+        if (kDebugMode) { debugPrint('❌ [BiometricService] No biometrics enrolled'); }
       } else if (e.code == 'LockedOut' || e.code == 'PermanentlyLockedOut') {
-        print('❌ [BiometricService] Biometric authentication locked');
+        if (kDebugMode) { debugPrint('❌ [BiometricService] Biometric authentication locked'); }
       }
       
       return false;
     } catch (e) {
-      print('❌ [BiometricService] Unexpected error: $e');
+      if (kDebugMode) { debugPrint('❌ [BiometricService] Unexpected error: $e'); }
       return false;
     }
   }
@@ -118,7 +119,7 @@ class BiometricAuthService {
   /// Returns true if user needs to authenticate again
   Future<bool> needsReAuthentication({Duration timeout = const Duration(minutes: 5)}) async {
     final isEnabled = await isBiometricEnabled();
-    print('🔐 [BiometricService] Biometric enabled: $isEnabled');
+    if (kDebugMode) { debugPrint('🔐 [BiometricService] Biometric enabled: $isEnabled'); }
     
     if (!isEnabled) {
       return false; // Biometric not enabled, no need to authenticate
@@ -127,17 +128,17 @@ class BiometricAuthService {
     // If user hasn't authenticated in current app session, ALWAYS require auth
     // This ensures biometric shows up every time app is opened/restarted
     if (!_hasAuthenticatedThisSession) {
-      print('🆕 [BiometricService] New app session - needs auth');
+      if (kDebugMode) { debugPrint('🆕 [BiometricService] New app session - needs auth'); }
       return true;
     }
 
     // User already authenticated this session, now check timeout
     final prefs = await SharedPreferences.getInstance();
     final lastAuthTime = prefs.getInt(_lastAuthTimeKey);
-    print('⏰ [BiometricService] Last auth time: $lastAuthTime');
+    if (kDebugMode) { debugPrint('⏰ [BiometricService] Last auth time: $lastAuthTime'); }
 
     if (lastAuthTime == null) {
-      print('🆕 [BiometricService] Never authenticated before - needs auth');
+      if (kDebugMode) { debugPrint('🆕 [BiometricService] Never authenticated before - needs auth'); }
       return true; // Never authenticated before
     }
 
@@ -146,7 +147,7 @@ class BiometricAuthService {
     final difference = now.difference(lastAuth);
     
     final needsAuth = difference > timeout;
-    print('⏱️ [BiometricService] Time since last auth: ${difference.inMinutes}min - Needs auth: $needsAuth');
+    if (kDebugMode) { debugPrint('⏱️ [BiometricService] Time since last auth: ${difference.inMinutes}min - Needs auth: $needsAuth'); }
 
     return needsAuth;
   }
@@ -158,7 +159,7 @@ class BiometricAuthService {
     
     // Mark that user has authenticated in current session
     _hasAuthenticatedThisSession = true;
-    print('✅ [BiometricService] Session authenticated - flag set to true');
+    if (kDebugMode) { debugPrint('✅ [BiometricService] Session authenticated - flag set to true'); }
   }
 
   /// Clear last authentication time (useful when user logs out)
@@ -168,7 +169,7 @@ class BiometricAuthService {
     
     // Reset session authentication flag
     _hasAuthenticatedThisSession = false;
-    print('🗑️ [BiometricService] Authentication state cleared');
+    if (kDebugMode) { debugPrint('🗑️ [BiometricService] Authentication state cleared'); }
   }
 
   /// Get user-friendly biometric type name
@@ -211,7 +212,7 @@ class BiometricAuthService {
     try {
       await _localAuth.stopAuthentication();
     } catch (e) {
-      print('Error stopping authentication: $e');
+      if (kDebugMode) { debugPrint('Error stopping authentication: $e'); }
     }
   }
 }

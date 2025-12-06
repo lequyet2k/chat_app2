@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -390,7 +391,7 @@ class _ChatScreenState extends State<ChatScreen> {
         'isRead': false,
       });
     } else {
-      print("Enter some text");
+      if (kDebugMode) { debugPrint("Enter some text"); }
     }
   }
 
@@ -2189,7 +2190,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // Voice recording
   void _showVoiceRecording() {
-    print('🎤 [ChatScreen] Voice recording button pressed');
+    if (kDebugMode) { debugPrint('🎤 [ChatScreen] Voice recording button pressed'); }
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -2204,8 +2205,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _sendVoiceMessage(String audioUrl, int fileSize) async {
-    print('🎤 [ChatScreen] Sending voice message...');
-    print('🎤 [ChatScreen] Audio URL: $audioUrl');
+    if (kDebugMode) { debugPrint('🎤 [ChatScreen] Sending voice message...'); }
+    if (kDebugMode) { debugPrint('🎤 [ChatScreen] Audio URL: $audioUrl'); }
     
     try {
       setState(() {
@@ -2238,13 +2239,13 @@ class _ChatScreenState extends State<ChatScreen> {
         'timeStamp': DateTime.now(),
       });
 
-      print('✅ [ChatScreen] Voice message sent successfully');
+      if (kDebugMode) { debugPrint('✅ [ChatScreen] Voice message sent successfully'); }
 
       setState(() {
         isLoading = false;
       });
     } catch (e) {
-      print('❌ [ChatScreen] Error sending voice message: $e');
+      if (kDebugMode) { debugPrint('❌ [ChatScreen] Error sending voice message: $e'); }
       setState(() {
         isLoading = false;
       });
@@ -2927,7 +2928,7 @@ class _VoiceRecordingBottomSheetState extends State<_VoiceRecordingBottomSheet> 
   }
 
   Future<void> _startRecording() async {
-    print('🎤 [BottomSheet] Starting recording...');
+    if (kDebugMode) { debugPrint('🎤 [BottomSheet] Starting recording...'); }
     final success = await VoiceMessageService.startRecording();
     
     if (success) {
@@ -2945,9 +2946,9 @@ class _VoiceRecordingBottomSheetState extends State<_VoiceRecordingBottomSheet> 
         }
       });
       
-      print('✅ [BottomSheet] Recording started successfully');
+      if (kDebugMode) { debugPrint('✅ [BottomSheet] Recording started successfully'); }
     } else {
-      print('❌ [BottomSheet] Failed to start recording');
+      if (kDebugMode) { debugPrint('❌ [BottomSheet] Failed to start recording'); }
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -2961,7 +2962,7 @@ class _VoiceRecordingBottomSheetState extends State<_VoiceRecordingBottomSheet> 
   }
 
   Future<void> _stopAndSend() async {
-    print('🎤 [BottomSheet] Stopping and sending...');
+    if (kDebugMode) { debugPrint('🎤 [BottomSheet] Stopping and sending...'); }
     _timer?.cancel();
     
     setState(() {
@@ -2972,15 +2973,15 @@ class _VoiceRecordingBottomSheetState extends State<_VoiceRecordingBottomSheet> 
     final audioPath = await VoiceMessageService.stopRecording();
     
     if (audioPath != null) {
-      print('🎤 [BottomSheet] Recording stopped, uploading...');
+      if (kDebugMode) { debugPrint('🎤 [BottomSheet] Recording stopped, uploading...'); }
       final result = await VoiceMessageService.uploadVoiceMessage(audioPath);
       
       if (result != null && mounted) {
-        print('✅ [BottomSheet] Upload successful');
+        if (kDebugMode) { debugPrint('✅ [BottomSheet] Upload successful'); }
         Navigator.pop(context);
         widget.onSendVoiceMessage(result['url'], result['size']);
       } else {
-        print('❌ [BottomSheet] Upload failed');
+        if (kDebugMode) { debugPrint('❌ [BottomSheet] Upload failed'); }
         if (mounted) {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
@@ -2992,7 +2993,7 @@ class _VoiceRecordingBottomSheetState extends State<_VoiceRecordingBottomSheet> 
         }
       }
     } else {
-      print('❌ [BottomSheet] Failed to stop recording');
+      if (kDebugMode) { debugPrint('❌ [BottomSheet] Failed to stop recording'); }
       if (mounted) {
         Navigator.pop(context);
       }
@@ -3000,7 +3001,7 @@ class _VoiceRecordingBottomSheetState extends State<_VoiceRecordingBottomSheet> 
   }
 
   Future<void> _cancel() async {
-    print('🎤 [BottomSheet] Cancelling recording...');
+    if (kDebugMode) { debugPrint('🎤 [BottomSheet] Cancelling recording...'); }
     _timer?.cancel();
     await VoiceMessageService.cancelRecording();
     if (mounted) {
