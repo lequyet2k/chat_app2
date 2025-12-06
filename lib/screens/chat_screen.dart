@@ -20,6 +20,7 @@ import 'package:my_porject/services/voice_message_service.dart';
 import 'package:my_porject/services/file_sharing_service.dart';
 import 'package:my_porject/widgets/voice_message_player.dart';
 import 'package:my_porject/widgets/file_message_widget.dart';
+import 'package:my_porject/widgets/video_call_message_widget.dart';
 import 'package:my_porject/screens/chat_settings_screen.dart';
 import 'package:my_porject/screens/video_call_screen.dart';
 import 'package:my_porject/services/auto_delete_service.dart';
@@ -1437,97 +1438,33 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         );
       } else if (map['type'] == "videocall") {
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            const SizedBox(
-              width: 2,
-            ),
-            map['sendBy'] != widget.user.displayName
-                ? Container(
-                    margin: const EdgeInsets.only(bottom: 5),
-                    height: size.width / 13,
-                    width: size.width / 13,
-                    child: CircleAvatar(
-                      backgroundImage: userMap['avatar'] != null && userMap['avatar'].toString().isNotEmpty
-                          ? CachedNetworkImageProvider(userMap['avatar'])
-                          : null,
-                      backgroundColor: Colors.grey.shade300,
-                      maxRadius: 30,
-                      child: userMap['avatar'] == null || userMap['avatar'].toString().isEmpty
-                          ? Icon(Icons.person, color: Colors.grey.shade600, size: 20)
-                          : null,
-                    ),
-                  )
-                : Container(),
-            Expanded(
-              child: GestureDetector(
-                onLongPress: () {
-                  if (map['sendBy'] == widget.user.displayName) {
-                    changeMessage(index, length, map['message'], map['type']);
-                  }
-                },
-                child: Container(
-                  alignment: map['sendBy'] == widget.user.displayName
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
-                  child: Container(
-                    constraints: BoxConstraints(maxWidth: size.width / 2.8),
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    margin:
-                        const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: Colors.grey.shade700,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(4.0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                            color: Colors.grey,
-                          ),
-                          child: const Icon(
-                            Icons.call_sharp,
-                            color: Colors.white70,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        Flexible(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                map['callStatus'] == 'missed' ? "Missed Call" : "Video Call",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: map['callStatus'] == 'missed' ? Colors.redAccent : Colors.white70,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              if (map['timeSpend'] != null && map['timeSpend'] > 0)
-                                Text(
-                                  _formatCallDuration(map['timeSpend']),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey.shade300,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+        // Premium Video Call Message Widget
+        return VideoCallMessageWidget(
+          messageData: map,
+          userMap: userMap,
+          currentUserName: widget.user.displayName ?? '',
+          onLongPress: () {
+            if (map['sendBy'] == widget.user.displayName) {
+              changeMessage(index, length, map['message'], map['type']);
+            }
+          },
+          onTap: map['callStatus'] == 'missed' ? () {
+            // Navigate to video call screen for callback
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VideoCallScreen(
+                  channelName: widget.chatRoomId,
+                  userName: widget.user.displayName ?? '',
+                  userAvatar: widget.user.photoURL,
+                  calleeName: widget.userMap['name'] ?? '',
+                  calleeAvatar: widget.userMap['avatar'],
+                  chatRoomId: widget.chatRoomId,
+                  calleeUid: widget.userMap['uid'],
                 ),
               ),
-            ),
-          ],
+            );
+          } : null,
         );
       } else if (map['type'] == 'location') {
         bool isMe = map['sendBy'] == widget.user.displayName;
