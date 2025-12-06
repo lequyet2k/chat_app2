@@ -26,6 +26,9 @@ import 'package:my_porject/screens/video_call_screen.dart';
 import 'package:my_porject/services/auto_delete_service.dart';
 import 'package:my_porject/utils/loading_utils.dart';
 import 'package:my_porject/configs/app_theme.dart';
+import 'package:my_porject/widgets/animated_avatar.dart';
+import 'package:my_porject/widgets/page_transitions.dart';
+
 
 // ignore: must_be_immutable
 class ChatScreen extends StatefulWidget {
@@ -760,10 +763,12 @@ class _ChatScreenState extends State<ChatScreen> {
                   const SizedBox(
                     width: 2,
                   ),
-                  CircleAvatar(
-                    backgroundImage:
-                        CachedNetworkImageProvider(widget.userMap['avatar']),
-                    maxRadius: 20,
+                  AnimatedAvatar(
+                    imageUrl: widget.userMap['avatar'],
+                    name: widget.userMap['name'] ?? 'User',
+                    size: 40,
+                    isOnline: false,
+                    showStatus: false,
                   ),
                   const SizedBox(
                     width: 12,
@@ -774,11 +779,13 @@ class _ChatScreenState extends State<ChatScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text(
-                          widget.userMap['name'],
-                          style: const TextStyle(
-                              fontSize: 17, 
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.textWhite),
+                          widget.userMap['name'] ?? 'Unknown',
+                          style: AppTheme.titleMedium.copyWith(
+                            color: AppTheme.textWhite,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(
                           height: 4,
@@ -860,8 +867,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => VideoCallScreen(
+                          SlideRightRoute(
+                            page: VideoCallScreen(
                               channelName: channelName,
                               userName: widget.user.displayName ?? 'You',
                               userAvatar: widget.user.photoURL,
@@ -884,8 +891,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => ChatSettingsScreen(
+                        SlideRightRoute(
+                          page: ChatSettingsScreen(
                             chatRoomId: widget.chatRoomId,
                             userMap: widget.userMap,
                           ),
@@ -1398,8 +1405,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     : Alignment.centerLeft,
                 child: InkWell(
                   onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                        builder: (context) => ShowImage(
+                    SlideRightRoute(
+                        page: ShowImage(
                               imageUrl: map['message'],
                               isDeviceConnected: widget.isDeviceConnected,
                             )),
@@ -1452,8 +1459,8 @@ class _ChatScreenState extends State<ChatScreen> {
             // Navigate to video call screen for callback
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => VideoCallScreen(
+              SlideRightRoute(
+                page: VideoCallScreen(
                   channelName: widget.chatRoomId,
                   userName: widget.user.displayName ?? '',
                   userAvatar: widget.user.photoURL,

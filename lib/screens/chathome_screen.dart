@@ -1,35 +1,35 @@
-// import 'dart:html';
 import 'dart:async';
-
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:my_porject/services/cache_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:my_porject/provider/user_provider.dart';
 import 'package:my_porject/screens/call_log_screen.dart';
-// import 'package:my_porject/screens/callscreen/pickup/pickup_layout.dart';
 import 'package:my_porject/screens/chat_bot/chat_bot.dart';
 import 'package:my_porject/screens/finding_screen.dart';
 import 'package:my_porject/screens/setting.dart';
 import 'package:my_porject/screens/group/group_chat.dart';
 import 'package:my_porject/screens/private_chat_screen.dart';
 import 'package:my_porject/widgets/conversationList.dart';
-// Note: PrivateChatService is used in conversationList.dart, not directly here
+import 'package:my_porject/services/cache_service.dart';
 import 'package:provider/provider.dart';
 import 'package:my_porject/resources/methods.dart';
 import '../db/log_repository.dart';
 import '../configs/app_theme.dart';
+import '../widgets/animated_avatar.dart';
+import '../widgets/animated_list_item.dart';
+import '../widgets/glass_container.dart';
+import '../widgets/micro_interactions.dart';
+import '../widgets/page_transitions.dart';
 import 'chat_screen.dart';
 
-// ignore: must_be_immutable
 class HomeScreen extends StatefulWidget {
-  User user;
-  HomeScreen({Key? key, required this.user}) : super(key: key);
+  final User user;
+  const HomeScreen({super.key, required this.user});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -38,31 +38,24 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final CacheService _cacheService = CacheService();
 
   late UserProvider userProvider;
-
   late StreamSubscription subscription;
+  
   var isDeviceConnected = true;
   bool isAlertSet = false;
-
-  getConnectivity() async {
-    return subscription = Connectivity()
-        .onConnectivityChanged
-        .listen((List<ConnectivityResult> results) async {
-      isDeviceConnected = await InternetConnection().hasInternetAccess;
-      setState(() {});
-      if (!isDeviceConnected && isAlertSet == false) {
-        showDialogInternetCheck();
-        setState(() {
-          isAlertSet = true;
-        });
-      }
-    });
-  }
+  int _selectedIndex = 0;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
+    super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _initializeApp();
+  }
+
+  void _initializeApp() async {
     setStatus("Online");
     changeStatus("Online");
     SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -70,52 +63,51 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       userProvider.refreshUser();
     });
     LogRepository.init(dbName: _auth.currentUser!.uid);
-    super.initState();
-    getConnectivity();
+    _getConnectivity();
+  }
+
+  void _getConnectivity() {
+    subscription = Connectivity()
+        .onConnectivityChanged
+        .listen((List<ConnectivityResult> results) async {
+      isDeviceConnected = await InternetConnection().hasInternetAccess;
+      if (mounted) setState(() {});
+      if (!isDeviceConnected && !isAlertSet) {
+        _showNoConnectionDialog();
+        setState(() => isAlertSet = true);
+      }
+    });
   }
 
   @override
   void dispose() {
-    // subscription.cancel();
+    _searchController.dispose();
     super.dispose();
   }
 
-  showDialogInternetCheck() => showCupertinoDialog<String>(
+  void _showNoConnectionDialog() {
+    showCupertinoDialog<String>(
       context: context,
       builder: (BuildContext context) => CupertinoAlertDialog(
-            title: const Text(
-              'No Connection',
-              style: TextStyle(
-                letterSpacing: 0.5,
-              ),
-            ),
-            content: const Text(
-              'Please check your internet connectivity',
-              style: TextStyle(letterSpacing: 0.5, fontSize: 12),
-            ),
-            actions: <Widget>[
-              TextButton(
-                  onPressed: () async {
-                    Navigator.pop(context, 'Cancel');
-                    setState(() {
-                      isAlertSet = false;
-                    });
-                    isDeviceConnected =
-                        await InternetConnection().hasInternetAccess;
-                  },
-                  child: const Text(
-                    'OK',
-                    style: TextStyle(letterSpacing: 0.5, fontSize: 15),
-                  ))
-            ],
-          ));
+        title: const Text('No Connection'),
+        content: const Text('Please check your internet connectivity'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              setState(() => isAlertSet = false);
+              isDeviceConnected = await InternetConnection().hasInternetAccess;
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
 
   void setStatus(String status) async {
-    // Check if user has locked their status
     final userDoc = await _firestore.collection('users').doc(_auth.currentUser!.uid).get();
     final bool isStatusLocked = userDoc.data()?['isStatusLocked'] ?? false;
-    
-    // If status is locked, set to "Offline" regardless
     final String actualStatus = isStatusLocked ? "Offline" : status;
     
     await _firestore.collection('users').doc(_auth.currentUser?.uid).update({
@@ -123,20 +115,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     });
   }
 
-  // Optimized: Use batch writes and single query instead of N queries
-  void changeStatus(String statuss) async {
-    // Check if user has locked their status using cache
-    final cacheService = CacheService();
-    final cachedUser = await cacheService.getUser(_auth.currentUser!.uid);
+  void changeStatus(String status) async {
+    final cachedUser = await _cacheService.getUser(_auth.currentUser!.uid);
     final bool isStatusLocked = cachedUser?['isStatusLocked'] ?? false;
     
-    // If status is locked, don't update
-    if (isStatusLocked) {
-      return;
-    }
+    if (isStatusLocked) return;
     
     try {
-      // Single query to get all chat history
       final chatHistorySnapshot = await _firestore
           .collection('users')
           .doc(_auth.currentUser!.uid)
@@ -146,7 +131,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       
       if (chatHistorySnapshot.docs.isEmpty) return;
       
-      // Use batch write for better performance (max 500 operations per batch)
       WriteBatch batch = _firestore.batch();
       int operationCount = 0;
       
@@ -159,10 +143,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               .collection('chatHistory')
               .doc(_auth.currentUser!.uid);
           
-          batch.update(ref, {'status': statuss});
+          batch.update(ref, {'status': status});
           operationCount++;
           
-          // Commit batch every 400 operations to stay under limit
           if (operationCount >= 400) {
             await batch.commit();
             batch = _firestore.batch();
@@ -171,12 +154,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         }
       }
       
-      // Commit remaining operations
       if (operationCount > 0) {
         await batch.commit();
       }
     } catch (e) {
-      // Silently fail - status update is not critical
       debugPrint('Error updating status: $e');
     }
   }
@@ -192,88 +173,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
-  int _selectedIndex = 0;
-
-  Widget body(int index) {
-    if (index == 0) {
-      return listChat(widget.user);
-    } else if (index == 2) {
-      return const CallLogScreen();
-    } else if (index == 1) {
-      return GroupChatHomeScreen(
-        user: widget.user,
-        isDeviceConnected: isDeviceConnected,
-      );
-    } else {
-      return Container();
-    }
+  void _onNavTapped(int index) {
+    HapticFeedback.selectionClick();
+    setState(() => _selectedIndex = index);
   }
 
-  Widget appBar(int index) {
-    if (index == 0 || index == 1 || index == 2) {
-      return searchAndStatusBar();
-    } else {
-      return Setting(
-        user: widget.user,
-        isDeviceConnected: isDeviceConnected,
-      );
-    }
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label) {
-    final isSelected = _selectedIndex == index;
-    
-    return GestureDetector(
-      onTap: () => _onItemTapped(index),
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryDark : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isSelected ? activeIcon : icon,
-              color: isSelected ? AppTheme.textWhite : AppTheme.textSecondary,
-              size: 24,
-            ),
-            if (isSelected) ...[
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: AppTheme.textWhite,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  final TextEditingController _search = TextEditingController();
-
-  bool isLoading = false;
-
-  void onSearch() async {
+  void _onSearch() {
     showSearch(
       context: context,
-      delegate:
-          CustomSearch(user: widget.user, isDeviceConnected: isDeviceConnected),
+      delegate: CustomSearch(
+        user: widget.user, 
+        isDeviceConnected: isDeviceConnected,
+      ),
     );
-    _search.clear();
+    _searchController.clear();
   }
 
   @override
@@ -282,373 +195,373 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         backgroundColor: AppTheme.backgroundLight,
-        body: appBar(_selectedIndex),
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            color: AppTheme.surfaceLight,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withValues(alpha: 0.15),
-                blurRadius: 12,
-                offset: const Offset(0, -3),
-              ),
-            ],
-          ),
-          child: SafeArea(
-            child: Container(
-              height: 65,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildNavItem(0, Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, "Chats"),
-                  _buildNavItem(1, Icons.groups_outlined, Icons.groups_rounded, "Groups"),
-                  _buildNavItem(2, Icons.call_outlined, Icons.call_rounded, "Calls"),
-                  _buildNavItem(3, Icons.settings_outlined, Icons.settings_rounded, "Settings"),
-                ],
-              ),
+        body: _buildBody(),
+        bottomNavigationBar: _buildBottomNav(),
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_selectedIndex == 3) {
+      return Setting(
+        user: widget.user,
+        isDeviceConnected: isDeviceConnected,
+      );
+    }
+    return _buildMainContent();
+  }
+
+  Widget _buildMainContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildHeader(),
+        _buildSearchBar(),
+        _buildConnectionStatus(),
+        _buildOnlineUsers(),
+        Expanded(child: _buildContent()),
+      ],
+    );
+  }
+
+  Widget _buildHeader() {
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 20, top: 16, right: 20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              _getHeaderTitle(),
+              style: AppTheme.headlineLarge,
             ),
-          ),
+            Row(
+              children: [
+                // Private Chats Button
+                BounceButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    SlideRightRoute(
+                      page: PrivateChatScreen(
+                        user: widget.user,
+                        isDeviceConnected: isDeviceConnected,
+                      ),
+                    ),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      gradient: AppTheme.accentGradient,
+                    ),
+                    child: const Icon(
+                      Icons.lock_outline,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // AI Bot Button
+                BounceButton(
+                  onPressed: () {
+                    if (!isDeviceConnected) {
+                      _showNoConnectionDialog();
+                    } else {
+                      Navigator.push(
+                        context,
+                        SlideUpRoute(page: ChatBot(user: widget.user)),
+                      );
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: AppTheme.primaryDark,
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.auto_awesome, color: Colors.white, size: 20),
+                        SizedBox(width: 6),
+                        Text(
+                          "AI",
+                          style: TextStyle(
+                            fontFamily: AppTheme.fontFamily,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget listChat(User user) {
+  String _getHeaderTitle() {
+    switch (_selectedIndex) {
+      case 0: return "Messages";
+      case 1: return "Groups";
+      case 2: return "Calls";
+      default: return "Messages";
+    }
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: GlassSearchBar(
+        controller: _searchController,
+        hintText: "Search messages...",
+        readOnly: true,
+        onTap: () {
+          if (!isDeviceConnected) {
+            _showNoConnectionDialog();
+          } else {
+            _onSearch();
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildConnectionStatus() {
+    return StreamBuilder<List<ConnectivityResult>>(
+      stream: Connectivity().onConnectivityChanged,
+      builder: (_, snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          final states = snapshot.data;
+          if (states != null && states.contains(ConnectivityResult.none)) {
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppTheme.error.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.wifi_off, color: AppTheme.error, size: 18),
+                  const SizedBox(width: 8),
+                  Text(
+                    'No Internet Connection',
+                    style: AppTheme.bodyMedium.copyWith(color: AppTheme.error),
+                  ),
+                ],
+              ),
+            );
+          }
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildOnlineUsers() {
+    if (_selectedIndex != 0) return const SizedBox.shrink();
+    
+    return SizedBox(
+      height: 100,
+      child: StreamBuilder<QuerySnapshot>(
+        stream: _firestore
+            .collection('users')
+            .doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0")
+            .collection('chatHistory')
+            .where('status', isEqualTo: 'Online')
+            .where('datatype', isEqualTo: 'p2p')
+            .limit(10)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          
+          return ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            itemCount: snapshot.data!.docs.length,
+            itemBuilder: (context, index) {
+              final map = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+              final roomId = ChatRoomId().chatRoomId(
+                widget.user.displayName, 
+                map['name'],
+              );
+              
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    SlideRightRoute(
+                      page: ChatScreen(
+                        chatRoomId: roomId,
+                        userMap: map,
+                        user: widget.user,
+                        isDeviceConnected: isDeviceConnected,
+                      ),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AnimatedAvatar(
+                        imageUrl: map['avatar'],
+                        name: map['name'] ?? 'User',
+                        size: 60,
+                        isOnline: true,
+                        showStatus: true,
+                      ),
+                      const SizedBox(height: 6),
+                      SizedBox(
+                        width: 70,
+                        child: Text(
+                          map['name'] ?? 'User',
+                          style: AppTheme.bodySmall.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    switch (_selectedIndex) {
+      case 0:
+        return _buildChatList();
+      case 1:
+        return GroupChatHomeScreen(
+          user: widget.user,
+          isDeviceConnected: isDeviceConnected,
+        );
+      case 2:
+        return const CallLogScreen();
+      default:
+        return _buildChatList();
+    }
+  }
+
+  Widget _buildChatList() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          margin: const EdgeInsets.only(top: 8, left: 20, bottom: 8),
-          child: const Text('Recent',
-              style: TextStyle(
-                color: AppTheme.textSecondary,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.3,
-              )),
+        Padding(
+          padding: const EdgeInsets.only(left: 20, top: 8, bottom: 8),
+          child: Text(
+            'Recent',
+            style: AppTheme.labelLarge.copyWith(color: AppTheme.textSecondary),
+          ),
         ),
         Expanded(
-          // Optimized: Remove SingleChildScrollView + shrinkWrap for better performance
-          child: StreamBuilder(
-              stream: _firestore
-                  .collection('users')
-                  .doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0")
-                  .collection('chatHistory')
-                  .orderBy('timeStamp', descending: true)
-                  .limit(50) // Limit for better performance
-                  .snapshots(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.data != null) {
-                  return ListView.builder(
-                    itemCount: snapshot.data?.docs.length,
-                    padding: const EdgeInsets.only(top: 5),
-                    // Optimized: Use default physics for proper scrolling
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    // Optimized: Increase cache extent for smoother scrolling
-                    cacheExtent: 500,
-                    // Optimized: Add repaint boundaries
-                    addRepaintBoundaries: true,
-                    itemBuilder: (context, index) {
-                      Map<String, dynamic> map = snapshot.data?.docs[index]
-                          .data() as Map<String, dynamic>;
-                      return ConversationList(
-                        chatHistory: map,
-                        user: widget.user,
-                        isDeviceConnected: isDeviceConnected,
-                      );
-                    },
+          child: StreamBuilder<QuerySnapshot>(
+            stream: _firestore
+                .collection('users')
+                .doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0")
+                .collection('chatHistory')
+                .orderBy('timeStamp', descending: true)
+                .limit(50)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.data == null) {
+                return ChatListShimmer(itemCount: 8);
+              }
+              
+              if (snapshot.data!.docs.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.chat_bubble_outline,
+                        size: 64,
+                        color: AppTheme.gray300,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No conversations yet',
+                        style: AppTheme.bodyLarge.copyWith(
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Start chatting by searching for users',
+                        style: AppTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                );
+              }
+              
+              return ListView.builder(
+                itemCount: snapshot.data!.docs.length,
+                padding: const EdgeInsets.only(top: 5, bottom: 20),
+                physics: const BouncingScrollPhysics(),
+                cacheExtent: 500,
+                itemBuilder: (context, index) {
+                  final map = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                  return AnimatedListItem(
+                    index: index,
+                    delay: const Duration(milliseconds: 30),
+                    child: ConversationList(
+                      chatHistory: map,
+                      user: widget.user,
+                      isDeviceConnected: isDeviceConnected,
+                    ),
                   );
-                } else {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                }),
+                },
+              );
+            },
+          ),
         ),
       ],
     );
   }
 
-  Widget searchAndStatusBar() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(left: 20, top: 16, right: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  "Messages",
-                  style: AppTheme.headlineLarge.copyWith(
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                Row(
-                  children: [
-                    // Private Chats Button
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PrivateChatScreen(
-                              user: widget.user,
-                              isDeviceConnected: isDeviceConnected,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          gradient: AppTheme.accentGradient,
-                        ),
-                        child: const Icon(
-                          Icons.lock_outline,
-                          color: AppTheme.textWhite,
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    // AI Bot Button
-                    GestureDetector(
-                      onTap: () {
-                        if (isDeviceConnected == false) {
-                          showDialogInternetCheck();
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ChatBot(
-                                      user: widget.user,
-                                    )),
-                          );
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: AppTheme.primaryDark,
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Icon(
-                              Icons.auto_awesome,
-                              color: AppTheme.textWhite,
-                              size: 20,
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              "AI",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.textWhite,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+  Widget _buildBottomNav() {
+    return GlassBottomNavBar(
+      currentIndex: _selectedIndex,
+      onTap: _onNavTapped,
+      items: const [
+        GlassNavItem(
+          icon: Icons.chat_bubble_outline_rounded,
+          activeIcon: Icons.chat_bubble_rounded,
+          label: 'Chats',
         ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: TextField(
-            autofocus: false,
-            style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15),
-            decoration: AppTheme.searchInputDecoration(hintText: "Search messages..."),
-            controller: _search,
-            onTap: () {
-              if (isDeviceConnected == false) {
-                showDialogInternetCheck();
-              } else {
-                onSearch();
-              }
-            },
-          ),
+        GlassNavItem(
+          icon: Icons.groups_outlined,
+          activeIcon: Icons.groups_rounded,
+          label: 'Groups',
         ),
-        const SizedBox(
-          height: 7,
+        GlassNavItem(
+          icon: Icons.call_outlined,
+          activeIcon: Icons.call_rounded,
+          label: 'Calls',
         ),
-        // isDeviceConnected == false
-        //     ? Container(
-        //   alignment: Alignment.center,
-        //   width: MediaQuery.of(context).size.width,
-        //   height: MediaQuery.of(context).size.height / 30,
-        //   // color: Colors.red,
-        //   child: const Text(
-        //     'No Internet Connection',
-        //     style: TextStyle(
-        //       fontSize: 15,
-        //       fontWeight: FontWeight.w500,
-        //     ),
-        //   ),
-        // ) : Container(),
-        StreamBuilder<List<ConnectivityResult>>(
-            stream: Connectivity().onConnectivityChanged,
-            builder: (_, snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.active:
-                  final states = snapshot.data;
-                  if (states != null &&
-                      states.contains(ConnectivityResult.none)) {
-                    return Container(
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height / 30,
-                      // color: Colors.red,
-                      child: const Text(
-                        'No Internet Connection',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    );
-                  }
-                  return Container();
-                default:
-                  return Container();
-              }
-            }),
-        const SizedBox(
-          height: 5,
-        ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: StreamBuilder(
-              stream: _firestore
-                  .collection('users')
-                  .doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0")
-                  .collection('chatHistory')
-                  .orderBy('status', descending: false)
-                  .snapshots(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.data != null) {
-                  return Row(
-                    textDirection: TextDirection.rtl,
-                    children: List.generate((snapshot.data?.docs.length as int),
-                        (index) {
-                      Map<String, dynamic> map = snapshot.data?.docs[index]
-                          .data() as Map<String, dynamic>;
-                      String roomId = ChatRoomId()
-                          .chatRoomId(widget.user.displayName, map['name']);
-                      if (map['datatype'] != 'group') {
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                              return ChatScreen(
-                                chatRoomId: roomId,
-                                userMap: map,
-                                user: widget.user,
-                                isDeviceConnected: isDeviceConnected,
-                              );
-                            }));
-                          },
-                          child: Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 5, right: 10),
-                              child: Column(
-                                children: <Widget>[
-                                  SizedBox(
-                                    width: 60,
-                                    height: 60,
-                                    child: Stack(
-                                      children: <Widget>[
-                                        Container(
-                                          height: 70,
-                                          width: 70,
-                                          decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              image: DecorationImage(
-                                                image:
-                                                    CachedNetworkImageProvider(
-                                                  map['avatar'],
-                                                ),
-                                                fit: BoxFit.cover,
-                                              )),
-                                        ),
-                                        map['status'] == 'Online'
-                                            ? Positioned(
-                                                top: 38,
-                                                left: 42,
-                                                child: Container(
-                                                  width: 20,
-                                                  height: 20,
-                                                  decoration: BoxDecoration(
-                                                      color: AppTheme.online,
-                                                      shape: BoxShape.circle,
-                                                      border: Border.all(
-                                                        color: AppTheme.backgroundWhite,
-                                                        width: 3,
-                                                      )),
-                                                ),
-                                              )
-                                            : Container(
-                                                width: 70,
-                                                height: 70,
-                                                decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    image: DecorationImage(
-                                                        image: NetworkImage(
-                                                            map['avatar']),
-                                                        fit: BoxFit.cover)),
-                                              ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  SizedBox(
-                                    width: 75,
-                                    child: Align(
-                                      child: Text(
-                                        map['name'] ?? "UserName",
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )),
-                        );
-                      } else {
-                        return Container();
-                      }
-                    }),
-                  );
-                } else {
-                  return Container();
-                }
-              }),
-        ),
-        const SizedBox(
-          height: 5,
-        ),
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppTheme.backgroundLight,
-              borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-            ),
-            child: body(_selectedIndex),
-          ),
+        GlassNavItem(
+          icon: Icons.settings_outlined,
+          activeIcon: Icons.settings_rounded,
+          label: 'Settings',
         ),
       ],
     );

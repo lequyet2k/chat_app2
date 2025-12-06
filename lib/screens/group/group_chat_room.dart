@@ -1,4 +1,6 @@
 import 'package:my_porject/configs/app_theme.dart';
+
+import 'package:my_porject/widgets/page_transitions.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -590,8 +592,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                     onPressed: () {
                       Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (_) => HomeScreen(user: widget.user)));
+                          SlideRightRoute(
+                              page: HomeScreen(user: widget.user)));
                     },
                     icon: Icon(
                       Icons.arrow_back_ios,
@@ -635,8 +637,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                     onPressed: () {
                       Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (_) => GroupInfo(
+                          SlideRightRoute(
+                              page: GroupInfo(
                                     groupName: widget.groupName,
                                     groupId: widget.groupChatId,
                                     user: widget.user,
@@ -1084,8 +1086,8 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                       : Alignment.centerLeft,
                   child: InkWell(
                     onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (context) => ShowImage(
+                      SlideRightRoute(
+                          page: ShowImage(
                                 imageUrl: chatMap['message'],
                                 isDeviceConnected: widget.isDeviceConnected,
                               )),

@@ -1,4 +1,6 @@
 import 'package:my_porject/configs/app_theme.dart';
+
+import 'package:my_porject/widgets/page_transitions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -423,8 +425,8 @@ class _GroupInfoState extends State<GroupInfo> {
           .delete();
       Navigator.push(
         context,
-        MaterialPageRoute(
-            builder: (context) => HomeScreen(
+        SlideRightRoute(
+            page: HomeScreen(
                   user: widget.user,
                 )),
       );
@@ -552,8 +554,8 @@ class _GroupInfoState extends State<GroupInfo> {
                         } else {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (context) => AddMemberInGroup(
+                            SlideRightRoute(
+                              page: AddMemberInGroup(
                                 groupName: widget.groupName,
                                 groupId: widget.groupId,
                                 membersList: membersList,
