@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:my_porject/services/cache_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -122,43 +123,61 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     });
   }
 
+  // Optimized: Use batch writes and single query instead of N queries
   void changeStatus(String statuss) async {
-    // Check if user has locked their status
-    final userDoc = await _firestore.collection('users').doc(_auth.currentUser!.uid).get();
-    final bool isStatusLocked = userDoc.data()?['isStatusLocked'] ?? false;
+    // Check if user has locked their status using cache
+    final cacheService = CacheService();
+    final cachedUser = await cacheService.getUser(_auth.currentUser!.uid);
+    final bool isStatusLocked = cachedUser?['isStatusLocked'] ?? false;
     
     // If status is locked, don't update
     if (isStatusLocked) {
       return;
     }
     
-    int? n;
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(_auth.currentUser!.uid)
-        .collection('chatHistory')
-        .get()
-        .then((value) => {n = value.docs.length});
-    for (int i = 0; i < n!; i++) {
-      String? uId;
-      await _firestore
+    try {
+      // Single query to get all chat history
+      final chatHistorySnapshot = await _firestore
           .collection('users')
           .doc(_auth.currentUser!.uid)
           .collection('chatHistory')
-          .get()
-          .then((value) async {
-        if (value.docs[i]['datatype'] == 'p2p') {
-          uId = value.docs[i]['uid'];
-          await _firestore
+          .where('datatype', isEqualTo: 'p2p')
+          .get();
+      
+      if (chatHistorySnapshot.docs.isEmpty) return;
+      
+      // Use batch write for better performance (max 500 operations per batch)
+      WriteBatch batch = _firestore.batch();
+      int operationCount = 0;
+      
+      for (final doc in chatHistorySnapshot.docs) {
+        final uId = doc['uid'];
+        if (uId != null) {
+          final ref = _firestore
               .collection('users')
               .doc(uId)
               .collection('chatHistory')
-              .doc(_auth.currentUser!.uid)
-              .update({
-            'status': statuss,
-          });
+              .doc(_auth.currentUser!.uid);
+          
+          batch.update(ref, {'status': statuss});
+          operationCount++;
+          
+          // Commit batch every 400 operations to stay under limit
+          if (operationCount >= 400) {
+            await batch.commit();
+            batch = _firestore.batch();
+            operationCount = 0;
+          }
         }
-      });
+      }
+      
+      // Commit remaining operations
+      if (operationCount > 0) {
+        await batch.commit();
+      }
+    } catch (e) {
+      // Silently fail - status update is not critical
+      debugPrint('Error updating status: $e');
     }
   }
 
@@ -310,37 +329,43 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               )),
         ),
         Expanded(
-          child: SingleChildScrollView(
-            child: StreamBuilder(
-                stream: _firestore
-                    .collection('users')
-                    .doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0")
-                    .collection('chatHistory')
-                    .orderBy('timeStamp', descending: true)
-                    .snapshots(),
-                builder: (BuildContext context,
-                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.data != null) {
-                    return ListView.builder(
-                      itemCount: snapshot.data?.docs.length,
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.only(top: 5),
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        Map<String, dynamic> map = snapshot.data?.docs[index]
-                            .data() as Map<String, dynamic>;
-                        return ConversationList(
-                          chatHistory: map,
-                          user: widget.user,
-                          isDeviceConnected: isDeviceConnected,
-                        );
-                      },
+          // Optimized: Remove SingleChildScrollView + shrinkWrap for better performance
+          child: StreamBuilder(
+              stream: _firestore
+                  .collection('users')
+                  .doc(widget.user.uid.isNotEmpty ? widget.user.uid : "0")
+                  .collection('chatHistory')
+                  .orderBy('timeStamp', descending: true)
+                  .limit(50) // Limit for better performance
+                  .snapshots(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.data != null) {
+                  return ListView.builder(
+                    itemCount: snapshot.data?.docs.length,
+                    padding: const EdgeInsets.only(top: 5),
+                    // Optimized: Use default physics for proper scrolling
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    // Optimized: Increase cache extent for smoother scrolling
+                    cacheExtent: 500,
+                    // Optimized: Add repaint boundaries
+                    addRepaintBoundaries: true,
+                    itemBuilder: (context, index) {
+                      Map<String, dynamic> map = snapshot.data?.docs[index]
+                          .data() as Map<String, dynamic>;
+                      return ConversationList(
+                        chatHistory: map,
+                        user: widget.user,
+                        isDeviceConnected: isDeviceConnected,
+                      );
+                    },
+                  );
+                } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
                     );
-                  } else {
-                    return Container();
                   }
                 }),
-          ),
         ),
       ],
     );

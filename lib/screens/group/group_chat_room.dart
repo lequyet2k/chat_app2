@@ -1107,6 +1107,13 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                               child: CachedNetworkImage(
                                 fit: BoxFit.cover,
                                 imageUrl: chatMap['message'],
+                                memCacheWidth: 400, // Optimize memory usage
+                                memCacheHeight: 400,
+                                fadeInDuration: const Duration(milliseconds: 200),
+                                placeholder: (context, url) => Container(
+                                  color: Colors.grey.shade200,
+                                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                ),
                               ))
                           : const CircularProgressIndicator(),
                     ),

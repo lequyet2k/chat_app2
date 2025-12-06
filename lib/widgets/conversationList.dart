@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:my_porject/services/cache_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -11,12 +12,18 @@ import 'package:my_porject/resources/methods.dart';
 import 'package:my_porject/screens/group/group_chat_room.dart';
 import 'package:my_porject/services/private_chat_service.dart';
 
-// ignore: must_be_immutable
+// Optimized: Use final fields for better performance
 class ConversationList extends StatefulWidget {
-  User user;
-  Map<String, dynamic> chatHistory ;
-  bool isDeviceConnected;
-  ConversationList({key, required this.chatHistory,required this.user, required this.isDeviceConnected});
+  final User user;
+  final Map<String, dynamic> chatHistory;
+  final bool isDeviceConnected;
+  
+  const ConversationList({
+    super.key, 
+    required this.chatHistory,
+    required this.user, 
+    required this.isDeviceConnected,
+  });
 
   @override
   _ConversationListState createState() => _ConversationListState();
@@ -30,36 +37,48 @@ class _ConversationListState extends State<ConversationList> {
 
   bool? isDeviceConnected;
 
+  // Cache service for optimized data fetching
+  final CacheService _cacheService = CacheService();
+
   void conversation() async {
-    FirebaseFirestore _firestore =  FirebaseFirestore.instance;
+    // Use cached user data instead of direct Firestore query
+    final cachedUser = await _cacheService.getUser(widget.chatHistory['uid']);
+    
+    if (cachedUser != null) {
+      userMap = cachedUser;
+    } else {
+      // Fallback to direct query if cache miss
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+      final value = await firestore.collection('users').where("uid", isEqualTo: widget.chatHistory['uid']).get();
+      if (value.docs.isNotEmpty) {
+        userMap = value.docs[0].data();
+      }
+    }
+    
+    final deviceConnected = await InternetConnection().hasInternetAccess;
 
-    await _firestore.collection('users').where("uid", isEqualTo: widget.chatHistory['uid']).get().then((value) {
+    String roomId = ChatRoomId().chatRoomId(widget.user.displayName, widget.chatHistory['name']);
+
+    if (mounted) {
       setState(() {
-        userMap = value.docs[0].data() ;
-      });
-    });
-    widget.isDeviceConnected = await InternetConnection().hasInternetAccess;
-
-    String roomId = ChatRoomId().chatRoomId(widget.user.displayName,widget.chatHistory['name']);
-
-    if(mounted) {
-      setState(() {
-        isDeviceConnected = widget.isDeviceConnected;
+        isDeviceConnected = deviceConnected;
       });
       Navigator.push(
           context,
-          MaterialPageRoute(builder: (context){
-            return ChatScreen(chatRoomId: roomId, userMap: userMap, user: widget.user,isDeviceConnected : isDeviceConnected!);
-          })
-      );
+          MaterialPageRoute(builder: (context) {
+            return ChatScreen(
+                chatRoomId: roomId,
+                userMap: userMap,
+                user: widget.user,
+                isDeviceConnected: isDeviceConnected!);
+          }));
     }
-
   }
   void groupConversation() async {
-    widget.isDeviceConnected = await InternetConnection().hasInternetAccess;
+    final deviceConnected = await InternetConnection().hasInternetAccess;
     if(mounted) {
       setState(() {
-        isDeviceConnected = widget.isDeviceConnected;
+        isDeviceConnected = deviceConnected;
       });
       Navigator.push(
           context,
@@ -324,7 +343,11 @@ class _ConversationListState extends State<ConversationList> {
                 child: CircleAvatar(
                   backgroundImage: widget.chatHistory['avatar'] != null && 
                                    widget.chatHistory['avatar'].toString().isNotEmpty
-                      ? CachedNetworkImageProvider(widget.chatHistory['avatar'])
+                      ? CachedNetworkImageProvider(
+                          widget.chatHistory['avatar'],
+                          maxWidth: 112, // 28 * 2 * 2 for retina
+                          maxHeight: 112,
+                        )
                       : null,
                   backgroundColor: Colors.grey.shade300,
                   radius: 28,

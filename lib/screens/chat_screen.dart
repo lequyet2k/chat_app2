@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -67,6 +68,9 @@ class _ChatScreenState extends State<ChatScreen> {
   final AutoDeleteService _autoDeleteService = AutoDeleteService();
   bool _autoDeleteEnabled = false;
   int _autoDeleteDuration = 0;
+
+  // Optimized: Limit messages for better performance
+  static const int _messageLimit = 50; // Load max 50 messages initially
 
   // Helper function to format call duration in seconds to readable format
   String _formatCallDuration(dynamic seconds) {
@@ -938,11 +942,13 @@ class _ChatScreenState extends State<ChatScreen> {
                         : Container(),
                     Expanded(
                       child: StreamBuilder<QuerySnapshot>(
+                        // Optimized: Limit messages to improve performance
                         stream: _firestore
                             .collection('chatroom')
                             .doc(widget.chatRoomId)
                             .collection('chats')
-                            .orderBy('timeStamp', descending: false)
+                            .orderBy('timeStamp', descending: true)
+                            .limit(_messageLimit)
                             .snapshots(),
                         builder: (BuildContext context,
                             AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -1415,6 +1421,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                 child: CachedNetworkImage(
                                   fit: BoxFit.cover,
                                   imageUrl: map['message'],
+                                  memCacheWidth: 400, // Optimize memory usage
+                                  memCacheHeight: 400,
+                                  fadeInDuration: const Duration(milliseconds: 200),
+                                  placeholder: (context, url) => Container(
+                                    color: Colors.grey.shade200,
+                                    child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                  ),
                                 ))
                             : const CircularProgressIndicator(),
                   ),
