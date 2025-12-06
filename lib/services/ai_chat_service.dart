@@ -11,7 +11,7 @@ class AIChatService {
   static String? _apiKey;
   static String? _customApiKey; // User's custom API key (priority over Remote Config)
   static const String _baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
-  static String _model = 'gemini-1.5-flash'; // Can be updated from Remote Config
+  static String _model = 'gemini-2.0-flash'; // Can be updated from Remote Config
   
   // Conversation history for context
   static final List<Map<String, String>> _conversationHistory = [];

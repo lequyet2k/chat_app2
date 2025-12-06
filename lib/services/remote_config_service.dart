@@ -20,7 +20,7 @@ class RemoteConfigService {
   // Default values
   static const Map<String, dynamic> _defaults = {
     _geminiApiKey: '', // Empty by default, set in Firebase Console
-    _aiModelName: 'gemini-1.5-flash',
+    _aiModelName: 'gemini-2.0-flash',
     _aiEnabled: true,
     _aiWelcomeMessage: 'Hi! I\'m your AI Assistant. How can I help you today?',
   };
