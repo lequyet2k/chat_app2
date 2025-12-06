@@ -24,6 +24,18 @@ class AIChatService {
     debugPrint('✅ AIChatService: Initialized with custom API key');
   }
   
+  // List of valid/supported Gemini models
+  static const List<String> _validModels = [
+    'gemini-2.0-flash',
+    'gemini-2.0-flash-exp',
+    'gemini-1.5-pro',
+    'gemini-1.5-pro-latest',
+    'gemini-pro',
+  ];
+  
+  // Default fallback model (always use this if remote config model is invalid)
+  static const String _defaultModel = 'gemini-2.0-flash';
+
   /// Initialize from Remote Config (automatic)
   static Future<void> initializeFromRemoteConfig() async {
     final remoteConfig = RemoteConfigService();
@@ -44,8 +56,20 @@ class AIChatService {
     // Get model name from Remote Config
     final modelName = remoteConfig.aiModelName;
     if (modelName.isNotEmpty) {
-      _model = modelName;
-      debugPrint('📡 AIChatService: Using model: $_model');
+      // Validate model name - check if it's a valid/supported model
+      if (_validModels.contains(modelName)) {
+        _model = modelName;
+        debugPrint('📡 AIChatService: Using model from Remote Config: $_model');
+      } else {
+        // Model from Remote Config is invalid/deprecated, use default
+        _model = _defaultModel;
+        debugPrint('⚠️ AIChatService: Model "$modelName" from Remote Config is invalid/deprecated');
+        debugPrint('📡 AIChatService: Falling back to default model: $_model');
+      }
+    } else {
+      // No model in Remote Config, use default
+      _model = _defaultModel;
+      debugPrint('📡 AIChatService: No model in Remote Config, using default: $_model');
     }
   }
   

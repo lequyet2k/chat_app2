@@ -612,14 +612,14 @@ class _GroupChatRoomState extends State<GroupChatRoom> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.groupName.length >= 25
-                              ? '${widget.groupName.substring(0, 25)}...'
-                              : widget.groupName,
+                          widget.groupName,
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w600,
                             color: AppTheme.gray100,
                           ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                         Text(
                           '${memberList.length} members',

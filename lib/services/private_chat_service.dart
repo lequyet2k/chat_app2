@@ -4,9 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:crypto/crypto.dart';
-// Note: SharedPreferences not needed - using FlutterSecureStorage for all sensitive data
+// Note: Using FlutterSecureStorage for local caching + Firestore for persistence
 
 /// Service để quản lý Private Chats với mật khẩu bảo vệ
+/// Lưu trữ kết hợp: FlutterSecureStorage (local) + Firestore (cloud backup)
 class PrivateChatService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -17,14 +18,43 @@ class PrivateChatService {
   static const String _privateChatIdsKey = 'private_chat_ids';
   static const String _lastAuthKey = 'private_chat_last_auth';
   
-  // Session timeout (5 minutes)
-  static const int _sessionTimeoutMinutes = 5;
+  // Session timeout (30 minutes - longer timeout for better UX)
+  static const int _sessionTimeoutMinutes = 30;
+  
+  // In-memory session cache for current app session
+  static bool _isSessionAuthenticated = false;
+  static DateTime? _lastAuthTime;
   
   /// Check if user has set up Private Chat password
+  /// First checks local storage, then falls back to Firestore
   static Future<bool> hasPassword() async {
     try {
-      final password = await _secureStorage.read(key: _privatePasswordKey);
-      return password != null && password.isNotEmpty;
+      // Try local storage first
+      final localPassword = await _secureStorage.read(key: _privatePasswordKey);
+      if (localPassword != null && localPassword.isNotEmpty) {
+        return true;
+      }
+      
+      // Fallback to Firestore (cloud backup)
+      final userId = _auth.currentUser?.uid;
+      if (userId != null) {
+        final doc = await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('privateChatSettings')
+            .doc('config')
+            .get();
+        
+        if (doc.exists && doc.data()?['passwordHash'] != null) {
+          // Sync to local storage for faster future access
+          final cloudHash = doc.data()!['passwordHash'] as String;
+          await _secureStorage.write(key: _privatePasswordKey, value: cloudHash);
+          debugPrint('✅ PrivateChatService: Synced password from cloud to local');
+          return true;
+        }
+      }
+      
+      return false;
     } catch (e) {
       debugPrint('❌ PrivateChatService: Error checking password: $e');
       return false;
@@ -32,6 +62,7 @@ class PrivateChatService {
   }
   
   /// Set up new password for Private Chat
+  /// Stores in both local storage and Firestore for persistence
   static Future<bool> setPassword(String password) async {
     try {
       if (password.length < 4) {
@@ -40,7 +71,24 @@ class PrivateChatService {
       
       // Hash password before storing
       final hashedPassword = _hashPassword(password);
+      
+      // Save to local storage
       await _secureStorage.write(key: _privatePasswordKey, value: hashedPassword);
+      
+      // Save to Firestore for cloud backup (persists across browser sessions/devices)
+      final userId = _auth.currentUser?.uid;
+      if (userId != null) {
+        await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('privateChatSettings')
+            .doc('config')
+            .set({
+          'passwordHash': hashedPassword,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+        debugPrint('✅ PrivateChatService: Password saved to cloud backup');
+      }
       
       debugPrint('✅ PrivateChatService: Password set successfully');
       return true;
@@ -51,9 +99,36 @@ class PrivateChatService {
   }
   
   /// Verify password
+  /// First checks local storage, then falls back to Firestore
   static Future<bool> verifyPassword(String password) async {
     try {
-      final storedHash = await _secureStorage.read(key: _privatePasswordKey);
+      String? storedHash;
+      
+      // Try local storage first
+      storedHash = await _secureStorage.read(key: _privatePasswordKey);
+      
+      // If not in local, try Firestore
+      if (storedHash == null || storedHash.isEmpty) {
+        final userId = _auth.currentUser?.uid;
+        if (userId != null) {
+          final doc = await _firestore
+              .collection('users')
+              .doc(userId)
+              .collection('privateChatSettings')
+              .doc('config')
+              .get();
+          
+          if (doc.exists) {
+            storedHash = doc.data()?['passwordHash'] as String?;
+            // Sync to local storage
+            if (storedHash != null) {
+              await _secureStorage.write(key: _privatePasswordKey, value: storedHash);
+              debugPrint('✅ PrivateChatService: Synced password hash from cloud');
+            }
+          }
+        }
+      }
+      
       if (storedHash == null) return false;
       
       final inputHash = _hashPassword(password);
@@ -102,27 +177,91 @@ class PrivateChatService {
   }
   
   /// Check if session is still valid
+  /// Uses in-memory cache first, then local storage, then Firestore
   static Future<bool> isSessionValid() async {
     try {
+      // Check in-memory session first (fastest)
+      if (_isSessionAuthenticated && _lastAuthTime != null) {
+        final difference = DateTime.now().difference(_lastAuthTime!).inMinutes;
+        if (difference < _sessionTimeoutMinutes) {
+          return true;
+        }
+      }
+      
+      // Try local storage
       final lastAuthStr = await _secureStorage.read(key: _lastAuthKey);
-      if (lastAuthStr == null) return false;
+      if (lastAuthStr != null) {
+        final lastAuth = DateTime.parse(lastAuthStr);
+        final now = DateTime.now();
+        final difference = now.difference(lastAuth).inMinutes;
+        
+        if (difference < _sessionTimeoutMinutes) {
+          // Update in-memory cache
+          _isSessionAuthenticated = true;
+          _lastAuthTime = lastAuth;
+          return true;
+        }
+      }
       
-      final lastAuth = DateTime.parse(lastAuthStr);
-      final now = DateTime.now();
-      final difference = now.difference(lastAuth).inMinutes;
+      // Fallback to Firestore (cloud backup)
+      final userId = _auth.currentUser?.uid;
+      if (userId != null) {
+        final doc = await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('privateChatSettings')
+            .doc('config')
+            .get();
+        
+        if (doc.exists && doc.data()?['lastAuthTime'] != null) {
+          final timestamp = doc.data()!['lastAuthTime'] as Timestamp;
+          final lastAuth = timestamp.toDate();
+          final difference = DateTime.now().difference(lastAuth).inMinutes;
+          
+          if (difference < _sessionTimeoutMinutes) {
+            // Sync to local storage and memory
+            await _secureStorage.write(key: _lastAuthKey, value: lastAuth.toIso8601String());
+            _isSessionAuthenticated = true;
+            _lastAuthTime = lastAuth;
+            return true;
+          }
+        }
+      }
       
-      return difference < _sessionTimeoutMinutes;
+      return false;
     } catch (e) {
+      debugPrint('❌ PrivateChatService: Error checking session: $e');
       return false;
     }
   }
   
   /// Update last auth time
+  /// Stores in memory, local storage, and Firestore
   static Future<void> _updateLastAuthTime() async {
+    final now = DateTime.now();
+    
+    // Update in-memory cache
+    _isSessionAuthenticated = true;
+    _lastAuthTime = now;
+    
+    // Save to local storage
     await _secureStorage.write(
       key: _lastAuthKey, 
-      value: DateTime.now().toIso8601String(),
+      value: now.toIso8601String(),
     );
+    
+    // Save to Firestore for cloud backup
+    final userId = _auth.currentUser?.uid;
+    if (userId != null) {
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('privateChatSettings')
+          .doc('config')
+          .set({
+        'lastAuthTime': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    }
   }
   
   /// Hash password using SHA256
@@ -259,7 +398,31 @@ class PrivateChatService {
   }
   
   /// Clear session (logout from private)
+  /// Clears memory, local storage, and Firestore session data
   static Future<void> clearSession() async {
+    // Clear in-memory session
+    _isSessionAuthenticated = false;
+    _lastAuthTime = null;
+    
+    // Clear local storage
     await _secureStorage.delete(key: _lastAuthKey);
+    
+    // Clear Firestore session (optional - only lastAuthTime, not password)
+    final userId = _auth.currentUser?.uid;
+    if (userId != null) {
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('privateChatSettings')
+          .doc('config')
+          .update({
+        'lastAuthTime': FieldValue.delete(),
+      }).catchError((e) {
+        // Ignore if doc doesn't exist
+        debugPrint('⚠️ PrivateChatService: Could not clear Firestore session: $e');
+      });
+    }
+    
+    debugPrint('✅ PrivateChatService: Session cleared');
   }
 }

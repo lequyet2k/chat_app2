@@ -491,16 +491,19 @@ class _GroupInfoState extends State<GroupInfo> {
                         ),
                         const SizedBox(height: 16),
                         // Group Name
-                        Text(
-                          widget.groupName.length >= 25
-                              ? '${widget.groupName.substring(0, 25)}...'
-                              : widget.groupName,
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.primaryDark,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            widget.groupName,
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.primaryDark,
+                            ),
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 8),
                         // Member Count
