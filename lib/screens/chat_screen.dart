@@ -60,6 +60,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // Cache for decrypted messages to prevent re-decryption
   final Map<String, String> _decryptedMessagesCache = {};
+  // Cache for Future objects to prevent FutureBuilder rebuild flickering
+  final Map<String, Future<String>> _decryptionFuturesCache = {};
 
   // Auto Delete Service
   final AutoDeleteService _autoDeleteService = AutoDeleteService();
@@ -174,7 +176,7 @@ class _ChatScreenState extends State<ChatScreen> {
   // Helper method to get decrypted message text with caching
   Future<String> _getMessageText(Map<String, dynamic> map, String messageId) async {
     if (map['encrypted'] == true) {
-      // Check cache first
+      // Check result cache first (instant return)
       if (_decryptedMessagesCache.containsKey(messageId)) {
         return _decryptedMessagesCache[messageId]!;
       }
@@ -185,6 +187,24 @@ class _ChatScreenState extends State<ChatScreen> {
       return decryptedText;
     }
     return map['message'] ?? '';
+  }
+
+  // Get cached Future for FutureBuilder to prevent flickering
+  Future<String> _getCachedMessageFuture(Map<String, dynamic> map, String messageId) {
+    // If already have result, return completed future immediately
+    if (_decryptedMessagesCache.containsKey(messageId)) {
+      return Future.value(_decryptedMessagesCache[messageId]!);
+    }
+    
+    // If Future already in progress, return same Future (prevents duplicate decryption)
+    if (_decryptionFuturesCache.containsKey(messageId)) {
+      return _decryptionFuturesCache[messageId]!;
+    }
+    
+    // Create new Future and cache it
+    final future = _getMessageText(map, messageId);
+    _decryptionFuturesCache[messageId] = future;
+    return future;
   }
 
   showDialogInternetCheck() => showDialog<String>(
@@ -1264,9 +1284,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     ],
                   ),
                   child: FutureBuilder<String>(
-                    future: _getMessageText(map, messageId),
+                    future: _getCachedMessageFuture(map, messageId),
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
+                      // Show loading only if no cached data available
+                      if (snapshot.connectionState == ConnectionState.waiting && 
+                          !_decryptedMessagesCache.containsKey(messageId)) {
                         return Text(
                           'Decrypting...',
                           style: TextStyle(
@@ -1277,6 +1299,10 @@ class _ChatScreenState extends State<ChatScreen> {
                               fontStyle: FontStyle.italic),
                         );
                       }
+                      // Use cached data if available, otherwise use snapshot data
+                      final messageText = _decryptedMessagesCache[messageId] ?? 
+                                          snapshot.data ?? 
+                                          map['message'] ?? '';
                       return Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -1291,7 +1317,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                           Flexible(
                             child: Text(
-                              snapshot.data ?? map['message'] ?? '',
+                              messageText,
                               style: TextStyle(
                                   color: map['sendBy'] == widget.user.displayName
                                       ? Colors.white

@@ -93,7 +93,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
 
 
   Widget _buildDurationOption(int minutes, String label, IconData icon) {
-    final isSelected = _selectedDuration == minutes;
+    final isSelected = _selectedDuration == minutes && _autoDeleteEnabled;
     
     return GestureDetector(
       onTap: _autoDeleteEnabled
@@ -112,7 +112,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
               ? AppTheme.gray800
               : Colors.white,
           border: Border.all(
-            color: isSelected ? AppTheme.gray700! : AppTheme.gray300!,
+            color: isSelected ? AppTheme.gray700 : AppTheme.gray300,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12),
@@ -230,7 +230,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.gray300!,
+                          color: AppTheme.gray300,
                         ),
                       ),
                       child: Row(

@@ -87,6 +87,7 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
   final UserPresenceService _presenceService = UserPresenceService();
   bool _isCheckingBiometric = true;
   bool _needsBiometric = false;
+  User? _previousUser; // Track previous user to detect logout
 
   @override
   void initState() {
@@ -191,6 +192,15 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
             ),
           );
         }
+
+        // Detect logout: previous user existed but current is null
+        final currentUser = snapshot.data;
+        if (_previousUser != null && currentUser == null) {
+          // User just logged out - reset biometric state
+          _needsBiometric = false;
+          _isCheckingBiometric = false;
+        }
+        _previousUser = currentUser;
 
         // User logged in
         if (snapshot.hasData && snapshot.data != null) {
